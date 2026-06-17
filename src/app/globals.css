@@ -1,26 +1,238 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/*
+  SamadhiRice.lk — Design System
+  "Paddy Field to Plate"
+  Palette rooted in real rice & paddy tones:
+  muddy paddy greens · harvest gold / straw · clay earth · rice-paper grain · dawn mist blue
+*/
+
+@theme {
+  /* Rice paper / grain — warm off-whites used for backgrounds */
+  --color-rice-50: #fbf8f0;
+  --color-rice-100: #f7f1e4;
+  --color-rice-200: #efe6d2;
+  --color-rice-300: #e3d4b6;
+  --color-rice-400: #d3bd93;
+
+  /* Paddy greens — deep, muddy field tones */
+  --color-paddy-50: #eef2e6;
+  --color-paddy-100: #d9e2c8;
+  --color-paddy-200: #b7c79c;
+  --color-paddy-300: #91a772;
+  --color-paddy-400: #6d8550;
+  --color-paddy-500: #4f6839;
+  --color-paddy-600: #3d5330;
+  --color-paddy-700: #324327;
+  --color-paddy-800: #28361f;
+  --color-paddy-900: #1d2916;
+  --color-paddy-950: #121b0d;
+
+  /* Harvest gold / straw */
+  --color-harvest-200: #f0e2bb;
+  --color-harvest-300: #e6cf95;
+  --color-harvest-400: #d8b863;
+  --color-harvest-500: #c79a3b;
+  --color-harvest-600: #a87e2c;
+  --color-harvest-700: #856120;
+
+  /* Clay earth / husk brown */
+  --color-clay-300: #c79f80;
+  --color-clay-400: #a87a55;
+  --color-clay-500: #8a5d3b;
+  --color-clay-600: #6f4a30;
+  --color-clay-700: #543727;
+
+  /* Dawn mist blue — atmospheric accent */
+  --color-mist-200: #d6e0db;
+  --color-mist-300: #b9cac3;
+  --color-mist-400: #97ada4;
+  --color-mist-500: #748b82;
+
+  /* Ink — warm near-black husk */
+  --color-husk: #221f17;
+  --color-husk-soft: #45402f;
+
+  /* Semantic aliases */
+  --color-background: var(--color-rice-100);
+  --color-foreground: var(--color-husk);
+
+  /* Typography */
+  --font-display: var(--font-fraunces), Georgia, "Times New Roman", serif;
+  --font-body: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-sinhala: var(--font-noto-sinhala), serif;
+
+  /* Easing */
+  --ease-grain: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Shadows — soft, earthy, never harsh */
+  --shadow-soft: 0 1px 2px rgba(34, 31, 23, 0.04), 0 8px 24px -12px rgba(34, 31, 23, 0.18);
+  --shadow-lift: 0 24px 60px -28px rgba(34, 31, 23, 0.45);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* ---------------------------------------------------------------- base ---- */
+
+* {
+  border-color: color-mix(in oklab, var(--color-clay-500) 16%, transparent);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  /* Lenis drives smooth scroll; disable native to avoid double-easing */
+  scroll-behavior: auto;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-rice-100);
+  color: var(--color-husk);
+  font-family: var(--font-body);
+  font-feature-settings: "ss01", "cv05";
+  overflow-x: hidden;
+}
+
+/* Subtle paper grain over the whole page */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0.35;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
+}
+
+::selection {
+  background: var(--color-harvest-300);
+  color: var(--color-paddy-900);
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  line-height: 1.04;
+  text-wrap: balance;
+}
+
+/* Lenis smooth-scroll wiring */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+/* Thin custom scrollbar in field tones */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-rice-200);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-paddy-600);
+  border-radius: 999px;
+  border: 2px solid var(--color-rice-200);
+}
+
+/* ---------------------------------------------------------- utilities ---- */
+
+@layer utilities {
+  /* Headline eyebrow / kicker */
+  .kicker {
+    font-family: var(--font-body);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+  }
+
+  /* Reveal-on-scroll initial state (GSAP animates these in) */
+  .reveal {
+    opacity: 0;
+    transform: translateY(28px);
+    will-change: transform, opacity;
+  }
+
+  /* Grain-textured warm gradient panels */
+  .bg-field {
+    background:
+      radial-gradient(120% 90% at 50% 0%, color-mix(in oklab, var(--color-paddy-700) 88%, black) 0%, var(--color-paddy-900) 60%, var(--color-paddy-950) 100%);
+  }
+  .bg-paper {
+    background:
+      radial-gradient(140% 120% at 0% 0%, var(--color-rice-50) 0%, var(--color-rice-100) 45%, var(--color-rice-200) 100%);
+  }
+
+  .text-gold-sheen {
+    background: linear-gradient(100deg, var(--color-harvest-600) 0%, var(--color-harvest-400) 45%, var(--color-harvest-600) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* hide native scrollbar (used in draggable rails) */
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+  .grab { cursor: grab; }
+  .grab:active { cursor: grabbing; }
+}
+
+/* --------------------------------------------------------- keyframes ---- */
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+@keyframes bump {
+  0% { transform: scale(1); }
+  35% { transform: scale(1.45) rotate(-8deg); }
+  70% { transform: scale(0.92); }
+  100% { transform: scale(1); }
+}
+
+@keyframes float-grain {
+  0% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 0; }
+  10% { opacity: 0.7; }
+  90% { opacity: 0.7; }
+  100% { transform: translateY(-120px) translateX(24px) rotate(140deg); opacity: 0; }
+}
+
+@keyframes sway {
+  0%, 100% { transform: rotate(-2.2deg); }
+  50% { transform: rotate(2.2deg); }
+}
+
+@keyframes breathe {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(199, 154, 59, 0.45); }
+  50% { transform: scale(1.04); box-shadow: 0 0 0 12px rgba(199, 154, 59, 0); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1 !important; transform: none !important; }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
 }
