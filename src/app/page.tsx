@@ -1,9 +1,13 @@
+// Revalidate the homepage every 5 minutes so new blog posts surface without a redeploy.
+export const revalidate = 300;
+
 import Hero from "@/components/home/Hero";
 import HotProducts from "@/components/home/HotProducts";
 import Offers from "@/components/home/Offers";
 import OriginStory from "@/components/home/OriginStory";
 import TrustStats from "@/components/home/TrustStats";
 import Testimonials from "@/components/home/Testimonials";
+import BlogPreview from "@/components/home/BlogPreview";
 import Newsletter from "@/components/home/Newsletter";
 
 const jsonLd = {
@@ -52,6 +56,7 @@ export default function Home() {
       <OriginStory />
       <TrustStats />
       <Testimonials />
+      <BlogPreview />
       <Newsletter />
     </>
   );

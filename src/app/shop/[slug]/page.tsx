@@ -111,16 +111,25 @@ export default async function ProductPage({ params }: { params: Params }) {
                 {product.badge}
               </span>
             )}
-            <div className="h-[60vh] max-h-[28rem] w-auto">
-              <RiceBag
-                id={`detail-${product.slug}`}
-                light={grain.light}
-                mid={grain.mid}
-                dark={grain.dark}
-                sinhala={product.sinhala}
-                className="h-full w-full"
+            {product.images[0] ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={product.images[0]}
+                alt={product.name}
+                className="max-h-[28rem] w-auto rounded-2xl object-contain"
               />
-            </div>
+            ) : (
+              <div className="h-[60vh] max-h-[28rem] w-auto">
+                <RiceBag
+                  id={`detail-${product.slug}`}
+                  light={grain.light}
+                  mid={grain.mid}
+                  dark={grain.dark}
+                  sinhala={product.sinhala}
+                  className="h-full w-full"
+                />
+              </div>
+            )}
             {product.origin && (
               <span className="absolute bottom-6 left-6 text-xs font-medium uppercase tracking-widest text-clay-600">
                 ◍ {product.origin}

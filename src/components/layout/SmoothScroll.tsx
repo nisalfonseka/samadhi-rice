@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import Lenis from "lenis";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { SessionProvider } from "next-auth/react";
 import { CartProvider } from "@/providers/CartProvider";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -39,5 +40,9 @@ export default function SmoothScroll({ children }: { children: React.ReactNode }
     };
   }, []);
 
-  return <CartProvider>{children}</CartProvider>;
+  return (
+    <SessionProvider>
+      <CartProvider>{children}</CartProvider>
+    </SessionProvider>
+  );
 }

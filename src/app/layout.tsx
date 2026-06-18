@@ -5,6 +5,8 @@ import SmoothScroll from "@/components/layout/SmoothScroll";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import FloatingActions from "@/components/layout/FloatingActions";
+import CartDrawer from "@/components/cart/CartDrawer";
+import ChromeGate from "@/components/layout/ChromeGate";
 
 const fraunces = Fraunces({
   variable: "--font-fraunces",
@@ -74,10 +76,15 @@ export default function RootLayout({
     >
       <body className="relative min-h-screen">
         <SmoothScroll>
-          <Header />
+          <ChromeGate>
+            <Header />
+          </ChromeGate>
           <main className="relative z-10">{children}</main>
-          <Footer />
-          <FloatingActions />
+          <ChromeGate>
+            <Footer />
+            <FloatingActions />
+            <CartDrawer />
+          </ChromeGate>
         </SmoothScroll>
       </body>
     </html>

@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
@@ -199,6 +200,42 @@ const settings = [
   { key: "hero_headline", value: "From the paddy field to your plate." },
 ];
 
+const blogPosts = [
+  {
+    slug: "the-quiet-power-of-kalu-heenati",
+    title: "The quiet power of Kalu Heenati",
+    excerpt:
+      "Sri Lanka's iron-rich heirloom red rice has been feeding families for generations. Here's why doctors quietly recommend it, and how to cook it perfectly.",
+    publishedAt: new Date("2026-04-12T08:00:00Z"),
+    content: `<p>Walk into any Sri Lankan grandmother's kitchen and you'll find a sack of red rice in the corner. Often, that rice is <strong>Kalu Heenati</strong> — a traditional, fine red-grained variety with a deep mahogany colour and a faintly nutty taste.</p><p>For generations Kalu Heenati was the everyday rice of villages in the dry zone. Then supermarket-sterile white rice arrived, and red rice became something of a memory. But it never quite left. And now — quietly, persuasively — it's coming back.</p><h2>Why it matters nutritionally</h2><p>Kalu Heenati is unpolished, which means the bran is still intact. That bran is where most of the iron, fibre and B-vitamins live. It has a lower glycaemic response than refined white rice, which is why physicians often recommend it to patients managing blood sugar.</p><blockquote>"It's the rice I serve my own family. Same kind that fed three generations before us."</blockquote><h2>How to cook it</h2><p>Don't be intimidated. Kalu Heenati is a touch more demanding than white rice but rewards a little attention.</p><ol><li>Rinse the rice twice in cold water.</li><li>Soak for 20–30 minutes. This softens the bran and shortens the cook time.</li><li>Use a ratio of <strong>1 cup rice : 2½ cups water</strong>.</li><li>Bring to a boil, then lower the heat and cook covered for about 30–35 minutes.</li><li>Rest, covered, off the heat for 5 minutes before fluffing with a fork.</li></ol><h2>What to eat it with</h2><p>A spoonful of warm <em>parippu</em>, a fierce <em>pol sambol</em>, a fried egg with the yolk just running, and a wedge of lime. That, frankly, is everything.</p><p>It's not exotic. It's just very, very good.</p>`,
+    metaTitle: "Kalu Heenati: Sri Lanka's iron-rich heirloom red rice",
+    metaDescription:
+      "Why doctors recommend Kalu Heenati and how to cook this traditional Sri Lankan red rice perfectly — a practical guide.",
+  },
+  {
+    slug: "choosing-rice-for-biryani",
+    title: "Choosing the right rice for biryani (and the case for samba)",
+    excerpt:
+      "Long, slender Basmati gets all the credit — but the right Sri Lankan samba can stand right alongside it. A simple guide to picking and cooking the perfect biryani grain.",
+    publishedAt: new Date("2026-04-26T08:00:00Z"),
+    content: `<p>The grain you choose for biryani is half the dish. Get it right and every kernel stays whole, fragrant and just barely sticking to its neighbour. Get it wrong and you have a mushy yellow porridge — well-spiced, but a porridge.</p><h2>What you're looking for</h2><ul><li><strong>Long, slender grains</strong> that elongate when cooked.</li><li>A grain that <strong>stays separate</strong> after steaming.</li><li>Enough character to carry whole spices, ghee and saffron without disappearing.</li></ul><h2>The Basmati case</h2><p>Aged Basmati is the world's biryani gold standard for a reason. The grains can almost double in length, the aroma is unmistakable, and the texture is dry and fluffy.</p><h2>The samba case</h2><p>For a Sri Lankan-leaning biryani — softer, gentler — a fine <strong>Suduru Samba</strong> is wonderful. The grains are shorter but cook to a delicate, slightly chewy texture that absorbs masala beautifully without falling apart.</p><h2>The practical method</h2><ol><li>Soak the rice for at least 30 minutes — non-negotiable for long-grain rice.</li><li>Parboil with whole spices in salted water until the grain is <em>just</em> tender (about 70% done).</li><li>Drain. Layer over the masala. Seal with a lid (or a dough rim, if you're being properly fancy).</li><li>Steam for 20–25 minutes on the lowest possible heat.</li><li>Rest for 10 minutes before lifting the lid. Don't cheat.</li></ol><p>Whichever rice you pick, the rule is the same: don't crowd it, don't rush it, and let the grain do its work.</p>`,
+    metaTitle: "Best rice for biryani — Basmati vs Sri Lankan samba",
+    metaDescription:
+      "A practical guide to picking the right rice for biryani and the case for a Sri Lankan samba alongside Basmati.",
+  },
+  {
+    slug: "milk-rice-the-soul-of-the-sri-lankan-table",
+    title: "Kiribath — the soul of the Sri Lankan table",
+    excerpt:
+      "A bowl of milk rice marks every important moment in a Sri Lankan home. Here is how to make it the way the grandmothers do, and why Keeri Samba is the rice for it.",
+    publishedAt: new Date("2026-05-08T08:00:00Z"),
+    content: `<p>Birthdays, new year's mornings, blessings, full-moon days — every important moment in a Sri Lankan home is marked with a tray of kiribath. It is rice, coconut milk and salt. That's it. And it is also somehow more than that.</p><h2>Why Keeri Samba</h2><p>Kiribath wants a soft, slightly sticky grain that binds when cool. <strong>Keeri Samba</strong>, with its tiny pearly grains and high starch, is the traditional choice. It cooks down to a creamy, silky texture that holds its shape when sliced into diamonds.</p><h2>The method</h2><ol><li>Rinse 2 cups of Keeri Samba once, gently.</li><li>Cook in <strong>3½ cups of water</strong> with a pinch of salt until tender — about 12–15 minutes covered.</li><li>Pour in <strong>1½ cups of thick coconut milk</strong> and stir gently. Don't be afraid of it; coconut milk wants to be folded in confidently.</li><li>Cook on the lowest heat for another 5–7 minutes, stirring once or twice, until the rice is glossy and pulls away from the sides.</li><li>Press into a flat tray — about an inch deep — smoothed with the back of a banana leaf if you have one, or a spoon dipped in water if you don't.</li><li>Let it cool. Slice into diamonds. Serve with lunu miris, treacle, banana, and a strong cup of tea.</li></ol><h2>A few small rules</h2><ul><li>Use freshly squeezed coconut milk if you can — cartoned will do, but the difference is real.</li><li>Don't skip the salt. Without it the coconut tastes flat.</li><li>If the surface looks oily after sitting, that's the coconut cream rising. Press gently with a clean cloth. Don't pour it off — that's the point.</li></ul><p>Kiribath is one of those dishes that is impossible to overstate the importance of. It's the dish you cook for your daughter on the morning she gets her first job. The one you make for a friend who's lost someone. The dish that says, without saying, <em>welcome</em>.</p>`,
+    metaTitle: "How to make perfect kiribath (milk rice) — a Sri Lankan classic",
+    metaDescription:
+      "The traditional way to make kiribath with Keeri Samba — soft, creamy and perfect for celebrations.",
+  },
+];
+
 async function main() {
   console.log("🌾 Seeding SamadhiRice database…");
 
@@ -293,6 +330,44 @@ async function main() {
     });
   }
   console.log(`  ✓ ${settings.length} site settings`);
+
+  // blog posts
+  for (const p of blogPosts) {
+    await prisma.blogPost.upsert({
+      where: { slug: p.slug },
+      update: {
+        title: p.title,
+        excerpt: p.excerpt,
+        content: p.content,
+        published: true,
+        publishedAt: p.publishedAt,
+        metaTitle: p.metaTitle,
+        metaDescription: p.metaDescription,
+      },
+      create: {
+        slug: p.slug,
+        title: p.title,
+        excerpt: p.excerpt,
+        content: p.content,
+        published: true,
+        publishedAt: p.publishedAt,
+        metaTitle: p.metaTitle,
+        metaDescription: p.metaDescription,
+      },
+    });
+  }
+  console.log(`  ✓ ${blogPosts.length} blog posts`);
+
+  // admin user
+  const adminEmail = (process.env.ADMIN_EMAIL || "admin@samadhirice.lk").toLowerCase();
+  const adminPassword = process.env.ADMIN_PASSWORD || "ChangeMe123!";
+  const passwordHash = await bcrypt.hash(adminPassword, 10);
+  await prisma.user.upsert({
+    where: { email: adminEmail },
+    update: { passwordHash, role: "ADMIN", name: "Shop Admin" },
+    create: { email: adminEmail, passwordHash, role: "ADMIN", name: "Shop Admin" },
+  });
+  console.log(`  ✓ admin user (${adminEmail})`);
 
   console.log("✅ Seed complete.");
 }

@@ -1,12 +1,11 @@
 "use client";
 
-import { useEffect, useRef, type ElementType, type ReactNode, type Ref } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import gsap from "gsap";
 
 type RevealProps = {
   children: ReactNode;
   className?: string;
-  as?: ElementType;
   /** vertical travel distance in px */
   y?: number;
   delay?: number;
@@ -22,20 +21,18 @@ type RevealProps = {
 export default function Reveal({
   children,
   className,
-  as: Tag = "div",
   y = 30,
   delay = 0,
   stagger = 0,
 }: RevealProps) {
-  const ref = useRef<HTMLElement>(null);
+  const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-    const targets: Element[] =
-      stagger > 0 ? Array.from(el.children) : [el];
+    const targets: Element[] = stagger > 0 ? Array.from(el.children) : [el];
     gsap.set(targets, { opacity: 0, y });
 
     let played = false;
@@ -64,8 +61,8 @@ export default function Reveal({
   }, [y, delay, stagger]);
 
   return (
-    <Tag ref={ref as Ref<HTMLElement>} className={className}>
+    <div ref={ref} className={className}>
       {children}
-    </Tag>
+    </div>
   );
 }

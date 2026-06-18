@@ -20,10 +20,17 @@ export type CartLine = {
 type CartContextValue = {
   lines: CartLine[];
   count: number;
-  total: number;
+  subtotal: number;
   add: (line: Omit<CartLine, "qty"> & { qty?: number }) => void;
+  setQty: (slug: string, weight: number, qty: number) => void;
+  remove: (slug: string, weight: number) => void;
+  clear: () => void;
   /** timestamp of the last add — lets the header animate the cart badge */
   lastAddedAt: number;
+  // drawer
+  isOpen: boolean;
+  openCart: () => void;
+  closeCart: () => void;
 };
 
 const CartContext = createContext<CartContextValue | null>(null);
@@ -39,6 +46,7 @@ const STORAGE_KEY = "samadhi-cart";
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [lines, setLines] = useState<CartLine[]>([]);
   const [lastAddedAt, setLastAddedAt] = useState(0);
+  const [isOpen, setIsOpen] = useState(false);
 
   // hydrate from localStorage (persists across sessions)
   useEffect(() => {
@@ -71,17 +79,55 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       return [...prev, { ...line, qty: line.qty ?? 1 }];
     });
     setLastAddedAt(Date.now());
+    setIsOpen(true);
   }, []);
 
+  const setQty = useCallback<CartContextValue["setQty"]>(
+    (slug, weight, qty) => {
+      setLines((prev) =>
+        prev
+          .map((l) =>
+            l.slug === slug && l.weight === weight
+              ? { ...l, qty: Math.max(0, qty) }
+              : l,
+          )
+          .filter((l) => l.qty > 0),
+      );
+    },
+    [],
+  );
+
+  const remove = useCallback<CartContextValue["remove"]>((slug, weight) => {
+    setLines((prev) =>
+      prev.filter((l) => !(l.slug === slug && l.weight === weight)),
+    );
+  }, []);
+
+  const clear = useCallback(() => setLines([]), []);
+  const openCart = useCallback(() => setIsOpen(true), []);
+  const closeCart = useCallback(() => setIsOpen(false), []);
+
   const count = useMemo(() => lines.reduce((s, l) => s + l.qty, 0), [lines]);
-  const total = useMemo(
+  const subtotal = useMemo(
     () => lines.reduce((s, l) => s + l.price * l.qty, 0),
     [lines],
   );
 
   const value = useMemo(
-    () => ({ lines, count, total, add, lastAddedAt }),
-    [lines, count, total, add, lastAddedAt],
+    () => ({
+      lines,
+      count,
+      subtotal,
+      add,
+      setQty,
+      remove,
+      clear,
+      lastAddedAt,
+      isOpen,
+      openCart,
+      closeCart,
+    }),
+    [lines, count, subtotal, add, setQty, remove, clear, lastAddedAt, isOpen, openCart, closeCart],
   );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

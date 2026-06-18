@@ -183,6 +183,26 @@ html.lenis body {
 
   .grab { cursor: grab; }
   .grab:active { cursor: grabbing; }
+
+  /* form control */
+  .ctrl {
+    width: 100%;
+    border-radius: 0.9rem;
+    border: 1px solid color-mix(in oklab, var(--color-husk) 15%, transparent);
+    background: var(--color-rice-50);
+    padding: 0.7rem 0.9rem;
+    font-size: 0.95rem;
+    color: var(--color-husk);
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .ctrl::placeholder {
+    color: color-mix(in oklab, var(--color-husk) 40%, transparent);
+  }
+  .ctrl:focus {
+    border-color: var(--color-paddy-600);
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-paddy-600) 14%, transparent);
+  }
 }
 
 /* --------------------------------------------------------- keyframes ---- */
@@ -234,5 +254,115 @@ html.lenis body {
     animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
     scroll-behavior: auto !important;
+  }
+}
+
+/* ------------------------------------------------------ blog prose ----- */
+
+.blog-prose {
+  font-size: 1.075rem;
+  line-height: 1.78;
+  color: var(--color-husk);
+}
+.blog-prose > * + * { margin-top: 1.1em; }
+.blog-prose h2 {
+  font-family: var(--font-display);
+  font-size: 1.85rem;
+  font-weight: 500;
+  line-height: 1.18;
+  margin-top: 2.2em;
+  margin-bottom: 0.6em;
+  color: var(--color-husk);
+  letter-spacing: -0.01em;
+}
+.blog-prose h3 {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 500;
+  line-height: 1.25;
+  margin-top: 1.8em;
+  margin-bottom: 0.5em;
+  color: var(--color-husk);
+}
+.blog-prose p, .blog-prose ul, .blog-prose ol, .blog-prose blockquote {
+  color: var(--color-husk-soft);
+}
+.blog-prose strong { color: var(--color-husk); font-weight: 600; }
+.blog-prose em { font-style: italic; }
+.blog-prose a {
+  color: var(--color-paddy-700);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in oklab, var(--color-harvest-500) 60%, transparent);
+  text-underline-offset: 3px;
+  transition: color 0.2s, text-decoration-color 0.2s;
+}
+.blog-prose a:hover { color: var(--color-paddy-900); text-decoration-color: var(--color-harvest-500); }
+.blog-prose ul, .blog-prose ol { padding-left: 1.4em; }
+.blog-prose ul { list-style: disc; }
+.blog-prose ol { list-style: decimal; }
+.blog-prose li { margin-top: 0.5em; }
+.blog-prose blockquote {
+  border-left: 3px solid var(--color-harvest-500);
+  padding: 0.4em 1.2em;
+  margin-left: 0;
+  margin-right: 0;
+  font-style: italic;
+  font-size: 1.15rem;
+  color: var(--color-husk);
+  background: color-mix(in oklab, var(--color-rice-100) 70%, transparent);
+  border-radius: 0 0.7rem 0.7rem 0;
+}
+.blog-prose code {
+  background: var(--color-rice-200);
+  padding: 0.1em 0.4em;
+  border-radius: 0.3em;
+  font-size: 0.95em;
+}
+.blog-prose pre {
+  background: var(--color-paddy-950);
+  color: var(--color-rice-100);
+  padding: 1em 1.2em;
+  border-radius: 0.8em;
+  overflow-x: auto;
+}
+.blog-prose pre code { background: transparent; padding: 0; }
+.blog-prose hr {
+  border: none;
+  border-top: 1px solid color-mix(in oklab, var(--color-husk) 12%, transparent);
+  margin: 2.4em 0;
+}
+.blog-prose img,
+.blog-prose .blog-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 1.6em auto;
+  border-radius: 1.1rem;
+  border: 1px solid color-mix(in oklab, var(--color-husk) 10%, transparent);
+}
+.blog-editor.ProseMirror { min-height: 22rem; }
+.blog-editor.ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  color: color-mix(in oklab, var(--color-husk) 35%, transparent);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+.ProseMirror:focus { outline: none; }
+
+/* print: show only the invoice sheet */
+@media print {
+  body::before { display: none !important; }
+  aside { display: none !important; }
+  body * { visibility: hidden; }
+  .invoice-sheet,
+  .invoice-sheet * { visibility: visible; }
+  .invoice-sheet {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    border: none;
+    box-shadow: none;
   }
 }

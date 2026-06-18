@@ -47,7 +47,7 @@ const ANNOUNCEMENTS = [
 ];
 
 export default function Header() {
-  const { count, lastAddedAt } = useCart();
+  const { count, lastAddedAt, openCart } = useCart();
   const [overHero, setOverHero] = useState(true);
   const [compact, setCompact] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -181,9 +181,9 @@ export default function Header() {
             >
               <Icon.User className="h-[1.15rem] w-[1.15rem]" />
             </Link>
-            <Link
-              href="/cart"
-              aria-label={`Cart, ${count} items`}
+            <button
+              onClick={openCart}
+              aria-label={`Open cart, ${count} items`}
               className="relative rounded-full p-2.5 transition-colors hover:bg-current/[0.08]"
             >
               <Icon.Bag className="h-[1.15rem] w-[1.15rem]" />
@@ -196,7 +196,7 @@ export default function Header() {
               >
                 {count}
               </span>
-            </Link>
+            </button>
 
             <button
               aria-label={open ? "Close menu" : "Open menu"}
@@ -247,7 +247,14 @@ export default function Header() {
           <div className="flex items-center gap-4 text-sm text-husk-soft">
             <Link href="/account" onClick={() => setOpen(false)}>Account</Link>
             <span className="opacity-30">·</span>
-            <Link href="/cart" onClick={() => setOpen(false)}>Cart ({count})</Link>
+            <button
+              onClick={() => {
+                setOpen(false);
+                openCart();
+              }}
+            >
+              Cart ({count})
+            </button>
           </div>
         </div>
       </div>

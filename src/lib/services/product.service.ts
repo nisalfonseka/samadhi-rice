@@ -31,6 +31,7 @@ export type ProductDTO = {
   stockKg: number;
   weights: number[];
   grain: { light: string; mid: string; dark: string };
+  images: string[];
   category: { name: string; slug: string } | null;
 };
 
@@ -59,6 +60,7 @@ export function toProductDTO(p: ProductWithCategory): ProductDTO {
       mid: p.grainMid ?? DEFAULT_GRAIN.mid,
       dark: p.grainDark ?? DEFAULT_GRAIN.dark,
     },
+    images: p.images ?? [],
     category: p.category
       ? { name: p.category.name, slug: p.category.slug }
       : null,

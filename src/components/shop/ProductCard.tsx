@@ -52,18 +52,27 @@ export default function ProductCard({ product }: { product: ProductDTO }) {
             Sold out
           </span>
         )}
-        <div className="absolute inset-0 flex items-end justify-center p-6 transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-105">
-          <div className="h-full w-[58%] origin-bottom transition-transform duration-700 group-hover:-rotate-1">
-            <RiceBag
-              id={product.slug}
-              light={product.grain.light}
-              mid={product.grain.mid}
-              dark={product.grain.dark}
-              sinhala={product.sinhala}
-              className="h-full w-full"
-            />
+        {product.images[0] ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={product.images[0]}
+            alt={product.name}
+            className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-105"
+          />
+        ) : (
+          <div className="absolute inset-0 flex items-end justify-center p-6 transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-105">
+            <div className="h-full w-[58%] origin-bottom transition-transform duration-700 group-hover:-rotate-1">
+              <RiceBag
+                id={product.slug}
+                light={product.grain.light}
+                mid={product.grain.mid}
+                dark={product.grain.dark}
+                sinhala={product.sinhala}
+                className="h-full w-full"
+              />
+            </div>
           </div>
-        </div>
+        )}
         {product.origin && (
           <span className="absolute bottom-4 left-4 translate-y-3 text-xs font-medium uppercase tracking-widest text-clay-600 opacity-0 transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100">
             ◍ {product.origin}

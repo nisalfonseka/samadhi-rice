@@ -50,6 +50,7 @@ model User {
   reviews         Review[]
   notifications   Notification[]
   specialRequests SpecialRequest[]
+  disabled        Boolean        @default(false)
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
 
@@ -167,6 +168,7 @@ model Review {
   place      String?
   rating     Int
   comment    String?
+  adminReply String?
   approved   Boolean  @default(false)
   createdAt  DateTime @default(now())
 
@@ -216,4 +218,16 @@ model SpecialRequest {
   message   String
   status    String   @default("open")
   createdAt DateTime @default(now())
+}
+
+model ActivityLog {
+  id        String   @id @default(cuid())
+  actorId   String?
+  actorName String?
+  action    String
+  entity    String?
+  detail    String?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
 }
