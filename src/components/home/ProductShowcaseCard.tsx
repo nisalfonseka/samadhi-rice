@@ -4,12 +4,12 @@ import { useState } from "react";
 import Link from "next/link";
 import {
   type Product,
-  type WeightKg,
-  WEIGHTS,
   priceFor,
   formatLKR,
 } from "@/lib/data";
 import { useCart } from "@/providers/CartProvider";
+import { useWishlist } from "@/providers/WishlistProvider";
+import WeightSlider from "@/components/shop/WeightSlider";
 import { cn } from "@/lib/utils";
 
 const BADGE_TONE: Record<NonNullable<Product["badge"]>, string> = {
@@ -70,8 +70,10 @@ function RiceBag({ product }: { product: Product }) {
 
 export default function ProductShowcaseCard({ product }: { product: Product }) {
   const { add } = useCart();
-  const [weight, setWeight] = useState<WeightKg>(5);
+  const { has, toggle } = useWishlist();
+  const [weight, setWeight] = useState(5);
   const [added, setAdded] = useState(false);
+  const wishlisted = has(product.slug);
 
   const price = priceFor(product.pricePerKg, weight);
 
@@ -109,6 +111,29 @@ export default function ProductShowcaseCard({ product }: { product: Product }) {
         </span>
       </Link>
 
+      {/* wishlist heart */}
+      <button
+        onClick={() => toggle(product.slug)}
+        aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
+        className={cn(
+          "absolute z-20 grid h-9 w-9 place-items-center rounded-full backdrop-blur-sm transition-all duration-300",
+          wishlisted
+            ? "bg-clay-500/90 text-rice-50 shadow-lg"
+            : "bg-black/20 text-rice-50/80 hover:bg-clay-500/70 hover:text-rice-50",
+          product.badge ? "right-4 top-[3.2rem]" : "right-4 top-4",
+        )}
+      >
+        <svg viewBox="0 0 20 20" className={cn("h-4 w-4 transition-transform duration-300", wishlisted && "scale-110")} aria-hidden>
+          <path
+            d="M10 17.5s-7-4.5-7-9a3.5 3.5 0 0 1 7 0 3.5 3.5 0 0 1 7 0c0 4.5-7 9-7 9Z"
+            fill={wishlisted ? "currentColor" : "none"}
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </button>
+
       {/* details */}
       <div className="flex flex-1 flex-col p-5">
         <p className="text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-clay-500">
@@ -125,38 +150,24 @@ export default function ProductShowcaseCard({ product }: { product: Product }) {
           </span>
         </div>
 
-        <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-husk-soft">
-          {product.note}
-        </p>
-
-        <div className="mt-3 flex items-center gap-1.5 text-sm">
+        <div className="mt-2 flex items-center gap-1.5 text-sm">
           <span className="text-harvest-500">★</span>
           <span className="font-semibold text-husk">{product.rating}</span>
           <span className="text-husk-soft">({product.reviews})</span>
         </div>
 
-        {/* weight toggle */}
-        <div className="mt-4">
-          <div className="flex gap-1.5">
-            {WEIGHTS.map((w) => (
-              <button
-                key={w}
-                onClick={() => setWeight(w)}
-                className={cn(
-                  "flex-1 rounded-full border py-1.5 text-xs font-semibold transition-all duration-300",
-                  weight === w
-                    ? "border-paddy-800 bg-paddy-800 text-rice-50"
-                    : "border-husk/15 text-husk-soft hover:border-paddy-600",
-                )}
-              >
-                {w}kg
-              </button>
-            ))}
-          </div>
+        {/* weight slider */}
+        <div className="mt-3">
+          <WeightSlider
+            value={weight}
+            onChange={setWeight}
+            pricePerKg={product.pricePerKg}
+            discountPercent={0}
+          />
         </div>
 
         {/* price + add */}
-        <div className="mt-4 flex items-end justify-between gap-3">
+        <div className="mt-auto flex items-end justify-between gap-3 pt-3">
           <div>
             <span
               key={weight}
@@ -164,8 +175,8 @@ export default function ProductShowcaseCard({ product }: { product: Product }) {
             >
               {formatLKR(price)}
             </span>
-            <span className="text-[0.7rem] text-husk-soft">
-              {formatLKR(Math.round(price / weight))}/kg
+            <span className="text-[0.68rem] text-husk-soft">
+              {formatLKR(Math.round(price / weight))}/kg · {weight}kg
             </span>
           </div>
           <button

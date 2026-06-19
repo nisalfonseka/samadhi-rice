@@ -4,8 +4,10 @@ import { useState } from "react";
 import Link from "next/link";
 import RiceBag from "@/components/shop/RiceBag";
 import PriceBlock from "@/components/shop/PriceBlock";
+import WeightSlider from "@/components/shop/WeightSlider";
 import { useCart } from "@/providers/CartProvider";
-import { WEIGHTS, priceFor, formatLKR, type WeightKg } from "@/lib/pricing";
+import { useWishlist } from "@/providers/WishlistProvider";
+import { priceFor, formatLKR } from "@/lib/pricing";
 import type { ProductDTO } from "@/lib/services/product.service";
 import { cn } from "@/lib/utils";
 
@@ -19,11 +21,13 @@ const BADGE_TONE: Record<string, string> = {
 
 export default function ProductCard({ product }: { product: ProductDTO }) {
   const { add } = useCart();
-  const [weight, setWeight] = useState<WeightKg>(5);
+  const { has, toggle } = useWishlist();
+  const [weight, setWeight] = useState(5);
   const [added, setAdded] = useState(false);
 
   const price = priceFor(product.pricePerKg, weight, product.discountPercent);
   const soldOut = product.stockKg <= 0;
+  const wishlisted = has(product.slug);
 
   const handleAdd = () => {
     if (soldOut) return;
@@ -85,6 +89,35 @@ export default function ProductCard({ product }: { product: ProductDTO }) {
         )}
       </Link>
 
+      {/* wishlist heart */}
+      <button
+        onClick={() => toggle(product.slug)}
+        aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
+        className={cn(
+          "absolute right-4 z-20 grid h-9 w-9 place-items-center rounded-full backdrop-blur-sm transition-all duration-300",
+          wishlisted
+            ? "bg-clay-500/90 text-rice-50 top-4 shadow-lg"
+            : "bg-black/20 text-rice-50/80 top-4 hover:bg-clay-500/70 hover:text-rice-50",
+          product.badge || soldOut || product.discountPercent > 0
+            ? "top-[3.2rem]"
+            : "top-4",
+        )}
+      >
+        <svg
+          viewBox="0 0 20 20"
+          className={cn("h-4 w-4 transition-transform duration-300", wishlisted && "scale-110")}
+          aria-hidden
+        >
+          <path
+            d="M10 17.5s-7-4.5-7-9a3.5 3.5 0 0 1 7 0 3.5 3.5 0 0 1 7 0c0 4.5-7 9-7 9Z"
+            fill={wishlisted ? "currentColor" : "none"}
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </button>
+
       <div className="flex flex-1 flex-col p-5">
         {product.variety && (
           <p className="text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-clay-500">
@@ -104,36 +137,24 @@ export default function ProductCard({ product }: { product: ProductDTO }) {
           )}
         </div>
 
-        {product.note && (
-          <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-husk-soft">
-            {product.note}
-          </p>
-        )}
-
-        <div className="mt-3 flex items-center gap-1.5 text-sm">
+        <div className="mt-2 flex items-center gap-1.5 text-sm">
           <span className="text-harvest-500">★</span>
           <span className="font-semibold text-husk">{product.rating}</span>
           <span className="text-husk-soft">({product.reviewsCount})</span>
         </div>
 
-        <div className="mt-4 flex gap-1.5">
-          {WEIGHTS.map((w) => (
-            <button
-              key={w}
-              onClick={() => setWeight(w)}
-              className={cn(
-                "flex-1 rounded-full border py-1.5 text-xs font-semibold transition-all duration-300",
-                weight === w
-                  ? "border-paddy-800 bg-paddy-800 text-rice-50"
-                  : "border-husk/15 text-husk-soft hover:border-paddy-600",
-              )}
-            >
-              {w}kg
-            </button>
-          ))}
+        {/* weight slider */}
+        <div className="mt-3">
+          <WeightSlider
+            value={weight}
+            onChange={setWeight}
+            pricePerKg={product.pricePerKg}
+            discountPercent={product.discountPercent}
+          />
         </div>
 
-        <div className="mt-4 flex items-end justify-between gap-3">
+        {/* price + add to cart */}
+        <div className="mt-auto flex items-end justify-between gap-3 pt-3">
           <div>
             <PriceBlock
               pricePerKg={product.pricePerKg}
@@ -141,8 +162,8 @@ export default function ProductCard({ product }: { product: ProductDTO }) {
               discountPercent={product.discountPercent}
               size="md"
             />
-            <span className="mt-0.5 block text-[0.7rem] text-husk-soft">
-              {formatLKR(Math.round(price / weight))}/kg
+            <span className="mt-0.5 block text-[0.68rem] text-husk-soft">
+              {formatLKR(Math.round(price / weight))}/kg · {weight}kg
             </span>
           </div>
           <button

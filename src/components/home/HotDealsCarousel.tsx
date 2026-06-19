@@ -5,7 +5,7 @@ import Link from "next/link";
 import RiceBag from "@/components/shop/RiceBag";
 import PriceBlock from "@/components/shop/PriceBlock";
 import { useCart } from "@/providers/CartProvider";
-import { priceFor, type WeightKg } from "@/lib/pricing";
+import { priceFor } from "@/lib/pricing";
 import type { ProductDTO } from "@/lib/services/product.service";
 import { cn } from "@/lib/utils";
 
@@ -90,7 +90,7 @@ export default function HotDealsCarousel({ products }: { products: ProductDTO[] 
 function DealCard({ product }: { product: ProductDTO }) {
   const { add } = useCart();
   const [added, setAdded] = useState(false);
-  const weight: WeightKg = 5;
+  const weight = 5;
   const price = priceFor(product.pricePerKg, weight, product.discountPercent);
 
   const handleAdd = () => {

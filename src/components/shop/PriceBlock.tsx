@@ -1,4 +1,4 @@
-import { basePriceFor, applyDiscount, formatLKR, type WeightKg } from "@/lib/pricing";
+import { basePriceFor, applyDiscount, formatLKR } from "@/lib/pricing";
 import { cn } from "@/lib/utils";
 
 /** Shows the net price (large) and, when applicable, the struck-through base
@@ -13,7 +13,7 @@ export default function PriceBlock({
   className,
 }: {
   pricePerKg: number;
-  weight: WeightKg;
+  weight: number;
   discountPercent: number;
   quantity?: number;
   size?: "sm" | "md" | "lg";

@@ -1,16 +1,27 @@
 /* Weight-based pricing — single source of truth (homepage + shop + checkout). */
 
-export type WeightKg = 1 | 5 | 10 | 25;
+export type WeightKg = number;
 
-export const WEIGHTS: WeightKg[] = [1, 5, 10, 25];
+export const PRESET_WEIGHTS = [1, 2, 3, 4, 5, 10] as const;
+export type PresetWeight = (typeof PRESET_WEIGHTS)[number];
 
-/** Larger bags cost less per kg — rice is a bulk staple. */
-const BULK_DISCOUNT: Record<WeightKg, number> = { 1: 0, 5: 0.03, 10: 0.07, 25: 0.12 };
+/** Backwards-compatible alias for components that still reference WEIGHTS. */
+export const WEIGHTS = PRESET_WEIGHTS;
+
+/** Graduated bulk discount — interpolates for in-between values. */
+function bulkDiscount(kg: number): number {
+  if (kg <= 1) return 0;
+  if (kg <= 5) return ((kg - 1) / 4) * 0.03;
+  if (kg <= 10) return 0.03 + ((kg - 5) / 5) * 0.04;
+  if (kg <= 25) return 0.07 + ((kg - 10) / 15) * 0.05;
+  return 0.12;
+}
 
 /** Base price for a given weight, BEFORE any promotional discount. */
-export function basePriceFor(pricePerKg: number, weight: WeightKg): number {
-  const gross = pricePerKg * weight;
-  return Math.round((gross * (1 - BULK_DISCOUNT[weight])) / 5) * 5;
+export function basePriceFor(pricePerKg: number, weight: number): number {
+  const w = Math.max(1, weight);
+  const gross = pricePerKg * w;
+  return Math.round((gross * (1 - bulkDiscount(w))) / 5) * 5;
 }
 
 /** Apply a 0-99% promotional discount to a base price, rounded to nearest 5. */
@@ -23,7 +34,7 @@ export function applyDiscount(base: number, discountPercent: number): number {
 /** Net price (with discount applied). Use this everywhere the customer pays. */
 export function priceFor(
   pricePerKg: number,
-  weight: WeightKg,
+  weight: number,
   discountPercent = 0,
 ): number {
   return applyDiscount(basePriceFor(pricePerKg, weight), discountPercent);

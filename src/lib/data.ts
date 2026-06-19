@@ -3,11 +3,11 @@
   these become queries — the component contracts below already mirror the schema.
 */
 
-import { WEIGHTS, priceFor, formatLKR, type WeightKg } from "@/lib/pricing";
+import { WEIGHTS, PRESET_WEIGHTS, priceFor, formatLKR, type WeightKg, type PresetWeight } from "@/lib/pricing";
 
 // Re-export so existing homepage imports from "@/lib/data" keep working.
-export { WEIGHTS, priceFor, formatLKR };
-export type { WeightKg };
+export { WEIGHTS, PRESET_WEIGHTS, priceFor, formatLKR };
+export type { WeightKg, PresetWeight };
 
 export type Product = {
   slug: string;

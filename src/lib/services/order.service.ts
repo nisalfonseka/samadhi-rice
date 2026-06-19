@@ -1,11 +1,11 @@
 import { prisma } from "@/lib/db";
-import { priceFor, type WeightKg } from "@/lib/pricing";
+import { priceFor } from "@/lib/pricing";
 import { getSettings, deliveryFeeFrom } from "@/lib/services/settings.service";
 import { sendOrderConfirmation } from "@/lib/services/email.service";
 
 export class OrderError extends Error {}
 
-const ALLOWED_WEIGHTS = [1, 5, 10, 25];
+const MAX_WEIGHT_KG = 100;
 
 export type CreateOrderInput = {
   customerName: string;
@@ -50,15 +50,16 @@ export async function createOrder(input: CreateOrderInput) {
   for (const i of input.items) {
     const product = bySlug.get(i.slug);
     if (!product) throw new OrderError(`Product not found: ${i.slug}`);
-    if (!ALLOWED_WEIGHTS.includes(i.weight))
-      throw new OrderError(`Unsupported weight: ${i.weight}kg`);
+    const w = Math.floor(i.weight);
+    if (w < 1 || w > MAX_WEIGHT_KG)
+      throw new OrderError(`Weight must be 1–${MAX_WEIGHT_KG}kg`);
     if (product.stockKg <= 0)
       throw new OrderError(`${product.name} is out of stock`);
 
     const qty = Math.max(1, Math.min(99, Math.floor(i.qty)));
     const unitPrice = priceFor(
       product.pricePerKg,
-      i.weight as WeightKg,
+      w,
       product.discountPercent ?? 0,
     );
     subtotal += unitPrice * qty;
