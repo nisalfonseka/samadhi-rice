@@ -8,8 +8,10 @@ import { cn } from "@/lib/utils";
 
 const NAV = [
   { label: "Overview", href: "/admin", exact: true, icon: "M4 13h6V4H4v9Zm0 7h6v-5H4v5Zm10 0h6V11h-6v9Zm0-16v5h6V4h-6Z" },
+  { label: "Homepage", href: "/admin/homepage", icon: "M3 11 12 3l9 8M5 9.5V20a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9.5" },
   { label: "Analytics", href: "/admin/analytics", icon: "M4 19V5M4 19h16M8 16V9M12 16v-4M16 16V7M20 16v-2" },
   { label: "Products", href: "/admin/products", icon: "M3 7l9-4 9 4-9 4-9-4Zm0 5l9 4 9-4M3 17l9 4 9-4" },
+  { label: "Offers", href: "/admin/offers", icon: "M20 12 12 4H4v8l8 8 8-8ZM9 9h.01" },
   { label: "Categories", href: "/admin/categories", icon: "M4 5h7v6H4zM13 5h7v6h-7zM4 13h7v6H4zM13 13h7v6h-7z" },
   { label: "Orders", href: "/admin/orders", icon: "M6 2h9l5 5v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1Zm8 1v5h5M8 13h8M8 17h6" },
   { label: "Customers", href: "/admin/customers", icon: "M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-7 9c0-3.9 3.1-7 7-7s7 3.1 7 7M17 11a3 3 0 1 0 0-6M22 20c0-3-1.6-5.5-4-6.3" },

@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getOrderByNo } from "@/lib/services/order.service";
 import { formatLKR } from "@/lib/pricing";
-import { WHATSAPP_NUMBER } from "@/lib/data";
+import { getSettings } from "@/lib/services/settings.service";
 
 export const dynamic = "force-dynamic";
 
@@ -25,7 +25,10 @@ export default async function OrderConfirmationPage({
   params: Promise<{ orderNo: string }>;
 }) {
   const { orderNo } = await params;
-  const order = await getOrderByNo(orderNo).catch(() => null);
+  const [order, settings] = await Promise.all([
+    getOrderByNo(orderNo).catch(() => null),
+    getSettings(),
+  ]);
   if (!order) notFound();
 
   return (
@@ -125,7 +128,7 @@ export default async function OrderConfirmationPage({
             Continue shopping
           </Link>
           <a
-            href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(`Hi, I just placed order ${order.orderNo}`)}`}
+            href={`https://wa.me/${settings.contactWhatsapp}?text=${encodeURIComponent(`Hi, I just placed order ${order.orderNo}`)}`}
             target="_blank"
             rel="noopener noreferrer"
             className="rounded-full border border-husk/20 px-7 py-3.5 font-medium text-husk transition-colors hover:border-paddy-700"

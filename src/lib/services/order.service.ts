@@ -56,7 +56,11 @@ export async function createOrder(input: CreateOrderInput) {
       throw new OrderError(`${product.name} is out of stock`);
 
     const qty = Math.max(1, Math.min(99, Math.floor(i.qty)));
-    const unitPrice = priceFor(product.pricePerKg, i.weight as WeightKg);
+    const unitPrice = priceFor(
+      product.pricePerKg,
+      i.weight as WeightKg,
+      product.discountPercent ?? 0,
+    );
     subtotal += unitPrice * qty;
     items.push({
       productId: product.id,

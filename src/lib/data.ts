@@ -249,9 +249,9 @@ export const STORY: StoryStep[] = [
 /* -------------------------------------------------------------- nav ------ */
 
 export const NAV_LINKS = [
+  { label: "Home", href: "/" },
   { label: "Shop", href: "/shop" },
-  { label: "Our Rice", href: "/shop#varieties" },
-  { label: "The Journey", href: "/about" },
+  { label: "Our Journey", href: "/about" },
   { label: "Recipes", href: "/blog" },
   { label: "Contact", href: "/contact" },
 ];

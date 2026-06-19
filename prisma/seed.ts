@@ -200,6 +200,57 @@ const settings = [
   { key: "hero_headline", value: "From the paddy field to your plate." },
 ];
 
+const offers = [
+  {
+    eyebrow: "Pantry stock-up",
+    title: "Save 12% on every 25kg bag",
+    detail:
+      "Buy the way Sri Lankan kitchens always have — by the bushel. Bulk pricing applied automatically at checkout.",
+    cta: "Shop bulk bags",
+    ctaHref: "/shop",
+    tone: "paddy",
+    size: "wide",
+    position: 0,
+  },
+  {
+    eyebrow: "New here?",
+    title: "Rs. 500 off your first order",
+    detail: "Use code SAMADHI500 at checkout.",
+    cta: "Claim offer",
+    ctaHref: "/shop",
+    tone: "gold",
+    size: "small",
+    position: 1,
+  },
+  {
+    eyebrow: "Colombo & suburbs",
+    title: "Free delivery over Rs. 7,500",
+    detail: "Next-day, milled-to-order.",
+    cta: "How it works",
+    ctaHref: "/delivery",
+    tone: "clay",
+    size: "small",
+    position: 2,
+  },
+  {
+    eyebrow: "Maha season",
+    title: "New harvest just milled",
+    detail: "First pressing of the Maha paddy is in. Limited stock.",
+    cta: "Taste the season",
+    ctaHref: "/shop",
+    tone: "gold",
+    size: "wide",
+    position: 3,
+  },
+];
+
+const hotDealProducts: { slug: string; discountPercent: number; hotDeal: boolean }[] = [
+  { slug: "kalu-heenati", discountPercent: 15, hotDeal: true },
+  { slug: "red-raw-rice", discountPercent: 10, hotDeal: true },
+  { slug: "nadu-rice", discountPercent: 20, hotDeal: true },
+  { slug: "suduru-samba", discountPercent: 0, hotDeal: true },
+];
+
 const blogPosts = [
   {
     slug: "the-quiet-power-of-kalu-heenati",
@@ -330,6 +381,20 @@ async function main() {
     });
   }
   console.log(`  ✓ ${settings.length} site settings`);
+
+  // offers — clear existing, then seed fresh (no upsert: no natural unique key)
+  await prisma.offer.deleteMany();
+  await prisma.offer.createMany({ data: offers });
+  console.log(`  ✓ ${offers.length} offers`);
+
+  // mark hot deals + discounts on existing seeded products
+  for (const h of hotDealProducts) {
+    await prisma.product.updateMany({
+      where: { slug: h.slug },
+      data: { hotDeal: h.hotDeal, discountPercent: h.discountPercent },
+    });
+  }
+  console.log(`  ✓ ${hotDealProducts.length} products flagged as hot deals`);
 
   // blog posts
   for (const p of blogPosts) {

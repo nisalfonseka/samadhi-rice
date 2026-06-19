@@ -1,9 +1,18 @@
 import SectionHeading from "@/components/ui/SectionHeading";
 import Reveal from "@/components/anim/Reveal";
-import ProductShowcaseCard from "@/components/home/ProductShowcaseCard";
-import { HOT_PRODUCTS } from "@/lib/data";
+import ProductCard from "@/components/shop/ProductCard";
+import { getFeaturedProducts } from "@/lib/services/product.service";
 
-export default function HotProducts() {
+export default async function HotProducts() {
+  let products: Awaited<ReturnType<typeof getFeaturedProducts>> = [];
+  try {
+    products = await getFeaturedProducts(4);
+  } catch {
+    /* DB transiently unavailable — section just hides */
+  }
+
+  if (products.length === 0) return null;
+
   return (
     <section id="hot" className="bg-paper relative py-24 sm:py-28">
       <div className="mx-auto max-w-7xl px-5 sm:px-8">
@@ -19,8 +28,8 @@ export default function HotProducts() {
           y={40}
           className="mt-14 grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4"
         >
-          {HOT_PRODUCTS.map((p) => (
-            <ProductShowcaseCard key={p.slug} product={p} />
+          {products.map((p) => (
+            <ProductCard key={p.slug} product={p} />
           ))}
         </Reveal>
       </div>

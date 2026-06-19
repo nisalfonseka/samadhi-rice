@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import RiceBag from "@/components/shop/RiceBag";
+import PriceBlock from "@/components/shop/PriceBlock";
 import { useCart } from "@/providers/CartProvider";
 import { WEIGHTS, priceFor, formatLKR, type WeightKg } from "@/lib/pricing";
 import type { ProductDTO } from "@/lib/services/product.service";
@@ -21,7 +22,7 @@ export default function ProductCard({ product }: { product: ProductDTO }) {
   const [weight, setWeight] = useState<WeightKg>(5);
   const [added, setAdded] = useState(false);
 
-  const price = priceFor(product.pricePerKg, weight);
+  const price = priceFor(product.pricePerKg, weight, product.discountPercent);
   const soldOut = product.stockKg <= 0;
 
   const handleAdd = () => {
@@ -47,11 +48,15 @@ export default function ProductCard({ product }: { product: ProductDTO }) {
             {product.badge}
           </span>
         )}
-        {soldOut && (
+        {soldOut ? (
           <span className="absolute right-4 top-4 z-10 rounded-full bg-husk/80 px-3 py-1 text-[0.68rem] font-semibold uppercase tracking-wider text-rice-50">
             Sold out
           </span>
-        )}
+        ) : product.discountPercent > 0 ? (
+          <span className="absolute right-4 top-4 z-10 rounded-full bg-clay-500 px-3 py-1 text-[0.68rem] font-semibold uppercase tracking-wider text-rice-50">
+            −{product.discountPercent}% off
+          </span>
+        ) : null}
         {product.images[0] ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -130,13 +135,13 @@ export default function ProductCard({ product }: { product: ProductDTO }) {
 
         <div className="mt-4 flex items-end justify-between gap-3">
           <div>
-            <span
-              key={weight}
-              className="block font-display text-2xl text-husk animate-[rise_0.35s_ease]"
-            >
-              {formatLKR(price)}
-            </span>
-            <span className="text-[0.7rem] text-husk-soft">
+            <PriceBlock
+              pricePerKg={product.pricePerKg}
+              weight={weight}
+              discountPercent={product.discountPercent}
+              size="md"
+            />
+            <span className="mt-0.5 block text-[0.7rem] text-husk-soft">
               {formatLKR(Math.round(price / weight))}/kg
             </span>
           </div>

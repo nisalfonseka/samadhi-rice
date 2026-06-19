@@ -6,6 +6,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SessionProvider } from "next-auth/react";
 import { CartProvider } from "@/providers/CartProvider";
+import { SearchProvider } from "@/providers/SearchProvider";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -42,7 +43,9 @@ export default function SmoothScroll({ children }: { children: React.ReactNode }
 
   return (
     <SessionProvider>
-      <CartProvider>{children}</CartProvider>
+      <SearchProvider>
+        <CartProvider>{children}</CartProvider>
+      </SearchProvider>
     </SessionProvider>
   );
 }

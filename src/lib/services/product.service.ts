@@ -30,6 +30,8 @@ export type ProductDTO = {
   pricePerKg: number;
   stockKg: number;
   weights: number[];
+  discountPercent: number;
+  hotDeal: boolean;
   grain: { light: string; mid: string; dark: string };
   images: string[];
   category: { name: string; slug: string } | null;
@@ -55,6 +57,8 @@ export function toProductDTO(p: ProductWithCategory): ProductDTO {
     pricePerKg: p.pricePerKg,
     stockKg: p.stockKg,
     weights: p.weights.length ? p.weights : [1, 5, 10, 25],
+    discountPercent: p.discountPercent ?? 0,
+    hotDeal: p.hotDeal ?? false,
     grain: {
       light: p.grainLight ?? DEFAULT_GRAIN.light,
       mid: p.grainMid ?? DEFAULT_GRAIN.mid,
@@ -113,6 +117,19 @@ export async function getFeaturedProducts(limit = 4): Promise<ProductDTO[]> {
   const products = await prisma.product.findMany({
     where: { featured: true },
     orderBy: { reviewsCount: "desc" },
+    take: limit,
+    include: { category: true },
+  });
+  return products.map(toProductDTO);
+}
+
+export async function getHotDealProducts(limit = 8): Promise<ProductDTO[]> {
+  // Anything marked as a hot deal, OR anything currently discounted.
+  const products = await prisma.product.findMany({
+    where: {
+      OR: [{ hotDeal: true }, { discountPercent: { gt: 0 } }],
+    },
+    orderBy: [{ discountPercent: "desc" }, { reviewsCount: "desc" }],
     take: limit,
     include: { category: true },
   });

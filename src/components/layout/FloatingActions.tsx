@@ -2,14 +2,9 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { WHATSAPP_NUMBER } from "@/lib/data";
 import { cn } from "@/lib/utils";
 
-/**
- * Bottom-right floating actions: WhatsApp (Sri Lankan customers love it) and a
- * placeholder for the RAG "Rice Finder" assistant that ships in a later phase.
- */
-export default function FloatingActions() {
+export default function FloatingActions({ whatsapp }: { whatsapp: string }) {
   const [open, setOpen] = useState(false);
   const [show, setShow] = useState(false);
 
@@ -52,7 +47,7 @@ export default function FloatingActions() {
           {["Best for biryani?", "Diabetic-friendly?", "Bulk orders"].map((c) => (
             <a
               key={c}
-              href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(c)}`}
+              href={`https://wa.me/${whatsapp}?text=${encodeURIComponent(c)}`}
               target="_blank"
               rel="noopener noreferrer"
               className="rounded-full border border-husk/15 px-3 py-1.5 text-xs text-husk transition-colors hover:border-paddy-700 hover:bg-paddy-700 hover:text-rice-50"
@@ -72,7 +67,7 @@ export default function FloatingActions() {
       <div className="flex items-center gap-3">
         {/* WhatsApp */}
         <a
-          href={`https://wa.me/${WHATSAPP_NUMBER}`}
+          href={`https://wa.me/${whatsapp}`}
           target="_blank"
           rel="noopener noreferrer"
           aria-label="Chat on WhatsApp"

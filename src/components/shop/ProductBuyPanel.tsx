@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useCart } from "@/providers/CartProvider";
-import { WEIGHTS, priceFor, formatLKR, type WeightKg } from "@/lib/pricing";
+import { WEIGHTS, priceFor, basePriceFor, formatLKR, type WeightKg } from "@/lib/pricing";
 import { cn } from "@/lib/utils";
 
 export default function ProductBuyPanel({
@@ -10,19 +10,24 @@ export default function ProductBuyPanel({
   name,
   pricePerKg,
   stockKg,
+  discountPercent = 0,
 }: {
   slug: string;
   name: string;
   pricePerKg: number;
   stockKg: number;
+  discountPercent?: number;
 }) {
   const { add } = useCart();
   const [weight, setWeight] = useState<WeightKg>(5);
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
 
-  const unit = priceFor(pricePerKg, weight);
+  const unit = priceFor(pricePerKg, weight, discountPercent);
+  const baseUnit = basePriceFor(pricePerKg, weight);
   const total = unit * qty;
+  const baseTotal = baseUnit * qty;
+  const hasDiscount = discountPercent > 0 && total < baseTotal;
   const soldOut = stockKg <= 0;
 
   const handleAdd = () => {
@@ -52,7 +57,7 @@ export default function ProductBuyPanel({
           >
             <span className="font-display text-lg leading-none">{w}kg</span>
             <span className={cn("mt-1 text-[0.65rem]", weight === w ? "text-rice-100/70" : "text-husk-soft")}>
-              {formatLKR(priceFor(pricePerKg, w))}
+              {formatLKR(priceFor(pricePerKg, w, discountPercent))}
             </span>
           </button>
         ))}
@@ -81,6 +86,12 @@ export default function ProductBuyPanel({
           <span className="block font-display text-3xl text-husk animate-[rise_0.3s_ease]" key={total}>
             {formatLKR(total)}
           </span>
+          {hasDiscount && (
+            <span className="block text-xs">
+              <span className="text-husk-soft line-through">{formatLKR(baseTotal)}</span>{" "}
+              <span className="font-semibold text-clay-600">−{discountPercent}%</span>
+            </span>
+          )}
           <span className="text-xs text-husk-soft">
             {formatLKR(Math.round(unit / weight))}/kg · incl. taxes
           </span>

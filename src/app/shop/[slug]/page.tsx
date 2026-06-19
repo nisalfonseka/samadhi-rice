@@ -69,7 +69,7 @@ export default async function ProductPage({ params }: { params: Params }) {
     offers: {
       "@type": "Offer",
       priceCurrency: "LKR",
-      price: priceFor(product.pricePerKg, 1),
+      price: priceFor(product.pricePerKg, 1, product.discountPercent ?? 0),
       availability:
         product.stockKg > 0
           ? "https://schema.org/InStock"
@@ -175,6 +175,7 @@ export default async function ProductPage({ params }: { params: Params }) {
                 name={product.name}
                 pricePerKg={product.pricePerKg}
                 stockKg={product.stockKg}
+                discountPercent={product.discountPercent ?? 0}
               />
             </div>
 

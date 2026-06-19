@@ -34,6 +34,8 @@ const productSchema = z.object({
   stockKg: z.coerce.number().int().min(0).max(1_000_000),
   badge: z.string().trim().max(40).optional().or(z.literal("")),
   featured: z.coerce.boolean(),
+  hotDeal: z.coerce.boolean(),
+  discountPercent: z.coerce.number().int().min(0).max(90).default(0),
   grainLight: z.string().trim().max(20).optional(),
   grainMid: z.string().trim().max(20).optional(),
   grainDark: z.string().trim().max(20).optional(),
@@ -53,6 +55,7 @@ function parseProduct(formData: FormData) {
   return productSchema.safeParse({
     ...raw,
     featured: formData.get("featured") === "on" || formData.get("featured") === "true",
+    hotDeal: formData.get("hotDeal") === "on" || formData.get("hotDeal") === "true",
     images,
   });
 }
@@ -72,6 +75,8 @@ function productData(data: z.infer<typeof productSchema>) {
     stockKg: data.stockKg,
     badge: data.badge || null,
     featured: data.featured,
+    hotDeal: data.hotDeal,
+    discountPercent: data.discountPercent,
     grainLight: data.grainLight || null,
     grainMid: data.grainMid || null,
     grainDark: data.grainDark || null,
@@ -129,6 +134,48 @@ export async function deleteProduct(id: string) {
   await logActivity(session.user, "Deleted product", { entity: p.slug });
   revalidatePath("/admin/products");
   revalidatePath("/shop");
+}
+
+export async function toggleFeatured(id: string) {
+  const session = await assertAdmin();
+  const p = await prisma.product.findUnique({ where: { id } });
+  if (!p) return;
+  await prisma.product.update({ where: { id }, data: { featured: !p.featured } });
+  await logActivity(session.user, p.featured ? "Unfeatured product" : "Featured product", {
+    entity: p.slug,
+  });
+  revalidatePath("/admin/products");
+  revalidatePath("/admin/homepage");
+  revalidatePath("/");
+}
+
+export async function toggleHotDeal(id: string) {
+  const session = await assertAdmin();
+  const p = await prisma.product.findUnique({ where: { id } });
+  if (!p) return;
+  await prisma.product.update({ where: { id }, data: { hotDeal: !p.hotDeal } });
+  await logActivity(
+    session.user,
+    p.hotDeal ? "Removed from hot deals" : "Marked as hot deal",
+    { entity: p.slug },
+  );
+  revalidatePath("/admin/products");
+  revalidatePath("/admin/homepage");
+  revalidatePath("/");
+}
+
+export async function setDiscount(id: string, discountPercent: number) {
+  const session = await assertAdmin();
+  const pct = Math.max(0, Math.min(90, Math.floor(discountPercent || 0)));
+  const p = await prisma.product.update({
+    where: { id },
+    data: { discountPercent: pct },
+  });
+  await logActivity(session.user, "Set discount", { entity: p.slug, detail: `${pct}%` });
+  revalidatePath("/admin/products");
+  revalidatePath("/admin/homepage");
+  revalidatePath("/");
+  revalidatePath(`/shop/${p.slug}`);
 }
 
 export async function updateStock(id: string, stockKg: number) {
@@ -252,17 +299,131 @@ export async function toggleUserDisabled(id: string) {
 
 export async function saveShopSettings(formData: FormData) {
   const session = await assertAdmin();
+
+  const str = (key: string) => String(formData.get(key) || "").trim();
+  const posInt = (key: string) => String(Math.max(0, Number(formData.get(key)) || 0));
+  const bool = (key: string) => (formData.get(key) === "on" ? "true" : "false");
+
   await saveSettings({
-    delivery_fee_flat: String(Math.max(0, Number(formData.get("delivery_fee_flat")) || 0)),
-    free_delivery_threshold: String(
-      Math.max(0, Number(formData.get("free_delivery_threshold")) || 0),
-    ),
-    cod_enabled: formData.get("cod_enabled") === "on" ? "true" : "false",
-    payhere_enabled: formData.get("payhere_enabled") === "on" ? "true" : "false",
-    hero_headline: String(formData.get("hero_headline") || "").trim(),
+    /* delivery */
+    delivery_fee_flat: posInt("delivery_fee_flat"),
+    free_delivery_enabled: bool("free_delivery_enabled"),
+    free_delivery_threshold: posInt("free_delivery_threshold"),
+    /* payment */
+    cod_enabled: bool("cod_enabled"),
+    payhere_enabled: bool("payhere_enabled"),
+    /* storefront copy */
+    hero_headline: str("hero_headline"),
+    site_tagline: str("site_tagline"),
+    meta_description: str("meta_description"),
+    /* contact */
+    contact_phone: str("contact_phone"),
+    contact_whatsapp: str("contact_whatsapp"),
+    contact_email: str("contact_email"),
+    /* location */
+    address_line1: str("address_line1"),
+    address_city: str("address_city"),
+    address_google_maps: str("address_google_maps"),
+    business_hours: str("business_hours"),
+    delivery_zones: str("delivery_zones"),
+    /* social */
+    social_facebook: str("social_facebook"),
+    social_instagram: str("social_instagram"),
+    social_youtube: str("social_youtube"),
+    social_tiktok: str("social_tiktok"),
   });
+
   await logActivity(session.user, "Updated shop settings");
   revalidatePath("/admin/settings");
   revalidatePath("/");
   revalidatePath("/shop");
 }
+
+/* ---------------------------------------------------------- homepage sections -- */
+
+export async function toggleSection(key: string, enabled: boolean) {
+  await assertAdmin();
+  const allowed = [
+    "section_hot_products",
+    "section_offers",
+    "section_origin_story",
+    "section_trust_stats",
+    "section_testimonials",
+    "section_blog_preview",
+    "section_newsletter",
+  ];
+  if (!allowed.includes(key)) throw new Error("Invalid section key");
+  await saveSettings({ [key]: enabled ? "true" : "false" });
+  revalidatePath("/admin/homepage");
+  revalidatePath("/");
+}
+
+/* ------------------------------------------------------------ branches -- */
+
+function parseBranchImages(formData: FormData): string[] {
+  try {
+    return JSON.parse((formData.get("images") as string) || "[]").filter(Boolean);
+  } catch {
+    return [];
+  }
+}
+
+export async function createBranch(formData: FormData) {
+  const session = await assertAdmin();
+  const name = String(formData.get("name") || "").trim();
+  const address = String(formData.get("address") || "").trim();
+  const city = String(formData.get("city") || "").trim();
+  if (!name || !address) return;
+  const maxPos = await prisma.branch.findFirst({ orderBy: { position: "desc" }, select: { position: true } });
+  await prisma.branch.create({
+    data: {
+      name,
+      address,
+      city,
+      phone: String(formData.get("phone") || "").trim() || null,
+      hours: String(formData.get("hours") || "").trim() || null,
+      description: String(formData.get("description") || "").trim() || null,
+      mapsUrl: String(formData.get("mapsUrl") || "").trim() || null,
+      images: parseBranchImages(formData),
+      position: (maxPos?.position ?? -1) + 1,
+    },
+  });
+  await logActivity(session.user, "Added branch", { entity: name });
+  revalidatePath("/admin/settings");
+  revalidatePath("/branches");
+  revalidatePath("/");
+}
+
+export async function updateBranch(id: string, formData: FormData) {
+  const session = await assertAdmin();
+  const name = String(formData.get("name") || "").trim();
+  const address = String(formData.get("address") || "").trim();
+  if (!name || !address) return;
+  await prisma.branch.update({
+    where: { id },
+    data: {
+      name,
+      address,
+      city: String(formData.get("city") || "").trim(),
+      phone: String(formData.get("phone") || "").trim() || null,
+      hours: String(formData.get("hours") || "").trim() || null,
+      description: String(formData.get("description") || "").trim() || null,
+      mapsUrl: String(formData.get("mapsUrl") || "").trim() || null,
+      images: parseBranchImages(formData),
+    },
+  });
+  await logActivity(session.user, "Updated branch", { entity: name });
+  revalidatePath("/admin/settings");
+  revalidatePath("/branches");
+  revalidatePath("/");
+}
+
+export async function deleteBranch(id: string) {
+  const session = await assertAdmin();
+  const b = await prisma.branch.delete({ where: { id } });
+  await logActivity(session.user, "Deleted branch", { entity: b.name });
+  revalidatePath("/admin/settings");
+  revalidatePath("/");
+}
+
+/* Offer mutations live in app/admin/offers/actions.ts */

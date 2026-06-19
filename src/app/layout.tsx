@@ -6,7 +6,9 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import FloatingActions from "@/components/layout/FloatingActions";
 import CartDrawer from "@/components/cart/CartDrawer";
+import SearchOverlay from "@/components/search/SearchOverlay";
 import ChromeGate from "@/components/layout/ChromeGate";
+import { getSettings } from "@/lib/services/settings.service";
 
 const fraunces = Fraunces({
   variable: "--font-fraunces",
@@ -64,11 +66,12 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const settings = await getSettings();
   return (
     <html
       lang="en"
@@ -77,13 +80,17 @@ export default function RootLayout({
       <body className="relative min-h-screen">
         <SmoothScroll>
           <ChromeGate>
-            <Header />
+            <Header hotline={settings.contactPhone} />
           </ChromeGate>
           <main className="relative z-10">{children}</main>
           <ChromeGate>
             <Footer />
-            <FloatingActions />
-            <CartDrawer />
+            <FloatingActions whatsapp={settings.contactWhatsapp} />
+            <CartDrawer
+              freeDeliveryEnabled={settings.freeDeliveryEnabled}
+              freeDeliveryThreshold={settings.freeDeliveryThreshold}
+            />
+            <SearchOverlay />
           </ChromeGate>
         </SmoothScroll>
       </body>

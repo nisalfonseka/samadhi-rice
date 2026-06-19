@@ -5,6 +5,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import Button from "@/components/ui/Button";
+import HeroSearch from "@/components/home/HeroSearch";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
@@ -77,7 +78,7 @@ export default function Hero() {
     <section
       id="site-hero"
       ref={root}
-      className="relative flex min-h-[100svh] w-full items-center overflow-hidden bg-paddy-950"
+      className="relative mt-[25px] flex min-h-[100svh] w-full items-center overflow-hidden bg-paddy-950"
     >
       {/* ---- sky / dawn wash ---- */}
       <div
@@ -189,11 +190,6 @@ export default function Hero() {
       {/* ---- content ---- */}
       <div className="relative z-20 mx-auto w-full max-w-7xl px-5 pb-28 pt-28 sm:px-8">
         <div className="max-w-2xl">
-          <p data-hero-in className="kicker mb-6 flex items-center gap-3 text-harvest-300">
-            <span className="h-px w-10 bg-harvest-400/70" />
-            Heritage Sri Lankan Rice · Milled to order
-          </p>
-
           <h1
             data-hero-in
             className="font-display text-[clamp(2.6rem,7vw,5.4rem)] font-medium leading-[0.98] text-rice-50"
@@ -235,6 +231,11 @@ export default function Hero() {
               <span className="font-semibold text-rice-50">4.9</span> · loved by
               12,000+ Sri Lankan kitchens
             </span>
+          </div>
+
+          {/* ---- search bar ---- */}
+          <div data-hero-in>
+            <HeroSearch />
           </div>
         </div>
       </div>

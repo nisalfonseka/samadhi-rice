@@ -7,7 +7,6 @@ import { formatLKR } from "@/lib/pricing";
 import {
   deliveryFeeFor,
   amountToFreeDelivery,
-  FREE_DELIVERY_THRESHOLD,
 } from "@/lib/delivery";
 import { cn } from "@/lib/utils";
 
@@ -20,12 +19,20 @@ function GrainGlyph() {
   );
 }
 
-export default function CartDrawer() {
+export default function CartDrawer({
+  freeDeliveryEnabled = false,
+  freeDeliveryThreshold = 7500,
+}: {
+  freeDeliveryEnabled?: boolean;
+  freeDeliveryThreshold?: number;
+}) {
   const { lines, count, subtotal, setQty, remove, isOpen, closeCart } = useCart();
 
   const fee = deliveryFeeFor(subtotal);
   const toFree = amountToFreeDelivery(subtotal);
-  const progress = Math.min(100, (subtotal / FREE_DELIVERY_THRESHOLD) * 100);
+  const progress = freeDeliveryThreshold > 0
+    ? Math.min(100, (subtotal / freeDeliveryThreshold) * 100)
+    : 0;
 
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "";
@@ -105,30 +112,32 @@ export default function CartDrawer() {
           </div>
         ) : (
           <>
-            {/* free delivery progress */}
-            <div className="border-b border-husk/10 px-6 py-4">
-              <p className="text-sm text-husk-soft">
-                {fee === 0 ? (
-                  <span className="font-medium text-paddy-700">
-                    ✺ You&apos;ve unlocked free delivery
-                  </span>
-                ) : (
-                  <>
-                    Add{" "}
-                    <span className="font-semibold text-husk">
-                      {formatLKR(toFree)}
-                    </span>{" "}
-                    more for free delivery
-                  </>
-                )}
-              </p>
-              <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-rice-200">
-                <div
-                  className="h-full rounded-full bg-harvest-500 transition-[width] duration-500"
-                  style={{ width: `${progress}%` }}
-                />
+            {/* free delivery progress — only shown when enabled in admin settings */}
+            {freeDeliveryEnabled && (
+              <div className="border-b border-husk/10 px-6 py-4">
+                <p className="text-sm text-husk-soft">
+                  {subtotal >= freeDeliveryThreshold ? (
+                    <span className="font-medium text-paddy-700">
+                      ✺ You&apos;ve unlocked free delivery
+                    </span>
+                  ) : (
+                    <>
+                      Add{" "}
+                      <span className="font-semibold text-husk">
+                        {formatLKR(toFree)}
+                      </span>{" "}
+                      more for free delivery
+                    </>
+                  )}
+                </p>
+                <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-rice-200">
+                  <div
+                    className="h-full rounded-full bg-harvest-500 transition-[width] duration-500"
+                    style={{ width: `${progress}%` }}
+                  />
+                </div>
               </div>
-            </div>
+            )}
 
             {/* lines */}
             <div className="no-scrollbar flex-1 overflow-y-auto px-6 py-4">

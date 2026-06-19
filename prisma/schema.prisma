@@ -94,6 +94,8 @@ model Product {
   pricePerKg      Int // LKR
   stockKg         Int         @default(0)
   badge           String?
+  discountPercent Int         @default(0)
+  hotDeal         Boolean     @default(false)
   rating          Float       @default(0)
   reviewsCount    Int         @default(0)
   // CSS rice-bag art tones (until real photography lands in `images`)
@@ -209,6 +211,23 @@ model SiteSetting {
   value String
 }
 
+model Offer {
+  id        String   @id @default(cuid())
+  eyebrow   String
+  title     String
+  detail    String?
+  cta       String   @default("Shop now")
+  ctaHref   String   @default("/shop")
+  tone      String   @default("gold") // gold | paddy | clay
+  size      String   @default("wide") // wide | tall | small
+  position  Int      @default(0)
+  enabled   Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([enabled, position])
+}
+
 model SpecialRequest {
   id        String   @id @default(cuid())
   user      User?    @relation(fields: [userId], references: [id])
@@ -230,4 +249,21 @@ model ActivityLog {
   createdAt DateTime @default(now())
 
   @@index([createdAt])
+}
+
+model Branch {
+  id        String   @id @default(cuid())
+  name      String
+  address   String
+  city      String
+  phone       String?
+  hours       String?
+  description String?
+  mapsUrl     String?
+  images      String[] // Cloudinary / external URLs
+  position  Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([position])
 }

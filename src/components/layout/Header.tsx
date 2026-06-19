@@ -2,8 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import Logo from "@/components/ui/Logo";
 import { useCart } from "@/providers/CartProvider";
+import { useSearch } from "@/providers/SearchProvider";
 import { NAV_LINKS } from "@/lib/data";
 import { cn } from "@/lib/utils";
 
@@ -37,17 +39,23 @@ const Icon = {
       <path d="M6 6l12 12M18 6 6 18" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
     </svg>
   ),
+  Phone: (p: { className?: string }) => (
+    <svg viewBox="0 0 24 24" fill="none" className={p.className} aria-hidden>
+      <path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  ),
+  MapPin: (p: { className?: string }) => (
+    <svg viewBox="0 0 24 24" fill="none" className={p.className} aria-hidden>
+      <path d="M12 21C12 21 5 13.5 5 9a7 7 0 1 1 14 0c0 4.5-7 12-7 12Z" stroke="currentColor" strokeWidth="1.5" />
+      <circle cx="12" cy="9" r="2.5" stroke="currentColor" strokeWidth="1.5" />
+    </svg>
+  ),
 };
 
-const ANNOUNCEMENTS = [
-  "Fresh Maha harvest just milled",
-  "Free delivery in Colombo over Rs. 7,500",
-  "Rs. 500 off your first order — code SAMADHI500",
-  "Milled to order · never warehoused",
-];
-
-export default function Header() {
+export default function Header({ hotline }: { hotline?: string }) {
   const { count, lastAddedAt, openCart } = useCart();
+  const { openSearch } = useSearch();
+  const pathname = usePathname();
   const [overHero, setOverHero] = useState(true);
   const [compact, setCompact] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -112,28 +120,48 @@ export default function Header() {
 
   const light = overHero && !open;
 
+  const isActive = (href: string) =>
+    href === "/" ? pathname === "/" : pathname.startsWith(href);
+
   return (
     <header className="fixed inset-x-0 top-0 z-50">
-      {/* announcement marquee */}
+      {/* ── top utility bar ── */}
       <div
         className={cn(
           "overflow-hidden border-b border-white/10 bg-paddy-950 text-rice-100 transition-[height,opacity] duration-500",
           compact ? "h-0 opacity-0" : "h-9 opacity-100",
         )}
       >
-        <div className="flex h-9 items-center">
-          <div className="flex shrink-0 animate-[marquee_32s_linear_infinite] items-center gap-3 whitespace-nowrap pr-3">
-            {[...ANNOUNCEMENTS, ...ANNOUNCEMENTS].map((a, i) => (
-              <span key={i} className="flex items-center gap-3 text-[0.72rem] tracking-wide">
-                <span className="text-harvest-400">✺</span>
-                {a}
-              </span>
-            ))}
-          </div>
+        <div className="mx-auto flex h-9 max-w-7xl items-center justify-between px-5 sm:px-8">
+
+          {/* left — hotline */}
+          {hotline ? (
+            <a
+              href={`tel:${hotline}`}
+              className="hidden shrink-0 items-center gap-1.5 text-[0.72rem] tracking-wide text-rice-100/80 transition-colors hover:text-harvest-300 sm:flex"
+            >
+              <Icon.Phone className="h-3 w-3 text-harvest-400" />
+              {hotline}
+            </a>
+          ) : (
+            <span className="hidden sm:block" />
+          )}
+
+          {/* right — Our Branches */}
+          <Link
+            href="/branches"
+            className={cn(
+              "hidden shrink-0 items-center gap-1.5 rounded-full border border-harvest-500/30 px-3 py-0.5 text-[0.7rem] font-medium tracking-wide transition-all hover:border-harvest-400 hover:text-harvest-300 sm:flex",
+              isActive("/branches") ? "border-harvest-400 text-harvest-300" : "text-rice-100/75",
+            )}
+          >
+            <Icon.MapPin className="h-3 w-3" />
+            Our Branches
+          </Link>
         </div>
       </div>
 
-      {/* main bar */}
+      {/* ── main bar ── */}
       <div
         className={cn(
           "relative transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]",
@@ -154,22 +182,38 @@ export default function Header() {
 
           {/* desktop nav */}
           <nav className="hidden items-center gap-9 lg:flex">
-            {NAV_LINKS.map((l) => (
-              <Link
-                key={l.href}
-                href={l.href}
-                className="group relative py-1 text-[0.92rem] font-medium tracking-wide"
-              >
-                {l.label}
-                <span className="pointer-events-none absolute -bottom-0.5 left-0 h-px w-0 bg-harvest-500 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:w-full" />
-              </Link>
-            ))}
+            {NAV_LINKS.map((l) => {
+              const active = isActive(l.href);
+              return (
+                <Link
+                  key={l.href}
+                  href={l.href}
+                  className={cn(
+                    "group relative py-1 text-[0.92rem] font-medium tracking-wide transition-colors duration-200",
+                    active
+                      ? light ? "text-harvest-300" : "text-paddy-700"
+                      : "hover:opacity-80",
+                  )}
+                >
+                  {l.label}
+                  {/* underline — always visible when active, animates in on hover */}
+                  <span
+                    className={cn(
+                      "pointer-events-none absolute -bottom-0.5 left-0 h-px bg-harvest-500 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
+                      active ? "w-full" : "w-0 group-hover:w-full",
+                    )}
+                  />
+                </Link>
+              );
+            })}
           </nav>
 
           {/* actions */}
           <div className="flex items-center gap-1.5">
             <button
-              aria-label="Search"
+              onClick={() => openSearch()}
+              aria-label="Search products (⌘K)"
+              title="Search (⌘K)"
               className="hidden rounded-full p-2.5 transition-colors hover:bg-current/[0.08] sm:inline-flex"
             >
               <Icon.Search className="h-[1.15rem] w-[1.15rem]" />
@@ -217,7 +261,7 @@ export default function Header() {
         </div>
       </div>
 
-      {/* mobile overlay menu */}
+      {/* ── mobile overlay menu ── */}
       <div
         className={cn(
           "fixed inset-0 z-40 origin-top bg-rice-100 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] lg:hidden",
@@ -226,35 +270,43 @@ export default function Header() {
       >
         <div className="bg-paper flex h-full flex-col px-6 pb-10 pt-28">
           <nav className="flex flex-1 flex-col justify-center gap-1">
-            {NAV_LINKS.map((l, i) => (
-              <Link
-                key={l.href}
-                href={l.href}
-                onClick={() => setOpen(false)}
-                className={cn(
-                  "border-b border-husk/10 py-4 font-display text-3xl text-husk transition-all duration-500",
-                  open ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0",
-                )}
-                style={{ transitionDelay: open ? `${120 + i * 70}ms` : "0ms" }}
-              >
-                <span className="text-harvest-500/70 text-base align-middle mr-3">
-                  0{i + 1}
-                </span>
-                {l.label}
-              </Link>
-            ))}
+            {[...NAV_LINKS, { label: "Our Branches", href: "/branches" }].map((l, i) => {
+              const active = isActive(l.href);
+              return (
+                <Link
+                  key={l.href}
+                  href={l.href}
+                  onClick={() => setOpen(false)}
+                  className={cn(
+                    "border-b border-husk/10 py-4 font-display text-3xl transition-all duration-500",
+                    active ? "text-paddy-700" : "text-husk",
+                    open ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0",
+                  )}
+                  style={{ transitionDelay: open ? `${120 + i * 70}ms` : "0ms" }}
+                >
+                  <span className={cn("text-base align-middle mr-3", active ? "text-paddy-500/70" : "text-harvest-500/70")}>
+                    0{i + 1}
+                  </span>
+                  {l.label}
+                </Link>
+              );
+            })}
           </nav>
-          <div className="flex items-center gap-4 text-sm text-husk-soft">
+          <div className="flex flex-wrap items-center gap-4 text-sm text-husk-soft">
+            {hotline && (
+              <>
+                <a href={`tel:${hotline}`} className="flex items-center gap-1.5 hover:text-paddy-700">
+                  <Icon.Phone className="h-3.5 w-3.5" />
+                  {hotline}
+                </a>
+                <span className="opacity-30">·</span>
+              </>
+            )}
+            <button onClick={() => { setOpen(false); openSearch(); }}>Search</button>
+            <span className="opacity-30">·</span>
             <Link href="/account" onClick={() => setOpen(false)}>Account</Link>
             <span className="opacity-30">·</span>
-            <button
-              onClick={() => {
-                setOpen(false);
-                openCart();
-              }}
-            >
-              Cart ({count})
-            </button>
+            <button onClick={() => { setOpen(false); openCart(); }}>Cart ({count})</button>
           </div>
         </div>
       </div>

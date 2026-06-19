@@ -24,6 +24,8 @@ type Initial = {
   grainMid?: string | null;
   grainDark?: string | null;
   images?: string[];
+  hotDeal?: boolean;
+  discountPercent?: number;
 };
 
 const BADGES = ["", "Best Seller", "New Harvest", "Heirloom", "Premium", "Family Favourite"];
@@ -122,12 +124,22 @@ export default function ProductForm({
       </section>
 
       {/* pricing + stock */}
-      <section className="grid gap-4 sm:grid-cols-2">
+      <section className="grid gap-4 sm:grid-cols-3">
         <Field label="Price per kg (LKR)">
           <input name="pricePerKg" type="number" min={0} required className="ctrl" defaultValue={initial?.pricePerKg ?? 0} />
         </Field>
         <Field label="Stock (kg)">
           <input name="stockKg" type="number" min={0} required className="ctrl" defaultValue={initial?.stockKg ?? 0} />
+        </Field>
+        <Field label="Discount %" hint="0–90, applied across all weights">
+          <input
+            name="discountPercent"
+            type="number"
+            min={0}
+            max={90}
+            className="ctrl"
+            defaultValue={initial?.discountPercent ?? 0}
+          />
         </Field>
       </section>
 
@@ -146,10 +158,16 @@ export default function ProductForm({
             </label>
           ))}
         </div>
-        <label className="mt-5 flex items-center gap-2.5 text-sm text-husk">
-          <input type="checkbox" name="featured" defaultChecked={initial?.featured ?? false} className="h-4 w-4 accent-paddy-800" />
-          Feature on homepage
-        </label>
+        <div className="mt-5 flex flex-wrap items-center gap-5">
+          <label className="flex items-center gap-2.5 text-sm text-husk">
+            <input type="checkbox" name="featured" defaultChecked={initial?.featured ?? false} className="h-4 w-4 accent-paddy-800" />
+            Feature on homepage (Hot products)
+          </label>
+          <label className="flex items-center gap-2.5 text-sm text-husk">
+            <input type="checkbox" name="hotDeal" defaultChecked={initial?.hotDeal ?? false} className="h-4 w-4 accent-paddy-800" />
+            Show in Hot Deals carousel
+          </label>
+        </div>
       </section>
 
       {/* photos */}

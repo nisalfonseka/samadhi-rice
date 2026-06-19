@@ -9,6 +9,7 @@ import TrustStats from "@/components/home/TrustStats";
 import Testimonials from "@/components/home/Testimonials";
 import BlogPreview from "@/components/home/BlogPreview";
 import Newsletter from "@/components/home/Newsletter";
+import { getSettings } from "@/lib/services/settings.service";
 
 const jsonLd = {
   "@context": "https://schema.org",
@@ -43,7 +44,9 @@ const jsonLd = {
   ],
 };
 
-export default function Home() {
+export default async function Home() {
+  const s = await getSettings();
+
   return (
     <>
       <script
@@ -51,13 +54,13 @@ export default function Home() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <Hero />
-      <HotProducts />
-      <Offers />
-      <OriginStory />
-      <TrustStats />
-      <Testimonials />
-      <BlogPreview />
-      <Newsletter />
+      {s.sectionHotProducts && <HotProducts />}
+      {s.sectionOffers && <Offers />}
+      {s.sectionOriginStory && <OriginStory />}
+      {s.sectionTrustStats && <TrustStats />}
+      {s.sectionTestimonials && <Testimonials />}
+      {s.sectionBlogPreview && <BlogPreview />}
+      {s.sectionNewsletter && <Newsletter />}
     </>
   );
 }
