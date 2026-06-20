@@ -75,8 +75,16 @@ const toBool = (v: string | undefined, d: boolean) => (v == null ? d : v === "tr
 const toStr = (v: string | undefined, d: string) => (v != null ? v : d);
 
 export async function getSettings(): Promise<ShopSettings> {
-  const rows = await prisma.siteSetting.findMany();
-  const m = new Map(rows.map((r) => [r.key, r.value]));
+  // If the database is unreachable, fall back to defaults so the storefront
+  // still renders instead of white-screening. An empty map makes every field
+  // below resolve to its DEFAULTS value.
+  let m = new Map<string, string>();
+  try {
+    const rows = await prisma.siteSetting.findMany();
+    m = new Map(rows.map((r) => [r.key, r.value]));
+  } catch (err) {
+    console.error("getSettings: database unavailable, using defaults", err);
+  }
   return {
     deliveryFeeFlat: toNum(m.get("delivery_fee_flat"), DEFAULTS.deliveryFeeFlat),
     freeDeliveryEnabled: toBool(m.get("free_delivery_enabled"), DEFAULTS.freeDeliveryEnabled),

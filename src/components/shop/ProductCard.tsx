@@ -19,7 +19,13 @@ const BADGE_TONE: Record<string, string> = {
   "Family Favourite": "bg-mist-400 text-paddy-950",
 };
 
-export default function ProductCard({ product }: { product: ProductDTO }) {
+export default function ProductCard({
+  product,
+  className,
+}: {
+  product: ProductDTO;
+  className?: string;
+}) {
   const { add } = useCart();
   const { has, toggle } = useWishlist();
   const [weight, setWeight] = useState(5);
@@ -37,7 +43,12 @@ export default function ProductCard({ product }: { product: ProductDTO }) {
   };
 
   return (
-    <article className="group relative flex flex-col overflow-hidden rounded-3xl border border-husk/10 bg-rice-50 shadow-[0_18px_44px_-32px_rgba(34,31,23,0.55)] transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1.5 hover:border-clay-400/40 hover:shadow-[0_36px_70px_-34px_rgba(34,31,23,0.55)]">
+    <article
+      className={cn(
+        "group relative flex flex-col overflow-hidden rounded-3xl border border-husk/10 bg-rice-50 shadow-[0_18px_44px_-32px_rgba(34,31,23,0.55)] transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1.5 hover:border-clay-400/40 hover:shadow-[0_36px_70px_-34px_rgba(34,31,23,0.55)]",
+        className,
+      )}
+    >
       <Link
         href={`/shop/${product.slug}`}
         className="relative block aspect-[5/4] overflow-hidden bg-[radial-gradient(120%_100%_at_50%_0%,var(--color-rice-100),var(--color-rice-200))]"

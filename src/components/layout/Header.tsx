@@ -128,7 +128,8 @@ export default function Header({ hotline }: { hotline?: string }) {
       {/* ── top utility bar ── */}
       <div
         className={cn(
-          "overflow-hidden bg-paddy-950 text-rice-100 transition-[height,opacity] duration-500",
+          "overflow-hidden transition-[height,opacity,background-color] duration-500",
+          light ? "text-rice-100" : "bg-paddy-950 text-rice-100",
           compact ? "h-0 opacity-0" : "h-9 opacity-100 border-b border-white/10",
         )}
       >
@@ -138,20 +139,20 @@ export default function Header({ hotline }: { hotline?: string }) {
           {hotline ? (
             <a
               href={`tel:${hotline}`}
-              className="hidden shrink-0 items-center gap-1.5 text-[0.72rem] tracking-wide text-rice-100/80 transition-colors hover:text-harvest-300 sm:flex"
+              className="flex shrink-0 items-center gap-1.5 text-[0.72rem] tracking-wide text-rice-100/80 transition-colors hover:text-harvest-300"
             >
               <Icon.Phone className="h-3 w-3 text-harvest-400" />
               {hotline}
             </a>
           ) : (
-            <span className="hidden sm:block" />
+            <span />
           )}
 
           {/* right — Our Branches */}
           <Link
             href="/branches"
             className={cn(
-              "hidden shrink-0 items-center gap-1.5 rounded-full border border-harvest-500/30 px-3 py-0.5 text-[0.7rem] font-medium tracking-wide transition-all hover:border-harvest-400 hover:text-harvest-300 sm:flex",
+              "flex shrink-0 items-center gap-1.5 rounded-full border border-harvest-500/30 px-3 py-0.5 text-[0.7rem] font-medium tracking-wide transition-all hover:border-harvest-400 hover:text-harvest-300",
               isActive("/branches") ? "border-harvest-400 text-harvest-300" : "text-rice-100/75",
             )}
           >
@@ -269,6 +270,13 @@ export default function Header({ hotline }: { hotline?: string }) {
         )}
       >
         <div className="bg-paper flex h-full flex-col px-6 pb-10 pt-28">
+          <button
+            onClick={() => setOpen(false)}
+            aria-label="Close menu"
+            className="absolute right-5 top-5 rounded-full p-2.5 text-husk transition-colors hover:bg-husk/10"
+          >
+            <Icon.Close className="h-6 w-6" />
+          </button>
           <nav className="flex flex-1 flex-col justify-center gap-1">
             {[...NAV_LINKS, { label: "Our Branches", href: "/branches" }].map((l, i) => {
               const active = isActive(l.href);

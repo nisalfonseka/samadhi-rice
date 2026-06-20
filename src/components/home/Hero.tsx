@@ -1,24 +1,70 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import Button from "@/components/ui/Button";
 import HeroSearch from "@/components/home/HeroSearch";
+import {
+  getSkyState,
+  getPhotoMix,
+  type SkyState,
+  type PhotoMix,
+} from "@/lib/skyCycle";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
-const PARTICLES = Array.from({ length: 16 }, (_, i) => ({
+/** Golden pollen / dust motes that catch the light by day. */
+const PARTICLES = Array.from({ length: 18 }, (_, i) => ({
   left: (i * 61) % 100,
-  bottom: (i * 37) % 40,
+  bottom: (i * 37) % 46,
   delay: (i % 8) * 1.1,
   dur: 9 + (i % 5) * 2.5,
   size: 2 + (i % 3),
 }));
 
+/** Deterministic star field in the upper sky — no hydration mismatch. */
+const STARS = Array.from({ length: 50 }, (_, i) => ({
+  left: (i * 97.13) % 100,
+  top: ((i * 53.7) % 50) + 2,
+  size: 1 + (i % 3) * 0.7,
+  delay: (i % 9) * 0.6,
+  dur: 2.6 + (i % 5) * 1.1,
+}));
+
 export default function Hero() {
   const root = useRef<HTMLElement>(null);
+
+  // Time-driven sky. First paint uses a neutral default so SSR/CSR agree;
+  // the real Sri Lankan time is applied right after mount and every minute.
+  const [sky, setSky] = useState<SkyState>(() =>
+    getSkyState(new Date(2026, 0, 1, 9, 0)),
+  );
+  const [mix, setMix] = useState<PhotoMix>(() =>
+    getPhotoMix(new Date(2026, 0, 1, 9, 0)),
+  );
+  // Snap to the real time on first paint (no sliding sun/moon path on load);
+  // only enable the smooth transitions afterwards for the minute-by-minute drift.
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    const tick = () => {
+      const now = new Date();
+      setSky(getSkyState(now));
+      setMix(getPhotoMix(now));
+    };
+    tick();
+    const raf = requestAnimationFrame(() => setReady(true));
+    const id = window.setInterval(tick, 60_000);
+    return () => {
+      window.clearInterval(id);
+      cancelAnimationFrame(raf);
+    };
+  }, []);
+  const move = ready
+    ? "transition-[left,top,opacity] duration-[2500ms] ease-linear"
+    : "";
+  const fade = ready ? "transition-opacity duration-[2500ms] ease-linear" : "";
 
   useGSAP(
     () => {
@@ -37,6 +83,17 @@ export default function Hero() {
       });
 
       if (reduce) return;
+
+      // slow Ken Burns drift on the photo — keeps the scene alive
+      gsap.to("[data-kenburns]", {
+        scale: 1.1,
+        xPercent: -2.5,
+        yPercent: -2,
+        duration: 26,
+        ease: "sine.inOut",
+        yoyo: true,
+        repeat: -1,
+      });
 
       // scroll parallax — each layer drifts at its own depth
       gsap.utils.toArray<HTMLElement>("[data-depth]").forEach((layer) => {
@@ -78,99 +135,162 @@ export default function Hero() {
     <section
       id="site-hero"
       ref={root}
-      className="relative mt-[25px] flex min-h-[100svh] w-full items-center overflow-hidden bg-paddy-950"
+      className="relative flex min-h-[100svh] w-full items-center overflow-hidden bg-paddy-950"
     >
-      {/* ---- sky / dawn wash ---- */}
-      <div
-        data-depth="12"
-        className="absolute inset-0"
-        style={{
-          background:
-            "linear-gradient(180deg, #15220f 0%, #1d2916 26%, #314026 52%, #6b6a37 76%, #b9933f 100%)",
-        }}
-      />
-      {/* sun haze */}
-      <div
-        data-depth="18"
-        data-mouse="14"
-        className="absolute left-[18%] top-[42%] h-[42vh] w-[42vh] -translate-x-1/2 rounded-full blur-2xl"
-        style={{
-          background:
-            "radial-gradient(circle, rgba(243,222,160,0.85) 0%, rgba(216,184,99,0.35) 38%, transparent 70%)",
-        }}
-      />
-      <div className="absolute inset-0 bg-[radial-gradient(120%_80%_at_50%_120%,transparent_40%,rgba(18,27,13,0.85)_100%)]" />
-
-      {/* ---- distant misty hills ---- */}
-      <div data-depth="26" data-mouse="8" className="absolute inset-x-0 bottom-[34%] h-[26vh]">
-        <svg viewBox="0 0 1440 240" preserveAspectRatio="none" className="h-full w-full" aria-hidden>
-          <path
-            d="M0 240V120c120-30 220 20 360 10s260-60 420-50 240 60 380 44 180-40 280-30v176Z"
-            fill="#3a4a2b"
-            opacity="0.55"
-          />
-        </svg>
-      </div>
-
-      {/* ---- paddy terraces (back) ---- */}
-      <div data-depth="40" className="absolute inset-x-0 bottom-[16%] h-[34vh]">
-        <svg viewBox="0 0 1440 320" preserveAspectRatio="none" className="h-full w-full" aria-hidden>
-          <path
-            d="M0 320V92c160 26 300-20 520-20s420 56 620 40 220-44 300-40v248Z"
-            fill="#445b30"
-          />
-          <path
-            d="M0 320V150c180 18 320-8 540 6s420 40 620 26 200-30 280-28v194Z"
-            fill="#3a4d28"
-            opacity="0.9"
-          />
-        </svg>
-      </div>
-
-      {/* ---- paddy terraces (front) with water sheen ---- */}
-      <div data-depth="58" data-mouse="-6" className="absolute inset-x-0 bottom-0 h-[30vh]">
-        <svg viewBox="0 0 1440 300" preserveAspectRatio="none" className="h-full w-full" aria-hidden>
-          <path d="M0 300V120c220 40 420 6 720 6s500 28 720-2v176Z" fill="#2c3c1d" />
-          <path
-            d="M0 300V160c220 30 420 2 720 2s500 22 720-6v144Z"
-            fill="#243117"
-          />
-          {/* row glints */}
-          <g stroke="#9bb06f" strokeWidth="1" opacity="0.18">
-            <path d="M120 232c360-26 840-26 1200 0" fill="none" />
-            <path d="M80 262c380-22 900-22 1280 0" fill="none" />
-          </g>
-        </svg>
-      </div>
-
-      {/* ---- foreground rice stalks ---- */}
-      <div
-        data-depth="74"
-        data-mouse="-12"
-        className="absolute inset-x-0 bottom-0 h-[24vh] origin-bottom"
-      >
-        <div className="absolute inset-0 origin-bottom animate-[sway_7s_ease-in-out_infinite]">
-          <svg viewBox="0 0 1440 260" preserveAspectRatio="xMidYMax meet" className="h-full w-full" aria-hidden>
-            <g fill="#141f0c">
-              {Array.from({ length: 26 }).map((_, i) => {
-                const x = 20 + i * 55 + (i % 3) * 10;
-                return (
-                  <g key={i} transform={`translate(${x} 260)`}>
-                    <path d="M0 0 C -3 -70 -6 -120 -2 -180" stroke="#141f0c" strokeWidth="3" fill="none" />
-                    <path d="M-2 -180c10 6 10 22 0 30-10-8-10-24 0-30Z" />
-                    <path d="M-2 -150c14-2 22 6 24 18-12 2-22-4-24-18Z" />
-                    <path d="M-2 -150c-14-2-22 6-24 18 12 2 22-4 24-18Z" />
-                    <path d="M-2 -120c12-2 20 6 22 16-11 2-20-4-22-16Z" />
-                    <path d="M-2 -120c-12-2-20 6-22 16 11 2 20-4 22-16Z" />
-                  </g>
-                );
-              })}
-            </g>
-          </svg>
+      {/* ---- background photos (4-way time-of-day crossfade + Ken Burns) ---- */}
+      <div data-depth="8" className="absolute inset-0 overflow-hidden">
+        <div
+          data-kenburns
+          className="absolute inset-0 will-change-transform transition-[filter] duration-[2500ms] ease-linear"
+          style={{ filter: sky.photoFilter }}
+        >
+          {(
+            [
+              ["/hero-morning.png", mix.morning],
+              ["/hero-noon.png", mix.noon],
+              ["/hero-evening.png", mix.evening],
+              ["/hero-night.png", mix.night],
+            ] as const
+          ).map(([src, opacity]) => (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              key={src}
+              src={src}
+              alt=""
+              className={`absolute inset-0 h-full w-full object-cover ${fade}`}
+              style={{ opacity }}
+              aria-hidden
+            />
+          ))}
         </div>
       </div>
 
-      {/* ---- floating grain dust ---- */}
+      {/* ---- warm golden grade (soft-light, peaks at sunrise/sunset) ---- */}
+      <div
+        className="pointer-events-none absolute inset-0 transition-opacity duration-[2500ms] ease-linear"
+        style={{
+          opacity: sky.warmOpacity,
+          mixBlendMode: "soft-light",
+          background:
+            "linear-gradient(180deg, #ffe0a8 0%, #ff9e4d 52%, #ff7a33 100%)",
+        }}
+        aria-hidden
+      />
+
+      {/* ---- night grade (deep-navy multiply brings on the dark) ---- */}
+      <div
+        className="pointer-events-none absolute inset-0 transition-opacity duration-[2500ms] ease-linear"
+        style={{
+          opacity: sky.nightOpacity,
+          mixBlendMode: "multiply",
+          background:
+            "linear-gradient(180deg, #060c22 0%, #0d1736 58%, #182747 100%)",
+        }}
+        aria-hidden
+      />
+
+      {/* ---- stars (sky region, fade in after dusk) ---- */}
+      <div
+        className="pointer-events-none absolute inset-x-0 top-0 h-[58%] transition-opacity duration-[2500ms] ease-linear"
+        style={{ opacity: sky.starOpacity }}
+        aria-hidden
+      >
+        {STARS.map((s, i) => (
+          <span
+            key={i}
+            className="absolute rounded-full bg-rice-50"
+            style={{
+              left: `${s.left}%`,
+              top: `${s.top}%`,
+              width: s.size,
+              height: s.size,
+              animation: `twinkle ${s.dur}s ease-in-out ${s.delay}s infinite`,
+            }}
+          />
+        ))}
+      </div>
+
+      {/* ---- moonlight cast into the scene (screen blend) ---- */}
+      <div
+        className="pointer-events-none absolute inset-0 transition-opacity duration-[2500ms] ease-linear"
+        style={{
+          opacity: sky.moonBloom,
+          mixBlendMode: "screen",
+          background: `radial-gradient(60vh 60vh at ${sky.moonX}% ${sky.moonY}%, rgba(150,172,230,0.85) 0%, rgba(120,140,200,0.25) 38%, transparent 70%)`,
+        }}
+        aria-hidden
+      />
+
+      {/* ---- sunlight cast into the scene (screen blend) ---- */}
+      <div
+        className="pointer-events-none absolute inset-0 transition-opacity duration-[2500ms] ease-linear"
+        style={{
+          opacity: sky.sunBloom,
+          mixBlendMode: "screen",
+          background: `radial-gradient(70vh 70vh at ${sky.sunX}% ${sky.sunY}%, ${sky.glow} 0%, rgba(255,200,120,0.28) 36%, transparent 68%)`,
+        }}
+        aria-hidden
+      />
+
+      {/* ---- moon ---- */}
+      <div
+        className={`pointer-events-none absolute z-[12] -translate-x-1/2 -translate-y-1/2 ${move}`}
+        style={{ left: `${sky.moonX}%`, top: `${sky.moonY}%`, opacity: sky.moonOpacity }}
+        aria-hidden
+      >
+        <div className="relative h-[11vh] w-[11vh] min-h-[58px] min-w-[58px]">
+          {/* cool halo */}
+          <div
+            className="absolute left-1/2 top-1/2 h-[300%] w-[300%] -translate-x-1/2 -translate-y-1/2 rounded-full blur-2xl"
+            style={{ background: "radial-gradient(circle, rgba(205,216,255,0.5) 0%, rgba(205,216,255,0.12) 42%, transparent 70%)" }}
+          />
+          {/* realistic moon */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/moon.png"
+            alt=""
+            className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_0_10px_rgba(200,214,255,0.45)]"
+            aria-hidden
+          />
+        </div>
+      </div>
+
+      {/* ---- sun (disc + bloom) ---- */}
+      <div
+        className={`pointer-events-none absolute z-[12] -translate-x-1/2 -translate-y-1/2 ${move}`}
+        style={{ left: `${sky.sunX}%`, top: `${sky.sunY}%`, opacity: sky.sunOpacity }}
+        aria-hidden
+      >
+        <div className="relative h-[12vh] w-[12vh] min-h-[68px] min-w-[68px]">
+          {/* broad haze (breathes) */}
+          <div
+            className="absolute left-1/2 top-1/2 h-[440%] w-[440%] -translate-x-1/2 -translate-y-1/2 rounded-full blur-3xl animate-[glowPulse_6s_ease-in-out_infinite]"
+            style={{ background: `radial-gradient(circle, ${sky.glow} 0%, transparent 62%)`, opacity: 0.55 }}
+          />
+          {/* inner glow (tints with the hour) */}
+          <div
+            className="absolute left-1/2 top-1/2 h-[210%] w-[210%] -translate-x-1/2 -translate-y-1/2 rounded-full blur-xl"
+            style={{ background: `radial-gradient(circle, ${sky.glow} 0%, transparent 65%)`, opacity: 0.5 }}
+          />
+          {/* realistic sun orb */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/sun.svg"
+            alt=""
+            className="absolute left-1/2 top-1/2 h-[150%] w-[150%] -translate-x-1/2 -translate-y-1/2"
+            aria-hidden
+          />
+        </div>
+      </div>
+
+      {/* ---- horizon wash (warm at sunrise / sunset) ---- */}
+      <div
+        className="pointer-events-none absolute inset-x-0 top-[44%] h-[34vh] transition-[background] duration-[2500ms] ease-linear"
+        style={{ background: `linear-gradient(0deg, ${sky.horizonGlow} 0%, transparent 100%)` }}
+        aria-hidden
+      />
+
+      {/* ---- floating golden dust ---- */}
       <div className="pointer-events-none absolute inset-0">
         {PARTICLES.map((p, i) => (
           <span
@@ -181,11 +301,48 @@ export default function Hero() {
               bottom: `${p.bottom}%`,
               width: p.size,
               height: p.size,
+              opacity: 0.5 + sky.sunOpacity * 0.4,
               animation: `float-grain ${p.dur}s linear ${p.delay}s infinite`,
             }}
           />
         ))}
       </div>
+
+      {/* ---- cinematic colour grade: deep paddy-green framing the headline ---- */}
+      {/* filmic green split-tone in the shadows (left → gold right) — fades out
+          below the headline so the rating + search sit on the clean photo */}
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          mixBlendMode: "multiply",
+          opacity: 0.6,
+          background:
+            "linear-gradient(108deg, #16280f 0%, #1f3417 34%, rgba(40,54,31,0) 60%)",
+          maskImage: "linear-gradient(180deg, #000 0%, #000 38%, transparent 62%)",
+          WebkitMaskImage: "linear-gradient(180deg, #000 0%, #000 38%, transparent 62%)",
+        }}
+        aria-hidden
+      />
+      {/* deep green anchored at the top-left corner (matches reference) */}
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(125% 115% at 0% 0%, rgba(10,20,9,0.8) 0%, rgba(16,28,14,0.32) 28%, transparent 54%)",
+        }}
+        aria-hidden
+      />
+      {/* left text-column wash — also fades out toward the lower content */}
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "linear-gradient(100deg, rgba(11,22,10,0.72) 0%, rgba(17,29,15,0.4) 26%, rgba(26,38,22,0.12) 46%, transparent 58%)",
+          maskImage: "linear-gradient(180deg, #000 0%, #000 42%, transparent 66%)",
+          WebkitMaskImage: "linear-gradient(180deg, #000 0%, #000 42%, transparent 66%)",
+        }}
+        aria-hidden
+      />
 
       {/* ---- content ---- */}
       <div className="relative z-20 mx-auto w-full max-w-7xl px-5 pb-28 pt-28 sm:px-8">
