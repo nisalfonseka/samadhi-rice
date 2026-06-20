@@ -56,7 +56,7 @@ export default function Header({ hotline }: { hotline?: string }) {
   const { count, lastAddedAt, openCart } = useCart();
   const { openSearch } = useSearch();
   const pathname = usePathname();
-  const [overHero, setOverHero] = useState(true);
+  const [overHero, setOverHero] = useState(pathname === "/");
   const [compact, setCompact] = useState(false);
   const [progress, setProgress] = useState(0);
   const [open, setOpen] = useState(false);
@@ -76,7 +76,7 @@ export default function Header({ hotline }: { hotline?: string }) {
     );
     obs.observe(hero);
     return () => obs.disconnect();
-  }, []);
+  }, [pathname]);
 
   // shrink + scroll-progress line
   useEffect(() => {
@@ -128,8 +128,8 @@ export default function Header({ hotline }: { hotline?: string }) {
       {/* ── top utility bar ── */}
       <div
         className={cn(
-          "overflow-hidden border-b border-white/10 bg-paddy-950 text-rice-100 transition-[height,opacity] duration-500",
-          compact ? "h-0 opacity-0" : "h-9 opacity-100",
+          "overflow-hidden bg-paddy-950 text-rice-100 transition-[height,opacity] duration-500",
+          compact ? "h-0 opacity-0" : "h-9 opacity-100 border-b border-white/10",
         )}
       >
         <div className="mx-auto flex h-9 max-w-7xl items-center justify-between px-5 sm:px-8">
