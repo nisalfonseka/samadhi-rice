@@ -61,7 +61,15 @@ export default function Header({ hotline }: { hotline?: string }) {
   const [progress, setProgress] = useState(0);
   const [open, setOpen] = useState(false);
   const [bump, setBump] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
   const firstAdd = useRef(true);
+
+  // Enable transitions only after the first paint so CSS doesn't animate
+  // from "no styles" to "styled", which flashes the opaque header colours.
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setHydrated(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
 
   // colour theme: transparent + light text while over the dark hero.
   // Synchronously check hero visibility on mount to avoid a cream flash
@@ -136,8 +144,9 @@ export default function Header({ hotline }: { hotline?: string }) {
       {/* ── top utility bar ── */}
       <div
         className={cn(
-          "overflow-hidden transition-[height,opacity,background-color] duration-500",
-          light ? "text-rice-100" : "bg-paddy-700 text-rice-100",
+          "overflow-hidden",
+          hydrated ? "transition-[height,opacity,background-color] duration-500" : "",
+          light ? "bg-transparent text-rice-100" : "bg-paddy-700 text-rice-100",
           compact ? "h-0 opacity-0" : "h-9 opacity-100 border-b border-white/10",
         )}
       >
@@ -173,7 +182,8 @@ export default function Header({ hotline }: { hotline?: string }) {
       {/* ── main bar ── */}
       <div
         className={cn(
-          "relative transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]",
+          "relative",
+          hydrated ? "transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]" : "",
           light
             ? "bg-transparent text-rice-50"
             : "bg-rice-100/85 text-husk shadow-[0_1px_0_rgba(34,31,23,0.08),0_18px_40px_-30px_rgba(34,31,23,0.6)] backdrop-blur-xl",
