@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/providers/CartProvider";
@@ -45,6 +45,8 @@ export default function CheckoutPage() {
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
   const [serverError, setServerError] = useState("");
+  const [shake, setShake] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => setMounted(true), []);
 
@@ -63,7 +65,28 @@ export default function CheckoutPage() {
     if (form.email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(form.email))
       e.email = "Enter a valid email";
     setErrors(e);
-    return Object.keys(e).length === 0;
+
+    const hasErrors = Object.keys(e).length > 0;
+    if (hasErrors) {
+      // Shake the submit button for tactile feedback
+      setShake(true);
+      setTimeout(() => setShake(false), 600);
+      
+      if (typeof window !== "undefined" && window.navigator && window.navigator.vibrate) {
+         window.navigator.vibrate([200]);
+      }
+
+      // Scroll to the first field with an error so mobile users see it
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          const firstErr = formRef.current?.querySelector("[data-field-error]");
+          if (firstErr) {
+            firstErr.scrollIntoView({ behavior: "smooth", block: "center" });
+          }
+        }, 100);
+      });
+    }
+    return !hasErrors;
   };
 
   const submit = async (ev: React.FormEvent) => {
@@ -124,6 +147,7 @@ export default function CheckoutPage() {
   return (
     <div className="bg-paper min-h-screen">
       <form
+        ref={formRef}
         onSubmit={submit}
         className="mx-auto grid max-w-7xl gap-10 px-5 pb-24 pt-32 sm:px-8 sm:pt-36 lg:grid-cols-[1.5fr_1fr] lg:gap-14"
       >
@@ -229,15 +253,32 @@ export default function CheckoutPage() {
               <p className="mt-4 rounded-xl bg-clay-500/10 px-4 py-3 text-sm text-clay-700">{serverError}</p>
             )}
 
+            {Object.keys(errors).length > 0 && (
+              <div className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3">
+                <p className="flex items-center gap-2 text-sm font-semibold text-red-700">
+                  <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 shrink-0">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0ZM8.94 6.94a.75.75 0 1 1-1.06-1.06.75.75 0 0 1 1.06 1.06ZM10 8a.75.75 0 0 1 .75.75v4.5a.75.75 0 0 1-1.5 0v-4.5A.75.75 0 0 1 10 8Z" clipRule="evenodd" />
+                  </svg>
+                  Please fix the following:
+                </p>
+                <ul className="mt-1.5 space-y-0.5 pl-6 text-xs text-red-600">
+                  {Object.values(errors).map((msg, i) => (
+                    <li key={i} className="list-disc">{msg}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
             <button
               type="submit"
               disabled={submitting || lines.length === 0}
               className={cn(
                 "mt-5 flex w-full items-center justify-center gap-2 rounded-full py-4 font-medium text-rice-50 transition-all duration-300",
-                submitting ? "bg-paddy-600" : "bg-paddy-800 hover:bg-paddy-900 hover:-translate-y-0.5",
+                submitting ? "bg-paddy-600" : "bg-paddy-800 active:scale-[0.97] lg:hover:bg-paddy-900 lg:hover:-translate-y-0.5",
+                shake && "animate-[headShake_0.6s_ease-in-out] bg-red-600",
               )}
             >
-              {submitting ? "Placing order…" : `Place order · ${formatLKR(total)}`}
+              {submitting ? "Placing order…" : shake ? "Please fix errors above" : `Place order · ${formatLKR(total)}`}
             </button>
             <p className="mt-3 text-center text-xs text-husk-soft">
               You&apos;ll pay {formatLKR(total)} in cash on delivery.
@@ -260,11 +301,21 @@ function Field({
   className?: string;
   children: React.ReactNode;
 }) {
+  const hasError = !!error;
   return (
-    <label className={cn("block", className)}>
+    <label className={cn("block", className)} {...(hasError ? { "data-field-error": true } : {})}>
       <span className="mb-1.5 block text-sm font-medium text-husk">{label}</span>
-      {children}
-      {error && <span className="mt-1 block text-xs text-clay-600">{error}</span>}
+      <div className={cn(hasError && "[&>.ctrl]:border-red-400 [&>.ctrl]:bg-red-50/40")}>
+        {children}
+      </div>
+      {error && (
+        <span className="mt-1.5 flex items-center gap-1 text-[0.8rem] font-medium text-red-600">
+          <svg viewBox="0 0 16 16" fill="currentColor" className="h-3.5 w-3.5 shrink-0">
+            <path fillRule="evenodd" d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14ZM8 4a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 8 4Zm0 8a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Z" clipRule="evenodd" />
+          </svg>
+          {error}
+        </span>
+      )}
     </label>
   );
 }

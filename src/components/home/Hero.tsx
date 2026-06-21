@@ -165,6 +165,20 @@ export default function Hero() {
         </div>
       </div>
 
+      {/* ---- left-side text-area blur: fades toward right + bottom ---- */}
+      <div
+        className="pointer-events-none absolute inset-0 z-[1] backdrop-blur-[8px]"
+        style={{
+          maskImage:
+            "linear-gradient(to right, #000 0%, #000 28%, transparent 58%), linear-gradient(to bottom, #000 0%, #000 30%, transparent 68%)",
+          maskComposite: "intersect",
+          WebkitMaskImage:
+            "linear-gradient(to right, #000 0%, #000 28%, transparent 58%), linear-gradient(to bottom, #000 0%, #000 30%, transparent 68%)",
+          WebkitMaskComposite: "source-in",
+        }}
+        aria-hidden
+      />
+
       {/* ---- warm golden grade (soft-light, peaks at sunrise/sunset) ---- */}
       <div
         className="pointer-events-none absolute inset-0 transition-opacity duration-[2500ms] ease-linear"
@@ -283,12 +297,7 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* ---- horizon wash (warm at sunrise / sunset) ---- */}
-      <div
-        className="pointer-events-none absolute inset-x-0 top-[44%] h-[34vh] transition-[background] duration-[2500ms] ease-linear"
-        style={{ background: `linear-gradient(0deg, ${sky.horizonGlow} 0%, transparent 100%)` }}
-        aria-hidden
-      />
+
 
       {/* ---- floating golden dust ---- */}
       <div className="pointer-events-none absolute inset-0">
@@ -345,11 +354,11 @@ export default function Hero() {
       />
 
       {/* ---- content ---- */}
-      <div className="relative z-20 mx-auto w-full max-w-7xl px-5 pb-28 pt-28 sm:px-8">
+      <div className="relative z-20 mx-auto w-full max-w-7xl px-5 pb-28 pt-35 sm:px-8">
         <div className="max-w-2xl">
           <h1
             data-hero-in
-            className="font-display text-[clamp(2.6rem,7vw,5.4rem)] font-medium leading-[0.98] text-rice-50"
+            className="font-display text-[clamp(2.2rem,6vw,4.6rem)] font-medium leading-[0.98] text-rice-50"
           >
             From the paddy field
             <br />

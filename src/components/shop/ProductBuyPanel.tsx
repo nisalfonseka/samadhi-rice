@@ -22,7 +22,7 @@ export default function ProductBuyPanel({
 }) {
   const { add } = useCart();
   const { has, toggle } = useWishlist();
-  const [weight, setWeight] = useState(5);
+  const [weight, setWeight] = useState(1);
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
 

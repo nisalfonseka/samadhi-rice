@@ -63,13 +63,21 @@ export default function Header({ hotline }: { hotline?: string }) {
   const [bump, setBump] = useState(false);
   const firstAdd = useRef(true);
 
-  // colour theme: transparent + light text while over the dark hero
+  // colour theme: transparent + light text while over the dark hero.
+  // Synchronously check hero visibility on mount to avoid a cream flash
+  // when the browser restores scroll position on refresh.
   useEffect(() => {
     const hero = document.getElementById("site-hero");
     if (!hero) {
       setOverHero(false);
       return;
     }
+
+    // Immediate sync check — prevents flash before observer fires
+    const rect = hero.getBoundingClientRect();
+    const headerH = 72;
+    setOverHero(rect.bottom > headerH && rect.top < window.innerHeight);
+
     const obs = new IntersectionObserver(
       ([entry]) => setOverHero(entry.isIntersecting),
       { rootMargin: "-72px 0px 0px 0px", threshold: 0 },
@@ -129,7 +137,7 @@ export default function Header({ hotline }: { hotline?: string }) {
       <div
         className={cn(
           "overflow-hidden transition-[height,opacity,background-color] duration-500",
-          light ? "text-rice-100" : "bg-paddy-950 text-rice-100",
+          light ? "text-rice-100" : "bg-paddy-700 text-rice-100",
           compact ? "h-0 opacity-0" : "h-9 opacity-100 border-b border-white/10",
         )}
       >

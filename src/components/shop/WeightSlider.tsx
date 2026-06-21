@@ -20,6 +20,8 @@ export default function WeightSlider({
   const [customOpen, setCustomOpen] = useState(false);
   const [customVal, setCustomVal] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+  const startXRef = useRef(0);
+  const isDragRef = useRef(false);
 
   const isPreset = STOPS.includes(value as (typeof STOPS)[number]);
   const activeIdx = isPreset ? STOPS.indexOf(value as (typeof STOPS)[number]) : -1;
@@ -44,6 +46,8 @@ export default function WeightSlider({
       e.preventDefault();
       (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
       setDragging(true);
+      startXRef.current = e.clientX;
+      isDragRef.current = false;
       resolve(e.clientX);
     },
     [resolve],
@@ -52,6 +56,9 @@ export default function WeightSlider({
   const onPointerMove = useCallback(
     (e: React.PointerEvent) => {
       if (!dragging) return;
+      if (Math.abs(e.clientX - startXRef.current) > 3) {
+        isDragRef.current = true;
+      }
       resolve(e.clientX);
     },
     [dragging, resolve],
@@ -112,7 +119,14 @@ export default function WeightSlider({
             >
               <button
                 type="button"
-                onClick={() => { onChange(w); setCustomOpen(false); }}
+                onClick={(e) => { 
+                  if (isDragRef.current) {
+                    e.preventDefault();
+                    return;
+                  }
+                  onChange(w); 
+                  setCustomOpen(false); 
+                }}
                 className="flex cursor-pointer flex-col items-center"
               >
                 <span
