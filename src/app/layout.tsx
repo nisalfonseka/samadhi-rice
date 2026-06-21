@@ -7,8 +7,10 @@ import Footer from "@/components/layout/Footer";
 import FloatingActions from "@/components/layout/FloatingActions";
 import CartDrawer from "@/components/cart/CartDrawer";
 import SearchOverlay from "@/components/search/SearchOverlay";
-import ChromeGate from "@/components/layout/ChromeGate";
+import ChromeGate, { FooterGate } from "@/components/layout/ChromeGate";
 import { getSettings } from "@/lib/services/settings.service";
+import { getAssistantConfig } from "@/lib/services/assistant.service";
+import { getProducts } from "@/lib/services/product.service";
 
 const fraunces = Fraunces({
   variable: "--font-fraunces",
@@ -71,7 +73,11 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const settings = await getSettings();
+  const [settings, assistant, chatProducts] = await Promise.all([
+    getSettings(),
+    getAssistantConfig(),
+    getProducts({}).catch(() => []),
+  ]);
   return (
     <html
       lang="en"
@@ -83,15 +89,23 @@ export default async function RootLayout({
             <Header hotline={settings.contactPhone} />
           </ChromeGate>
           <main className="relative z-10">{children}</main>
-          <ChromeGate>
+          <FooterGate>
             <Footer />
-            <FloatingActions whatsapp={settings.contactWhatsapp} />
+            <FloatingActions
+              whatsapp={settings.contactWhatsapp}
+              assistant={{
+                enabled: assistant.enabled,
+                greeting: assistant.greeting,
+                suggestions: assistant.suggestions,
+              }}
+              products={chatProducts}
+            />
             <CartDrawer
               freeDeliveryEnabled={settings.freeDeliveryEnabled}
               freeDeliveryThreshold={settings.freeDeliveryThreshold}
             />
             <SearchOverlay />
-          </ChromeGate>
+          </FooterGate>
         </SmoothScroll>
       </body>
     </html>

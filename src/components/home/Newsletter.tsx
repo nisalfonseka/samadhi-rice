@@ -68,13 +68,13 @@ export default function Newsletter() {
               )}
             </div>
 
-            {/* Rice Finder teaser */}
-            <div className="rounded-3xl border border-rice-50/15 bg-rice-50/[0.05] p-7 backdrop-blur-sm">
+            {/* Rice Finder teaser — subtle AI glow border */}
+            <div
+              className="rounded-3xl border bg-rice-50/[0.05] p-7 backdrop-blur-sm"
+              style={{ animation: "ai-border-glow 4s ease-in-out infinite" }}
+            >
               <span className="grid h-12 w-12 place-items-center rounded-full bg-harvest-500 text-paddy-950">
-                <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" aria-hidden>
-                  <path d="M8 16c-2-2-2-6 1-9s7-3 9-1c1 1-1 5-4 8s-5 3-6 2Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
-                  <path d="M9 13.5 14.5 8" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
-                </svg>
+                <span className="select-none text-xl leading-none">✦</span>
               </span>
               <h3 className="mt-5 font-display text-2xl">Not sure which rice?</h3>
               <p className="mt-2 text-sm leading-relaxed text-rice-100/75">

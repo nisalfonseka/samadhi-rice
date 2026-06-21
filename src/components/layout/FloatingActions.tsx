@@ -1,10 +1,19 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
+import ChatAssistant from "@/components/chat/ChatAssistant";
+import type { ProductDTO } from "@/lib/services/product.service";
 import { cn } from "@/lib/utils";
 
-export default function FloatingActions({ whatsapp }: { whatsapp: string }) {
+export default function FloatingActions({
+  whatsapp,
+  assistant,
+  products,
+}: {
+  whatsapp: string;
+  assistant: { enabled: boolean; greeting: string; suggestions: string[] };
+  products: ProductDTO[];
+}) {
   const [open, setOpen] = useState(false);
   const [show, setShow] = useState(false);
 
@@ -23,46 +32,24 @@ export default function FloatingActions({ whatsapp }: { whatsapp: string }) {
         show ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-6 opacity-0",
       )}
     >
-      {/* assistant preview card */}
-      <div
-        className={cn(
-          "w-[min(20rem,calc(100vw-2.5rem))] origin-bottom-right rounded-3xl border border-husk/10 bg-rice-50 p-5 shadow-[0_30px_60px_-24px_rgba(34,31,23,0.5)] transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
-          open ? "scale-100 opacity-100" : "pointer-events-none scale-90 opacity-0",
-        )}
-      >
-        <div className="flex items-center gap-3">
-          <span className="grid h-10 w-10 place-items-center rounded-full bg-paddy-800 text-rice-50">
-            <RiceGrainIcon className="h-5 w-5" />
-          </span>
-          <div>
-            <p className="font-display text-lg leading-none">Rice Finder</p>
-            <p className="text-xs text-husk-soft">Not sure which rice? Ask us.</p>
-          </div>
-        </div>
-        <p className="mt-4 text-sm leading-relaxed text-husk-soft">
-          Our AI assistant is being trained on every variety, recipe and cooking
-          tip. In the meantime, message us directly — we reply fast.
-        </p>
-        <div className="mt-4 flex flex-wrap gap-2">
-          {["Best for biryani?", "Diabetic-friendly?", "Bulk orders"].map((c) => (
-            <a
-              key={c}
-              href={`https://wa.me/${whatsapp}?text=${encodeURIComponent(c)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="rounded-full border border-husk/15 px-3 py-1.5 text-xs text-husk transition-colors hover:border-paddy-700 hover:bg-paddy-700 hover:text-rice-50"
-            >
-              {c}
-            </a>
-          ))}
-        </div>
-        <Link
-          href="/contact"
-          className="mt-4 block text-center text-xs font-semibold uppercase tracking-widest text-paddy-700 hover:text-paddy-900"
+      {/* assistant chat panel */}
+      {assistant.enabled && (
+        <div
+          className={cn(
+            "w-[min(22rem,calc(100vw-2.5rem))] origin-bottom-right overflow-hidden rounded-3xl border border-husk/10 bg-rice-50 shadow-[0_30px_60px_-24px_rgba(34,31,23,0.5)] transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
+            open ? "scale-100 opacity-100" : "pointer-events-none scale-90 opacity-0",
+          )}
         >
-          Or send a message →
-        </Link>
-      </div>
+          {open && (
+            <ChatAssistant
+              greeting={assistant.greeting}
+              suggestions={assistant.suggestions}
+              whatsapp={whatsapp}
+              products={products}
+            />
+          )}
+        </div>
+      )}
 
       <div className="flex items-center gap-3">
         {/* WhatsApp */}
@@ -71,7 +58,7 @@ export default function FloatingActions({ whatsapp }: { whatsapp: string }) {
           target="_blank"
           rel="noopener noreferrer"
           aria-label="Chat on WhatsApp"
-          className="grid h-13 w-13 place-items-center rounded-full bg-[#25D366] text-white shadow-[0_16px_30px_-12px_rgba(37,211,102,0.8)] transition-transform duration-300 hover:scale-105"
+          className="grid place-items-center rounded-full bg-[#25D366] text-white shadow-[0_16px_30px_-12px_rgba(37,211,102,0.8)] transition-transform duration-300 hover:scale-105"
           style={{ height: "3.25rem", width: "3.25rem" }}
         >
           <svg viewBox="0 0 24 24" className="h-6 w-6" fill="currentColor" aria-hidden>
@@ -80,35 +67,24 @@ export default function FloatingActions({ whatsapp }: { whatsapp: string }) {
         </a>
 
         {/* assistant toggle */}
-        <button
-          onClick={() => setOpen((o) => !o)}
-          aria-label="Open Rice Finder assistant"
-          className="grid place-items-center rounded-full bg-paddy-800 text-rice-50 shadow-[0_16px_30px_-12px_rgba(29,41,22,0.9)] transition-transform duration-300 hover:scale-105"
-          style={{ height: "3.5rem", width: "3.5rem", animation: open ? "none" : "breathe 3.2s ease-in-out infinite" }}
-        >
-          {open ? (
-            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" aria-hidden>
-              <path d="M6 6l12 12M18 6 6 18" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-            </svg>
-          ) : (
-            <RiceGrainIcon className="h-6 w-6" />
-          )}
-        </button>
+        {assistant.enabled && (
+          <button
+            onClick={() => setOpen((o) => !o)}
+            aria-label={open ? "Close Rice Finder assistant" : "Open Rice Finder assistant"}
+            className="grid place-items-center rounded-full bg-paddy-800 text-rice-50 shadow-[0_16px_30px_-12px_rgba(29,41,22,0.9)] transition-transform duration-300 hover:scale-105"
+            style={{ height: "3.5rem", width: "3.5rem", animation: open ? "none" : "breathe 3.2s ease-in-out infinite" }}
+          >
+            {open ? (
+              <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" aria-hidden>
+                <path d="M6 6l12 12M18 6 6 18" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+              </svg>
+            ) : (
+              <span className="select-none text-2xl leading-none">✦</span>
+            )}
+          </button>
+        )}
       </div>
     </div>
   );
 }
 
-function RiceGrainIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden>
-      <path
-        d="M8 16c-2-2-2-6 1-9s7-3 9-1c1 1-1 5-4 8s-5 3-6 2Z"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinejoin="round"
-      />
-      <path d="M9 13.5 14.5 8" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
-    </svg>
-  );
-}

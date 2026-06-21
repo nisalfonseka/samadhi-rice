@@ -7,6 +7,11 @@ import { prisma } from "@/lib/db";
 import { assertAdmin } from "@/lib/admin-guard";
 import { logActivity } from "@/lib/services/activity.service";
 import { saveSettings } from "@/lib/services/settings.service";
+import {
+  saveAssistantConfig,
+  type AssistantDoc,
+  type AssistantProvider,
+} from "@/lib/services/assistant.service";
 import { sendStatusUpdate } from "@/lib/services/email.service";
 import { ORDER_STATUSES, type OrderStatusValue } from "@/lib/services/admin.service";
 
@@ -337,6 +342,52 @@ export async function saveShopSettings(formData: FormData) {
   revalidatePath("/admin/settings");
   revalidatePath("/");
   revalidatePath("/shop");
+}
+
+/* ------------------------------------------------------------- AI assistant -- */
+
+export async function saveAssistant(formData: FormData) {
+  const session = await assertAdmin();
+
+  const str = (key: string) => String(formData.get(key) || "").trim();
+
+  let docs: AssistantDoc[] = [];
+  try {
+    const parsed = JSON.parse(str("assistant_docs") || "[]");
+    if (Array.isArray(parsed)) {
+      docs = parsed
+        .map((d, i) => ({
+          id: String(d.id || `doc-${i}`),
+          title: String(d.title || "").slice(0, 160),
+          content: String(d.content || "").slice(0, 8000),
+        }))
+        .filter((d) => d.title.trim() || d.content.trim());
+    }
+  } catch {
+    /* ignore malformed docs */
+  }
+
+  const suggestions = str("assistant_suggestions")
+    .split("\n")
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .slice(0, 6);
+
+  const provider = (str("assistant_provider") || "openai") as AssistantProvider;
+
+  await saveAssistantConfig({
+    enabled: formData.get("assistant_enabled") === "on",
+    provider,
+    model: str("assistant_model") || (provider === "gemini" ? "gemini-2.5-flash" : "gpt-5-mini"),
+    greeting: str("assistant_greeting"),
+    systemPrompt: str("assistant_system_prompt"),
+    suggestions,
+    docs,
+  });
+
+  await logActivity(session.user, "Updated AI assistant");
+  revalidatePath("/admin/assistant");
+  revalidatePath("/", "layout");
 }
 
 /* ---------------------------------------------------------- homepage sections -- */
