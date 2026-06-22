@@ -38,13 +38,13 @@ function textStream(message: string) {
 
 /* ────────────────────────── OpenAI streaming ────────────────────────── */
 
-function streamOpenAI(
+async function streamOpenAI(
   apiKey: string,
   model: string,
   systemPrompt: string,
   messages: { role: string; content: string }[],
-): { stream: ReadableStream; upstream: Promise<Response> } {
-  const upstreamPromise = fetch("https://api.openai.com/v1/chat/completions", {
+): Promise<ReadableStream> {
+  const upstream = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -57,19 +57,18 @@ function streamOpenAI(
     }),
   });
 
+  if (!upstream.ok || !upstream.body) {
+    const err = await upstream.text().catch(() => "");
+    throw new Error(`OpenAI ${upstream.status}: ${err.slice(0, 200)}`);
+  }
+
   const decoder = new TextDecoder();
   const encoder = new TextEncoder();
-  let reader: ReadableStreamDefaultReader<Uint8Array> | null = null;
+  const reader = upstream.body.getReader();
   let buffer = "";
 
-  const stream = new ReadableStream({
-    async start() {
-      const upstream = await upstreamPromise;
-      if (!upstream.ok || !upstream.body) throw new Error("OpenAI upstream error");
-      reader = upstream.body.getReader();
-    },
+  return new ReadableStream({
     async pull(controller) {
-      if (!reader) { controller.close(); return; }
       const { done, value } = await reader.read();
       if (done) { controller.close(); return; }
       buffer += decoder.decode(value, { stream: true });
@@ -90,22 +89,19 @@ function streamOpenAI(
       }
     },
     cancel() {
-      reader?.cancel().catch(() => {});
+      reader.cancel().catch(() => {});
     },
   });
-
-  return { stream, upstream: upstreamPromise };
 }
 
 /* ────────────────────────── Gemini streaming ────────────────────────── */
 
-function streamGemini(
+async function streamGemini(
   apiKey: string,
   model: string,
   systemPrompt: string,
   messages: { role: string; content: string }[],
-): { stream: ReadableStream; upstream: Promise<Response> } {
-  // Convert OpenAI-style messages to Gemini contents format
+): Promise<ReadableStream> {
   const contents = messages.map((m) => ({
     role: m.role === "assistant" ? "model" : "user",
     parts: [{ text: m.content }],
@@ -113,7 +109,7 @@ function streamGemini(
 
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse&key=${apiKey}`;
 
-  const upstreamPromise = fetch(url, {
+  const upstream = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -122,19 +118,18 @@ function streamGemini(
     }),
   });
 
+  if (!upstream.ok || !upstream.body) {
+    const err = await upstream.text().catch(() => "");
+    throw new Error(`Gemini ${upstream.status}: ${err.slice(0, 200)}`);
+  }
+
   const decoder = new TextDecoder();
   const encoder = new TextEncoder();
-  let reader: ReadableStreamDefaultReader<Uint8Array> | null = null;
+  const reader = upstream.body.getReader();
   let buffer = "";
 
-  const stream = new ReadableStream({
-    async start() {
-      const upstream = await upstreamPromise;
-      if (!upstream.ok || !upstream.body) throw new Error("Gemini upstream error");
-      reader = upstream.body.getReader();
-    },
+  return new ReadableStream({
     async pull(controller) {
-      if (!reader) { controller.close(); return; }
       const { done, value } = await reader.read();
       if (done) { controller.close(); return; }
       buffer += decoder.decode(value, { stream: true });
@@ -155,11 +150,9 @@ function streamGemini(
       }
     },
     cancel() {
-      reader?.cancel().catch(() => {});
+      reader.cancel().catch(() => {});
     },
   });
-
-  return { stream, upstream: upstreamPromise };
 }
 
 /* ────────────────────────── POST handler ────────────────────────── */
@@ -210,10 +203,10 @@ export async function POST(req: Request) {
   const recent = parsed.messages.slice(-12);
 
   try {
-    const { stream } =
+    const stream =
       provider === "gemini"
-        ? streamGemini(apiKey, config.model, systemPrompt, recent)
-        : streamOpenAI(apiKey, config.model, systemPrompt, recent);
+        ? await streamGemini(apiKey, config.model, systemPrompt, recent)
+        : await streamOpenAI(apiKey, config.model, systemPrompt, recent);
 
     return new Response(stream, {
       headers: {

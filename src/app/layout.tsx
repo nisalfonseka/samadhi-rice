@@ -11,6 +11,7 @@ import ChromeGate, { FooterGate } from "@/components/layout/ChromeGate";
 import { getSettings } from "@/lib/services/settings.service";
 import { getAssistantConfig } from "@/lib/services/assistant.service";
 import { getProducts } from "@/lib/services/product.service";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const fraunces = Fraunces({
   variable: "--font-fraunces",
@@ -107,6 +108,7 @@ export default async function RootLayout({
             <SearchOverlay />
           </FooterGate>
         </SmoothScroll>
+        <SpeedInsights />
       </body>
     </html>
   );
