@@ -4,13 +4,17 @@ import type { Metadata } from "next";
 import RiceBag from "@/components/shop/RiceBag";
 import ProductBuyPanel from "@/components/shop/ProductBuyPanel";
 import ProductCard from "@/components/shop/ProductCard";
+import { cache } from "react";
 import {
-  getProductBySlug,
+  getProductBySlug as _getProductBySlug,
   getRelatedProducts,
 } from "@/lib/services/product.service";
 import { priceFor, formatLKR } from "@/lib/pricing";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
+
+// Deduplicate within a single render — generateMetadata + page both call this
+const getProductBySlug = cache(_getProductBySlug);
 
 type Params = Promise<{ slug: string }>;
 
@@ -105,7 +109,7 @@ export default async function ProductPage({ params }: { params: Params }) {
 
         <div className="grid gap-10 lg:grid-cols-2 lg:gap-16">
           {/* art */}
-          <div className="relative flex items-center justify-center overflow-hidden rounded-[2rem] border border-husk/10 bg-[radial-gradient(120%_100%_at_50%_0%,var(--color-rice-100),var(--color-rice-200))] p-10">
+          <div className="relative flex min-h-[24rem] items-center justify-center overflow-hidden rounded-[2rem] border border-husk/10 bg-[radial-gradient(120%_100%_at_50%_0%,var(--color-rice-100),var(--color-rice-200))] p-10">
             {product.badge && (
               <span className="absolute left-6 top-6 rounded-full bg-harvest-500 px-3 py-1 text-[0.68rem] font-semibold uppercase tracking-wider text-paddy-950">
                 {product.badge}
@@ -117,6 +121,7 @@ export default async function ProductPage({ params }: { params: Params }) {
                 src={product.images[0]}
                 alt={product.name}
                 className="max-h-[28rem] w-auto rounded-2xl object-contain"
+                fetchPriority="high"
               />
             ) : (
               <div className="h-[60vh] max-h-[28rem] w-auto">
