@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import { FREE_DELIVERY_THRESHOLD, FLAT_DELIVERY_FEE } from "@/lib/delivery";
+import { unstable_cache, revalidateTag } from "next/cache";
 
 export type ShopSettings = {
   /* shop operations */
@@ -74,7 +75,7 @@ const toNum = (v: string | undefined, d: number) => {
 const toBool = (v: string | undefined, d: boolean) => (v == null ? d : v === "true");
 const toStr = (v: string | undefined, d: string) => (v != null ? v : d);
 
-export async function getSettings(): Promise<ShopSettings> {
+async function rawGetSettings(): Promise<ShopSettings> {
   // If the database is unreachable, fall back to defaults so the storefront
   // still renders instead of white-screening. An empty map makes every field
   // below resolve to its DEFAULTS value.
@@ -116,6 +117,12 @@ export async function getSettings(): Promise<ShopSettings> {
   };
 }
 
+export const getSettings = unstable_cache(
+  rawGetSettings,
+  ["site-settings"],
+  { revalidate: 60, tags: ["settings"] },
+);
+
 export async function saveSettings(values: Record<string, string>) {
   await Promise.all(
     Object.entries(values).map(([key, value]) =>
@@ -126,6 +133,7 @@ export async function saveSettings(values: Record<string, string>) {
       }),
     ),
   );
+  revalidateTag("settings", { expire: 0 });
 }
 
 /** Authoritative delivery fee used when creating orders. */

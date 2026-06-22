@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { unstable_cache, revalidateTag } from "next/cache";
 
 /**
  * "Rice Finder" AI assistant — configuration + prompt assembly.
@@ -65,7 +66,7 @@ function settingsToMap(rows: { key: string; value: string }[]) {
   return new Map(rows.map((r) => [r.key, r.value]));
 }
 
-export async function getAssistantConfig(): Promise<AssistantConfig> {
+async function rawGetAssistantConfig(): Promise<AssistantConfig> {
   let m = new Map<string, string>();
   try {
     const rows = await prisma.siteSetting.findMany({
@@ -106,6 +107,12 @@ export async function getAssistantConfig(): Promise<AssistantConfig> {
   };
 }
 
+export const getAssistantConfig = unstable_cache(
+  rawGetAssistantConfig,
+  ["assistant-config"],
+  { revalidate: 60, tags: ["assistant"] },
+);
+
 export async function saveAssistantConfig(input: {
   enabled: boolean;
   provider: AssistantProvider;
@@ -133,6 +140,7 @@ export async function saveAssistantConfig(input: {
       }),
     ),
   );
+  revalidateTag("assistant", { expire: 0 });
 }
 
 /** Compact, model-friendly rendering of the live catalogue. */

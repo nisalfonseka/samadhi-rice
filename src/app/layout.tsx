@@ -30,6 +30,7 @@ const notoSinhala = Noto_Serif_Sinhala({
   subsets: ["sinhala"],
   weight: ["400", "600"],
   display: "swap",
+  preload: false,
 });
 
 const SITE = "https://samadhirice.lk";

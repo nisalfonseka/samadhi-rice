@@ -11,7 +11,7 @@ export default function Logo({
   return (
     <span className={cn("inline-flex items-center gap-2 select-none", className)}>
       <Image
-        src="/samadhiricelogo.svg"
+        src="/samadhiricelogo.png"
         alt="Samadhi Rice logo"
         width={40}
         height={40}

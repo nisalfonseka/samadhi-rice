@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import type { Prisma } from "@prisma/client";
+import { unstable_cache } from "next/cache";
 
 export const POSTS_PER_PAGE = 9;
 
@@ -44,13 +45,15 @@ export async function getPublishedPosts({
   };
 }
 
-export async function getLatestPosts(take = 3) {
-  return prisma.blogPost.findMany({
+export const getLatestPosts = unstable_cache(
+  async (take = 3) => prisma.blogPost.findMany({
     where: { published: true },
     orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
     take,
-  });
-}
+  }),
+  ["latest-posts"],
+  { revalidate: 300, tags: ["blog"] },
+);
 
 export async function getPostBySlug(slug: string) {
   return prisma.blogPost.findUnique({ where: { slug } });

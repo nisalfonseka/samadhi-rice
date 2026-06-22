@@ -146,12 +146,12 @@ export default function Hero() {
         >
           {(
             [
-              ["/hero-morning.png", mix.morning],
-              ["/hero-noon.png", mix.noon],
-              ["/hero-evening.png", mix.evening],
-              ["/hero-night.png", mix.night],
+              ["/hero-morning.webp", mix.morning],
+              ["/hero-noon.webp", mix.noon],
+              ["/hero-evening.webp", mix.evening],
+              ["/hero-night.webp", mix.night],
             ] as const
-          ).map(([src, opacity]) => (
+          ).map(([src, opacity], i) => (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               key={src}
@@ -160,6 +160,7 @@ export default function Hero() {
               className={`absolute inset-0 h-full w-full object-cover ${fade}`}
               style={{ opacity }}
               aria-hidden
+              fetchPriority={i === 0 ? "high" : "auto"}
             />
           ))}
         </div>

@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import type { Prisma } from "@prisma/client";
+import { unstable_cache } from "next/cache";
 
 export type ProductSort =
   | "featured"
@@ -79,62 +80,71 @@ const ORDER_BY: Record<ProductSort, Prisma.ProductOrderByWithRelationInput[]> = 
   newest: [{ createdAt: "desc" }],
 };
 
-export async function getProducts(
-  filters: ProductFilters = {},
-): Promise<ProductDTO[]> {
-  const where: Prisma.ProductWhereInput = {};
+export const getProducts = unstable_cache(
+  async (filters: ProductFilters = {}): Promise<ProductDTO[]> => {
+    const where: Prisma.ProductWhereInput = {};
 
-  if (filters.category) where.category = { slug: filters.category };
+    if (filters.category) where.category = { slug: filters.category };
 
-  if (filters.q) {
-    const q = filters.q.trim();
-    where.OR = [
-      { name: { contains: q, mode: "insensitive" } },
-      { variety: { contains: q, mode: "insensitive" } },
-      { note: { contains: q, mode: "insensitive" } },
-      { description: { contains: q, mode: "insensitive" } },
-      { sinhala: { contains: q } },
-    ];
-  }
+    if (filters.q) {
+      const q = filters.q.trim();
+      where.OR = [
+        { name: { contains: q, mode: "insensitive" } },
+        { variety: { contains: q, mode: "insensitive" } },
+        { note: { contains: q, mode: "insensitive" } },
+        { description: { contains: q, mode: "insensitive" } },
+        { sinhala: { contains: q } },
+      ];
+    }
 
-  if (filters.minPrice != null || filters.maxPrice != null) {
-    where.pricePerKg = {
-      gte: filters.minPrice ?? undefined,
-      lte: filters.maxPrice ?? undefined,
-    };
-  }
+    if (filters.minPrice != null || filters.maxPrice != null) {
+      where.pricePerKg = {
+        gte: filters.minPrice ?? undefined,
+        lte: filters.maxPrice ?? undefined,
+      };
+    }
 
-  const products = await prisma.product.findMany({
-    where,
-    orderBy: ORDER_BY[filters.sort ?? "featured"],
-    include: { category: true },
-  });
+    const products = await prisma.product.findMany({
+      where,
+      orderBy: ORDER_BY[filters.sort ?? "featured"],
+      include: { category: true },
+    });
 
-  return products.map(toProductDTO);
-}
+    return products.map(toProductDTO);
+  },
+  ["products"],
+  { revalidate: 300, tags: ["products"] },
+);
 
-export async function getFeaturedProducts(limit = 4): Promise<ProductDTO[]> {
-  const products = await prisma.product.findMany({
-    where: { featured: true },
-    orderBy: { reviewsCount: "desc" },
-    take: limit,
-    include: { category: true },
-  });
-  return products.map(toProductDTO);
-}
+export const getFeaturedProducts = unstable_cache(
+  async (limit = 4): Promise<ProductDTO[]> => {
+    const products = await prisma.product.findMany({
+      where: { featured: true },
+      orderBy: { reviewsCount: "desc" },
+      take: limit,
+      include: { category: true },
+    });
+    return products.map(toProductDTO);
+  },
+  ["featured-products"],
+  { revalidate: 300, tags: ["products"] },
+);
 
-export async function getHotDealProducts(limit = 8): Promise<ProductDTO[]> {
-  // Anything marked as a hot deal, OR anything currently discounted.
-  const products = await prisma.product.findMany({
-    where: {
-      OR: [{ hotDeal: true }, { discountPercent: { gt: 0 } }],
-    },
-    orderBy: [{ discountPercent: "desc" }, { reviewsCount: "desc" }],
-    take: limit,
-    include: { category: true },
-  });
-  return products.map(toProductDTO);
-}
+export const getHotDealProducts = unstable_cache(
+  async (limit = 8): Promise<ProductDTO[]> => {
+    const products = await prisma.product.findMany({
+      where: {
+        OR: [{ hotDeal: true }, { discountPercent: { gt: 0 } }],
+      },
+      orderBy: [{ discountPercent: "desc" }, { reviewsCount: "desc" }],
+      take: limit,
+      include: { category: true },
+    });
+    return products.map(toProductDTO);
+  },
+  ["hot-deal-products"],
+  { revalidate: 300, tags: ["products"] },
+);
 
 export async function getProductBySlug(slug: string) {
   return prisma.product.findUnique({
