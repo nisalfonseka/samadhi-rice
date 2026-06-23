@@ -160,7 +160,7 @@ export async function getAnalytics(days = 14) {
       where: { createdAt: { gte: since } },
       select: { total: true, createdAt: true },
     }),
-    prisma.order.groupBy({ by: ["status"], _count: { _all: true } }),
+    prisma.order.groupBy({ by: ["status"], _count: { _all: true }, orderBy: { status: "asc" } }),
     prisma.orderItem.findMany({ select: { name: true, quantity: true, unitPrice: true } }),
     prisma.user.findMany({
       where: { role: "CUSTOMER", createdAt: { gte: since } },
@@ -207,7 +207,7 @@ export async function getAnalytics(days = 14) {
     revenue: dayKeys.map((k) => revenueByDay.get(k)!),
     orders: dayKeys.map((k) => ordersByDay.get(k)!),
     newCustomers: dayKeys.map((k) => newCustomersByDay.get(k)!),
-    statusBreakdown: statusGroups.map((g) => ({ status: g.status, count: g._count._all })),
+    statusBreakdown: statusGroups.map((g) => ({ status: g.status, count: (g._count as any)._all ?? 0 })),
     topProducts,
     periodRevenue: orders.reduce((s, o) => s + o.total, 0),
     periodOrders: orders.length,
@@ -234,6 +234,7 @@ export async function getCustomers(q?: string) {
     by: ["userId"],
     where: { userId: { in: users.map((u) => u.id) } },
     _sum: { total: true },
+    orderBy: { userId: "asc" },
   });
   const spent = new Map(sums.map((s) => [s.userId, s._sum.total ?? 0]));
   return users.map((u) => ({
