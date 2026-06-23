@@ -14,6 +14,9 @@ type WishlistContextValue = {
   count: number;
   has: (slug: string) => boolean;
   toggle: (slug: string) => void;
+  isOpen: boolean;
+  openWishlist: () => void;
+  closeWishlist: () => void;
 };
 
 const WishlistContext = createContext<WishlistContextValue | null>(null);
@@ -28,11 +31,12 @@ const STORAGE_KEY = "samadhi-wishlist";
 
 export function WishlistProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<string[]>([]);
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) setItems(JSON.parse(raw) as string[]);
+      if (raw) queueMicrotask(() => setItems(JSON.parse(raw) as string[]));
     } catch {}
   }, []);
 
@@ -50,14 +54,26 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
     );
   }, []);
 
+  const openWishlist = useCallback(() => setIsOpen(true), []);
+  const closeWishlist = useCallback(() => setIsOpen(false), []);
+
   const count = items.length;
 
   const value = useMemo(
-    () => ({ items, count, has, toggle }),
-    [items, count, has, toggle],
+    () => ({
+      items,
+      count,
+      has,
+      toggle,
+      isOpen,
+      openWishlist,
+      closeWishlist,
+    }),
+    [items, count, has, toggle, isOpen, openWishlist, closeWishlist],
   );
 
   return (
     <WishlistContext.Provider value={value}>{children}</WishlistContext.Provider>
   );
 }
+

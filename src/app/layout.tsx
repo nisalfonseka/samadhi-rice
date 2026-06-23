@@ -6,6 +6,7 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import FloatingActions from "@/components/layout/FloatingActions";
 import CartDrawer from "@/components/cart/CartDrawer";
+import WishlistDrawer from "@/components/shop/WishlistDrawer";
 import SearchOverlay from "@/components/search/SearchOverlay";
 import ChromeGate, { FooterGate } from "@/components/layout/ChromeGate";
 import { getSettings } from "@/lib/services/settings.service";
@@ -108,6 +109,7 @@ export default async function RootLayout({
               freeDeliveryEnabled={settings.freeDeliveryEnabled}
               freeDeliveryThreshold={settings.freeDeliveryThreshold}
             />
+            <WishlistDrawer products={chatProducts} />
             <SearchOverlay />
           </FooterGate>
         </SmoothScroll>

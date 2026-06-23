@@ -52,7 +52,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) setLines(JSON.parse(raw) as CartLine[]);
+      if (raw) queueMicrotask(() => setLines(JSON.parse(raw) as CartLine[]));
     } catch {
       /* ignore corrupt storage */
     }

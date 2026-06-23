@@ -256,4 +256,3 @@ export const NAV_LINKS = [
   { label: "Contact", href: "/contact" },
 ];
 
-export const WHATSAPP_NUMBER = "94770000000"; // TODO: replace with the shop's real number

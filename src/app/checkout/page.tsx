@@ -48,7 +48,7 @@ export default function CheckoutPage() {
   const [shake, setShake] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
 
-  useEffect(() => setMounted(true), []);
+  useEffect(() => queueMicrotask(() => setMounted(true)), []);
 
   const fee = deliveryFeeFor(subtotal);
   const total = subtotal + fee;

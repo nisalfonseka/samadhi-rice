@@ -178,7 +178,7 @@ export default function RichEditor({
 
   // ensure the initial value lands in our shadow input even before any edit
   useEffect(() => {
-    if (editor) setHtml(editor.getHTML());
+    if (editor) queueMicrotask(() => setHtml(editor.getHTML()));
   }, [editor]);
 
   if (!editor) return null;

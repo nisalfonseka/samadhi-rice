@@ -153,7 +153,7 @@ export default function Hero() {
               ["/hero-evening.webp", mix.evening],
               ["/hero-night.webp", mix.night],
             ] as const
-          ).map(([src, opacity], i) => (
+          ).map(([src, opacity]) => (
             <Image
               key={src}
               src={src}

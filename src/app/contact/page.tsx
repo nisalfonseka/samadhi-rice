@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getSettings } from "@/lib/services/settings.service";
+import { prisma } from "@/lib/db";
 import ContactForm from "./ContactForm";
 
 export const metadata: Metadata = {
@@ -82,7 +83,11 @@ function TiktokIcon() {
 }
 
 export default async function ContactPage() {
-  const s = await getSettings();
+  const [s, branches] = await Promise.all([
+    getSettings(),
+    prisma.branch.findMany({ orderBy: { position: "asc" }, take: 1 }).catch(() => [])
+  ]);
+  const primaryBranch = branches[0];
 
   const socials = [
     { href: s.socialFacebook, Icon: FacebookIcon, label: "Facebook" },
@@ -225,13 +230,17 @@ export default async function ContactPage() {
               <div>
                 <p className="text-[0.68rem] font-semibold uppercase tracking-widest text-husk/40 mb-1">Address</p>
                 <p className="text-sm leading-relaxed text-husk/80">
-                  {s.addressLine1 || "No. 42, Negombo Road"}
-                  <br />
-                  {s.addressCity || "Wattala, Western Province"}
+                  {primaryBranch?.address || s.addressLine1 || "No. 42, Negombo Road"}
+                  {primaryBranch?.city || s.addressCity ? (
+                    <>
+                      <br />
+                      {primaryBranch?.city || s.addressCity}
+                    </>
+                  ) : null}
                 </p>
-                {s.addressGoogleMaps && (
+                {(primaryBranch?.mapsUrl || s.addressGoogleMaps) && (
                   <a
-                    href={s.addressGoogleMaps}
+                    href={primaryBranch?.mapsUrl || s.addressGoogleMaps}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="mt-1.5 inline-flex items-center gap-1 text-xs font-medium text-paddy-700 hover:underline"
@@ -250,7 +259,7 @@ export default async function ContactPage() {
               <div>
                 <p className="text-[0.68rem] font-semibold uppercase tracking-widest text-husk/40 mb-1">Hours</p>
                 <p className="text-sm leading-relaxed text-husk/80">
-                  {s.businessHours || "Mon–Sat · 8.00 am – 6.00 pm"}
+                  {primaryBranch?.hours || s.businessHours || "Mon–Sat · 8.00 am – 6.00 pm"}
                 </p>
               </div>
             </li>

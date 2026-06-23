@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 
@@ -71,11 +71,14 @@ export default function BranchCarousel({
   const next = () => setCurrent((c) => (c + 1) % total);
 
   /* touch swipe */
-  let touchStartX = 0;
-  const onTouchStart = (e: React.TouchEvent) => { touchStartX = e.touches[0].clientX; };
+  const touchStartX = useRef(0);
+  const onTouchStart = (e: React.TouchEvent) => { touchStartX.current = e.touches[0].clientX; };
   const onTouchEnd = (e: React.TouchEvent) => {
-    const dx = touchStartX - e.changedTouches[0].clientX;
-    if (Math.abs(dx) > 40) dx > 0 ? next() : prev();
+    const dx = touchStartX.current - e.changedTouches[0].clientX;
+    if (Math.abs(dx) > 40) {
+      if (dx > 0) next();
+      else prev();
+    }
   };
 
   /* ── no images ── */
@@ -91,7 +94,7 @@ export default function BranchCarousel({
   if (total === 1) {
     return (
       <div className="h-40 w-full overflow-hidden lg:h-full">
-        <Image src={images[0]} alt={`${name} branch`} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" />
+        <Image src={images[0]} alt={`${name} branch`} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" unoptimized />
       </div>
     );
   }
@@ -123,6 +126,7 @@ export default function BranchCarousel({
                 sizes="(max-width: 768px) 100vw, 50vw"
                 className="object-cover"
                 draggable={false}
+                unoptimized
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
             </div>
@@ -166,12 +170,13 @@ export default function BranchCarousel({
             )}
           >
             <Image
-              src={url}
-              alt=""
+              src={images[i]}
+              alt={`Thumbnail ${i + 1}`}
               fill
               sizes="80px"
               className="object-cover"
               draggable={false}
+              unoptimized
             />
           </button>
         ))}

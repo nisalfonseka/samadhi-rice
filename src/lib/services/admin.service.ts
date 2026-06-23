@@ -207,7 +207,7 @@ export async function getAnalytics(days = 14) {
     revenue: dayKeys.map((k) => revenueByDay.get(k)!),
     orders: dayKeys.map((k) => ordersByDay.get(k)!),
     newCustomers: dayKeys.map((k) => newCustomersByDay.get(k)!),
-    statusBreakdown: statusGroups.map((g) => ({ status: g.status, count: (g._count as any)._all ?? 0 })),
+    statusBreakdown: statusGroups.map((g) => ({ status: g.status, count: (g._count as { _all?: number })._all ?? 0 })),
     topProducts,
     periodRevenue: orders.reduce((s, o) => s + o.total, 0),
     periodOrders: orders.length,

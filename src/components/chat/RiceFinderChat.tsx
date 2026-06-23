@@ -127,10 +127,10 @@ export default function RiceFinderChat({
   /* ─── Hydrate from localStorage ──────────────────────────────────────── */
   useEffect(() => {
     const list = loadConversations();
-    setConversations(list);
+    queueMicrotask(() => setConversations(list));
     const stored = loadActiveId();
     if (stored && list.some((c) => c.id === stored)) {
-      setActiveId(stored);
+      queueMicrotask(() => setActiveId(stored));
     }
   }, []);
 
@@ -171,7 +171,7 @@ export default function RiceFinderChat({
       typeof window !== "undefined" &&
       window.innerWidth >= 1024
     ) {
-      setRightOpen(true);
+      queueMicrotask(() => setRightOpen(true));
     }
   }, [referencedSlugs.length]);
 
@@ -758,7 +758,7 @@ function ProductDetailCard({ product }: { product: ProductDTO }) {
       <Link href={`/shop/${product.slug}`} className="block">
         <div className="grid h-32 place-items-center bg-rice-100">
           {product.images[0] ? (
-            <Image src={product.images[0]} alt="" fill sizes="128px" className="object-cover transition-transform duration-500 hover:scale-105" />
+            <Image src={product.images[0]} alt="" fill sizes="128px" className="object-cover transition-transform duration-500 hover:scale-105" unoptimized />
           ) : (
             <RiceBag
               id={`rfright-${product.slug}`}
@@ -1017,7 +1017,7 @@ function InlineProductCard({ product }: { product: ProductDTO }) {
         className="grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-lg bg-rice-100"
       >
         {product.images[0] ? (
-          <Image src={product.images[0]} alt="" fill sizes="48px" className="object-cover" />
+          <Image src={product.images[0]} alt="" fill sizes="48px" className="object-cover" unoptimized />
         ) : (
           <RiceBag
             id={`rfinline-${product.slug}`}
@@ -1096,16 +1096,3 @@ function ThinkingDots() {
 }
 
 /* ─── Icons ──────────────────────────────────────────────────────────────── */
-
-function GrainIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden>
-      <ellipse cx="12" cy="12" rx="5" ry="9" stroke="currentColor" strokeWidth="1.5" />
-      <path
-        d="M12 3c0 5-4 9-4 9s4 4 4 9M12 3c0 5 4 9 4 9s-4 4-4 9"
-        stroke="currentColor"
-        strokeWidth="1.5"
-      />
-    </svg>
-  );
-}

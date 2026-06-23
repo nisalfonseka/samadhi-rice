@@ -272,6 +272,11 @@ html.lenis body {
   66%        { box-shadow: 0 0 6px 1px rgba(16,185,129,0.35); border-color: rgba(16,185,129,0.45); }
 }
 
+@keyframes google-border-flow {
+  0% { background-position: 0% 0; }
+  100% { background-position: 200% 0; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .reveal { opacity: 1 !important; transform: none !important; }
   *,

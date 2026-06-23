@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import RiceBag from "@/components/shop/RiceBag";
@@ -10,7 +10,7 @@ import { useCart } from "@/providers/CartProvider";
 import { useWishlist } from "@/providers/WishlistProvider";
 import { priceFor, formatLKR } from "@/lib/pricing";
 import type { ProductDTO } from "@/lib/services/product.service";
-import { cn } from "@/lib/utils";
+import { cn, cloudinaryLoader } from "@/lib/utils";
 
 const BADGE_TONE: Record<string, string> = {
   "Best Seller": "bg-harvest-500 text-paddy-950",
@@ -31,10 +31,23 @@ export default function ProductCard({
   const { has, toggle } = useWishlist();
   const [weight, setWeight] = useState(1);
   const [added, setAdded] = useState(false);
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
 
   const price = priceFor(product.pricePerKg, weight, product.discountPercent);
   const soldOut = product.stockKg <= 0;
   const wishlisted = has(product.slug);
+
+  useEffect(() => {
+    if (!isHovered || product.images.length <= 1) {
+      setActiveImageIndex(0);
+      return;
+    }
+    const interval = setInterval(() => {
+      setActiveImageIndex((prev) => (prev + 1) % product.images.length);
+    }, 1800);
+    return () => clearInterval(interval);
+  }, [isHovered, product.images.length]);
 
   const handleAdd = () => {
     if (soldOut) return;
@@ -52,6 +65,8 @@ export default function ProductCard({
     >
       <Link
         href={`/shop/${product.slug}`}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
         className="relative block aspect-[5/4] overflow-hidden bg-[radial-gradient(120%_100%_at_50%_0%,var(--color-rice-100),var(--color-rice-200))]"
       >
         {product.badge && (
@@ -73,14 +88,44 @@ export default function ProductCard({
             −{product.discountPercent}% off
           </span>
         ) : null}
-        {product.images[0] ? (
-          <Image
-            src={product.images[0]}
-            alt={product.name}
-            fill
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            className="object-cover transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-105"
-          />
+        {product.images.length > 0 ? (
+          <>
+            {product.images.map((imgUrl, idx) => (
+              <Image
+                key={imgUrl}
+                loader={cloudinaryLoader}
+                src={imgUrl}
+                alt=""
+                fill
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                className={cn(
+                  "object-cover transition-all duration-700 ease-in-out group-hover:scale-105",
+                  idx === activeImageIndex ? "opacity-100" : "opacity-0 pointer-events-none"
+                )}
+                priority={idx === 0}
+              />
+            ))}
+
+            {product.images.length > 1 && (
+              <>
+                {/* Gradient overlay for indicators legibility */}
+                <div className="absolute inset-x-0 bottom-0 z-10 h-8 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
+
+                {/* Horizontal dash indicators */}
+                <div className="absolute bottom-3 left-1/2 z-20 flex -translate-x-1/2 gap-1.5 pointer-events-none">
+                  {product.images.map((_, idx) => (
+                    <span
+                      key={idx}
+                      className={cn(
+                        "h-1 rounded-full bg-rice-50/40 backdrop-blur-sm transition-all duration-300",
+                        idx === activeImageIndex ? "w-4 bg-rice-50" : "w-1"
+                      )}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
+          </>
         ) : (
           <div className="absolute inset-0 flex items-end justify-center p-6 transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-105">
             <div className="h-full w-[58%] origin-bottom transition-transform duration-700 group-hover:-rotate-1">

@@ -83,15 +83,14 @@ export function DonutChart({
   const total = segments.reduce((s, x) => s + x.value, 0) || 1;
   const r = 42;
   const c = 2 * Math.PI * r;
-  let offset = 0;
-
   return (
     <div className="flex flex-wrap items-center gap-6">
       <svg viewBox="0 0 120 120" className="h-32 w-32 -rotate-90">
         <circle cx="60" cy="60" r={r} fill="none" stroke="var(--color-rice-200)" strokeWidth="14" />
-        {segments.map((s) => {
+        {segments.map((s, i, arr) => {
+          const offset = arr.slice(0, i).reduce((sum, x) => sum + (x.value / total) * c, 0);
           const len = (s.value / total) * c;
-          const el = (
+          return (
             <circle
               key={s.label}
               cx="60"
@@ -104,8 +103,6 @@ export function DonutChart({
               strokeDashoffset={-offset}
             />
           );
-          offset += len;
-          return el;
         })}
       </svg>
       <ul className="space-y-1.5 text-sm">

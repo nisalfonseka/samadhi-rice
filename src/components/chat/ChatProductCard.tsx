@@ -31,7 +31,7 @@ export default function ChatProductCard({ product }: { product: ProductDTO }) {
       >
         <span className="grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-xl bg-rice-100">
           {product.images[0] ? (
-            <Image src={product.images[0]} alt="" fill sizes="56px" className="object-cover" />
+            <Image src={product.images[0]} alt="" fill sizes="56px" className="object-cover" unoptimized />
           ) : (
             <RiceBag
               id={`chat-${product.slug}`}

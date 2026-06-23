@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/alt-text */
 import {
   Document,
   Page,
@@ -45,7 +44,6 @@ const HARVEST = "#c79a3b";
 const HARVEST_DARK = "#856120";
 const RICE_50 = "#fbf8f0";
 const RICE_100 = "#f7f1e4";
-const RICE_200 = "#efe6d2";
 const RULE = "#d8cdb1";
 
 const s = StyleSheet.create({

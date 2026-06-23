@@ -32,8 +32,10 @@ export default function SearchOverlay() {
       const t = setTimeout(() => inputRef.current?.focus(), 60);
       return () => clearTimeout(t);
     } else {
-      setResults([]);
-      setActive(-1);
+      queueMicrotask(() => {
+        setResults([]);
+        setActive(-1);
+      });
     }
   }, [isOpen]);
 
@@ -49,11 +51,13 @@ export default function SearchOverlay() {
     if (!isOpen) return;
     if (debounceRef.current) clearTimeout(debounceRef.current);
     if (query.trim().length < 2) {
-      setResults([]);
-      setLoading(false);
+      queueMicrotask(() => {
+        setResults([]);
+        setLoading(false);
+      });
       return;
     }
-    setLoading(true);
+    queueMicrotask(() => setLoading(true));
     debounceRef.current = setTimeout(async () => {
       try {
         const res = await fetch(`/api/search?q=${encodeURIComponent(query.trim())}`);

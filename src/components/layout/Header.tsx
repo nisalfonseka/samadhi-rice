@@ -5,9 +5,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Logo from "@/components/ui/Logo";
 import { useCart } from "@/providers/CartProvider";
+import { useWishlist } from "@/providers/WishlistProvider";
 import { useSearch } from "@/providers/SearchProvider";
 import { NAV_LINKS } from "@/lib/data";
 import { cn } from "@/lib/utils";
+import { VscSearchSparkle } from "react-icons/vsc";
 
 /* ------------------------------------------------------------ icons ------ */
 const Icon = {
@@ -50,10 +52,21 @@ const Icon = {
       <circle cx="12" cy="9" r="2.5" stroke="currentColor" strokeWidth="1.5" />
     </svg>
   ),
+  Heart: (p: { className?: string }) => (
+    <svg viewBox="0 0 20 20" fill="none" className={p.className} aria-hidden>
+      <path
+        d="M10 17.5s-7-4.5-7-9a3.5 3.5 0 0 1 7 0 3.5 3.5 0 0 1 7 0c0 4.5-7 9-7 9Z"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinejoin="round"
+      />
+    </svg>
+  ),
 };
 
 export default function Header({ hotline }: { hotline?: string }) {
   const { count, lastAddedAt, openCart } = useCart();
+  const { count: wishlistCount, openWishlist } = useWishlist();
   const { openSearch } = useSearch();
   const pathname = usePathname();
   const [overHero, setOverHero] = useState(pathname === "/");
@@ -77,14 +90,14 @@ export default function Header({ hotline }: { hotline?: string }) {
   useEffect(() => {
     const hero = document.getElementById("site-hero");
     if (!hero) {
-      setOverHero(false);
+      queueMicrotask(() => setOverHero(false));
       return;
     }
 
     // Immediate sync check — prevents flash before observer fires
     const rect = hero.getBoundingClientRect();
     const headerH = 72;
-    setOverHero(rect.bottom > headerH && rect.top < window.innerHeight);
+    queueMicrotask(() => setOverHero(rect.bottom > headerH && rect.top < window.innerHeight));
 
     const obs = new IntersectionObserver(
       ([entry]) => setOverHero(entry.isIntersecting),
@@ -225,6 +238,36 @@ export default function Header({ hotline }: { hotline?: string }) {
                 </Link>
               );
             })}
+
+            {/* AI Mode Button */}
+            <Link
+              href="/rice-finder"
+              className={cn(
+                "group relative flex items-center justify-center rounded-full px-4 py-1.5 transition-colors",
+                light ? "text-white hover:text-white" : "text-paddy-900 hover:text-paddy-900"
+              )}
+            >
+              {/* Default Border */}
+              <div className="pointer-events-none absolute inset-0 rounded-full border-[1.5px] border-current opacity-30 transition-opacity duration-300 group-hover:opacity-0" />
+              
+              {/* Animated Gradient Border Mask (Hover) */}
+              <div 
+                className="pointer-events-none absolute inset-0 rounded-full opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                style={{
+                  padding: "1.5px",
+                  background: "linear-gradient(90deg, #4285F4, #EA4335, #FBBC05, #34A853, #4285F4) 0% 0% / 200% 100%",
+                  WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+                  WebkitMaskComposite: "xor",
+                  maskComposite: "exclude",
+                  animation: "google-border-flow 3s linear infinite"
+                }}
+              />
+
+              <div className="relative flex items-center gap-1.5 font-medium text-[0.92rem]">
+                <VscSearchSparkle className="text-[1.1rem]" />
+                <span>AI Mode</span>
+              </div>
+            </Link>
           </nav>
 
           {/* actions */}
@@ -244,6 +287,21 @@ export default function Header({ hotline }: { hotline?: string }) {
             >
               <Icon.User className="h-[1.15rem] w-[1.15rem]" />
             </Link>
+            <button
+              onClick={openWishlist}
+              aria-label={`Open wishlist, ${wishlistCount} items`}
+              className="relative rounded-full p-2.5 transition-colors hover:bg-current/[0.08]"
+            >
+              <Icon.Heart className="h-[1.15rem] w-[1.15rem]" />
+              <span
+                className={cn(
+                  "absolute -right-0 -top-0 grid h-[1.15rem] min-w-[1.15rem] place-items-center rounded-full bg-clay-500 px-1 text-[0.65rem] font-bold text-rice-50 transition-transform duration-300",
+                  wishlistCount > 0 ? "scale-100" : "scale-0",
+                )}
+              >
+                {wishlistCount}
+              </span>
+            </button>
             <button
               onClick={openCart}
               aria-label={`Open cart, ${count} items`}
@@ -317,6 +375,37 @@ export default function Header({ hotline }: { hotline?: string }) {
                 </Link>
               );
             })}
+            
+            <Link
+              href="/rice-finder"
+              onClick={() => setOpen(false)}
+              className={cn(
+                "group relative mt-4 inline-flex self-start rounded-full px-6 py-2.5 transition-all duration-500 text-paddy-900",
+                open ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
+              )}
+              style={{ transitionDelay: open ? `${120 + (NAV_LINKS.length + 1) * 70}ms` : "0ms" }}
+            >
+              {/* Default Border */}
+              <div className="pointer-events-none absolute inset-0 rounded-full border-[1.5px] border-current opacity-30 transition-opacity duration-300 group-hover:opacity-0" />
+              
+              {/* Animated Gradient Border Mask (Hover) */}
+              <div 
+                className="pointer-events-none absolute inset-0 rounded-full opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                style={{
+                  padding: "1.5px",
+                  background: "linear-gradient(90deg, #4285F4, #EA4335, #FBBC05, #34A853, #4285F4) 0% 0% / 200% 100%",
+                  WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+                  WebkitMaskComposite: "xor",
+                  maskComposite: "exclude",
+                  animation: "google-border-flow 3s linear infinite"
+                }}
+              />
+
+              <div className="relative flex items-center gap-2 font-medium">
+                <VscSearchSparkle className="text-[1.2rem]" />
+                <span>AI Mode</span>
+              </div>
+            </Link>
           </nav>
           <div className="flex flex-wrap items-center gap-4 text-sm text-husk-soft">
             {hotline && (

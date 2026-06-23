@@ -166,12 +166,31 @@ export const getRelatedProducts = unstable_cache(
     categoryId: string | null,
     limit = 4,
   ): Promise<ProductDTO[]> => {
-    const products = await prisma.product.findMany({
+    let products = await prisma.product.findMany({
       where: { slug: { not: slug }, ...(categoryId ? { categoryId } : {}) },
       orderBy: [{ featured: "desc" }, { reviewsCount: "desc" }],
       take: limit,
       include: { category: true },
     });
+
+    // If we have fewer items than the limit, backfill with products from other categories
+    if (products.length < limit) {
+      const needed = limit - products.length;
+      const existingIds = products.map((p) => p.id);
+
+      const backfill = await prisma.product.findMany({
+        where: {
+          slug: { not: slug },
+          id: { notIn: existingIds },
+        },
+        orderBy: [{ featured: "desc" }, { reviewsCount: "desc" }],
+        take: needed,
+        include: { category: true },
+      });
+
+      products = [...products, ...backfill];
+    }
+
     return products.map(toProductDTO);
   },
   ["related-products"],

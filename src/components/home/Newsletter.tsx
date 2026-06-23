@@ -2,16 +2,38 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { VscSearchSparkle } from "react-icons/vsc";
 
 export default function Newsletter() {
   const [email, setEmail] = useState("");
   const [done, setDone] = useState(false);
 
-  const submit = (e: React.FormEvent) => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
-    // TODO: POST to /api/newsletter (Resend) once the email service is wired
-    setDone(true);
+    setLoading(true);
+    setError("");
+    
+    try {
+      const res = await fetch("/api/newsletter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      
+      if (!res.ok) {
+        throw new Error("Failed to subscribe");
+      }
+      
+      setDone(true);
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -49,29 +71,32 @@ export default function Newsletter() {
                   ✺ Thank you — welcome to the SamadhiRice family.
                 </p>
               ) : (
-                <form onSubmit={submit} className="mt-8 flex max-w-md flex-col gap-3 sm:flex-row">
-                  <input
-                    type="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="your@email.lk"
-                    className="w-full rounded-full border border-rice-50/20 bg-rice-50/[0.06] px-5 py-3.5 text-rice-50 outline-none transition-colors placeholder:text-rice-100/40 focus:border-harvest-400 focus:bg-rice-50/[0.1]"
-                  />
-                  <button
-                    type="submit"
-                    className="shrink-0 rounded-full bg-harvest-500 px-7 py-3.5 font-medium text-paddy-950 transition-all duration-300 hover:bg-harvest-400 hover:-translate-y-0.5"
-                  >
-                    Subscribe
-                  </button>
+                <form onSubmit={submit} className="mt-8 max-w-md">
+                  <div className="relative">
+                    <input
+                      type="email"
+                      required
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="your@email.lk"
+                      className="w-full rounded-full border border-rice-50/20 bg-rice-50/[0.06] px-5 py-3.5 pr-32 text-rice-50 outline-none transition-colors placeholder:text-rice-100/40 focus:border-harvest-400 focus:bg-rice-50/[0.1]"
+                    />
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      className="absolute inset-y-1.5 right-1.5 flex items-center justify-center rounded-full bg-harvest-500 px-5 text-sm font-medium text-paddy-950 transition-all hover:bg-harvest-400 disabled:opacity-70 disabled:cursor-not-allowed"
+                    >
+                      {loading ? "Subscribing..." : "Subscribe"}
+                    </button>
+                  </div>
+                  {error && <p className="mt-3 text-sm text-red-300">{error}</p>}
                 </form>
               )}
             </div>
 
-            {/* Rice Finder teaser — subtle AI glow border */}
+            {/* Rice Finder teaser */}
             <div
-              className="rounded-3xl border bg-rice-50/[0.05] p-7 backdrop-blur-sm"
-              style={{ animation: "ai-border-glow 4s ease-in-out infinite" }}
+              className="rounded-3xl border bg-rice-50/[0.05] p-7 backdrop-blur-sm shadow-lg shadow-paddy-950/20"
             >
               <span className="grid h-12 w-12 place-items-center rounded-full bg-harvest-500 text-paddy-950">
                 <span className="select-none text-xl leading-none">✦</span>
@@ -84,9 +109,25 @@ export default function Newsletter() {
               </p>
               <Link
                 href="/rice-finder"
-                className="mt-6 inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-harvest-300 transition-all duration-300 hover:gap-3"
+                className="group relative mt-6 inline-flex self-start items-center justify-center rounded-full px-6 py-2.5 transition-colors text-rice-50"
               >
-                Try the Rice Finder →
+                {/* Animated Gradient Border Mask (Always Visible) */}
+                <div 
+                  className="pointer-events-none absolute inset-0 rounded-full"
+                  style={{
+                    padding: "1.5px",
+                    background: "linear-gradient(90deg, #4285F4, #EA4335, #FBBC05, #34A853, #4285F4) 0% 0% / 200% 100%",
+                    WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+                    WebkitMaskComposite: "xor",
+                    maskComposite: "exclude",
+                    animation: "google-border-flow 3s linear infinite"
+                  }}
+                />
+
+                <div className="relative flex items-center gap-2 font-medium tracking-wide">
+                  <VscSearchSparkle className="text-xl" />
+                  <span>Try AI Mode</span>
+                </div>
               </Link>
             </div>
           </div>

@@ -61,7 +61,7 @@ export default function ContactForm() {
 
       {state.status === "success" && (
         <p className="rounded-xl bg-paddy-700/10 px-4 py-3 text-sm font-medium text-paddy-700">
-          Message sent — we'll get back to you soon.
+          Message sent — we&apos;ll get back to you within 24 hours.
         </p>
       )}
 

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import RiceBag from "@/components/shop/RiceBag";
+import ProductGallery from "@/components/shop/ProductGallery";
 import ProductBuyPanel from "@/components/shop/ProductBuyPanel";
 import ProductCard from "@/components/shop/ProductCard";
 import { cache } from "react";
@@ -109,40 +109,15 @@ export default async function ProductPage({ params }: { params: Params }) {
 
         <div className="grid gap-10 lg:grid-cols-2 lg:gap-16">
           {/* art */}
-          <div className="relative flex min-h-[24rem] items-center justify-center overflow-hidden rounded-[2rem] border border-husk/10 bg-[radial-gradient(120%_100%_at_50%_0%,var(--color-rice-100),var(--color-rice-200))] p-10">
-            {product.badge && (
-              <span className="absolute left-6 top-6 rounded-full bg-harvest-500 px-3 py-1 text-[0.68rem] font-semibold uppercase tracking-wider text-paddy-950">
-                {product.badge}
-              </span>
-            )}
-            {product.images[0] ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={product.images[0]}
-                alt={product.name}
-                className="max-h-[28rem] w-auto rounded-2xl object-contain"
-                fetchPriority="high"
-                width={600}
-                height={600}
-              />
-            ) : (
-              <div className="h-[60vh] max-h-[28rem] w-auto">
-                <RiceBag
-                  id={`detail-${product.slug}`}
-                  light={grain.light}
-                  mid={grain.mid}
-                  dark={grain.dark}
-                  sinhala={product.sinhala}
-                  className="h-full w-full"
-                />
-              </div>
-            )}
-            {product.origin && (
-              <span className="absolute bottom-6 left-6 text-xs font-medium uppercase tracking-widest text-clay-600">
-                ◍ {product.origin}
-              </span>
-            )}
-          </div>
+          <ProductGallery
+            images={product.images}
+            name={product.name}
+            badge={product.badge}
+            origin={product.origin}
+            grain={grain}
+            sinhala={product.sinhala}
+            slug={product.slug}
+          />
 
           {/* details */}
           <div className="flex flex-col">
