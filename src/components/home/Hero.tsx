@@ -36,13 +36,14 @@ const STARS = Array.from({ length: 24 }, (_, i) => ({
 export default function Hero() {
   const root = useRef<HTMLElement>(null);
 
-  // Time-driven sky. First paint uses a neutral default so SSR/CSR agree;
-  // the real Sri Lankan time is applied right after mount and every minute.
+  // Time-driven sky. First paint uses a fixed UTC instant that equals
+  // 09:00 Asia/Colombo on both the UTC server and any client timezone,
+  // so SSR and hydration always agree on "morning" as the neutral default.
   const [sky, setSky] = useState<SkyState>(() =>
-    getSkyState(new Date(2026, 0, 1, 9, 0)),
+    getSkyState(new Date("2026-01-01T03:30:00Z")),
   );
   const [mix, setMix] = useState<PhotoMix>(() =>
-    getPhotoMix(new Date(2026, 0, 1, 9, 0)),
+    getPhotoMix(new Date("2026-01-01T03:30:00Z")),
   );
   // Snap to the real time on first paint (no sliding sun/moon path on load);
   // only enable the smooth transitions afterwards for the minute-by-minute drift.
