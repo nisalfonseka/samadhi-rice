@@ -122,6 +122,8 @@ export default async function ProductPage({ params }: { params: Params }) {
                 alt={product.name}
                 className="max-h-[28rem] w-auto rounded-2xl object-contain"
                 fetchPriority="high"
+                width={600}
+                height={600}
               />
             ) : (
               <div className="h-[60vh] max-h-[28rem] w-auto">

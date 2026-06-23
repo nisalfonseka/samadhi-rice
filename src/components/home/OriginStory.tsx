@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useLayoutEffect } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
@@ -51,13 +51,36 @@ export default function OriginStory() {
   const panel = useRef<HTMLDivElement>(null);
   const track = useRef<HTMLDivElement>(null);
 
+  // Pre-size the section so the CSS-sticky panel has vertical room to scroll
+  // through the full horizontal track. Runs synchronously before the browser's
+  // post-hydration repaint; OriginStory is always below the fold on load so the
+  // section expanding never registers as a viewport CLS event.
+  useLayoutEffect(() => {
+    const sectionEl = section.current;
+    const trackEl = track.current;
+    if (!sectionEl || !trackEl) return;
+
+    const update = () => {
+      const isDesktop = window.matchMedia("(min-width: 1024px)").matches;
+      if (isDesktop) {
+        const dist = trackEl.scrollWidth - window.innerWidth + 96;
+        sectionEl.style.height = `${dist + window.innerHeight}px`;
+      } else {
+        sectionEl.style.height = "";
+      }
+    };
+
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+
   useGSAP(
     () => {
       const isDesktop = window.matchMedia("(min-width: 1024px)").matches;
       const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       const trackEl = track.current;
-      const panelEl = panel.current;
-      if (!isDesktop || reduce || !trackEl || !panelEl) return;
+      if (!isDesktop || reduce || !trackEl) return;
 
       const getDistance = () => trackEl.scrollWidth - window.innerWidth + 96;
 
@@ -69,8 +92,8 @@ export default function OriginStory() {
           start: "top top",
           end: () => `+=${getDistance()}`,
           scrub: 1,
-          pin: panelEl,
-          anticipatePin: 1,
+          // CSS sticky on the panel replaces GSAP pin — no pin-spacer injected,
+          // no DOM change after SSR, CLS = 0.
           invalidateOnRefresh: true,
         },
       });
@@ -82,7 +105,7 @@ export default function OriginStory() {
     <section ref={section} className="bg-paper relative">
       <div
         ref={panel}
-        className="flex min-h-[60vh] flex-col justify-center overflow-hidden py-20 lg:h-[100svh]"
+        className="flex min-h-[60vh] flex-col justify-center overflow-hidden py-20 lg:sticky lg:top-0 lg:h-[100svh]"
       >
         <div className="mx-auto mb-10 w-full max-w-7xl px-5 sm:px-8">
           <p className="kicker mb-4 flex items-center gap-3 text-clay-500">
