@@ -26,10 +26,8 @@ function StatCard({
 }
 
 export default async function AdminOverviewPage() {
-  const [stats, activity] = await Promise.all([
-    getDashboardStats(),
-    getRecentActivity(8),
-  ]);
+  const stats = await getDashboardStats();
+  const activity = await getRecentActivity(8);
 
   return (
     <div>

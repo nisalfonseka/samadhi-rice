@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 /* ── paddy-field placeholder (no images) ── */
@@ -90,8 +91,7 @@ export default function BranchCarousel({
   if (total === 1) {
     return (
       <div className="h-40 w-full overflow-hidden lg:h-full">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={images[0]} alt={`${name} branch`} className="h-full w-full object-cover" />
+        <Image src={images[0]} alt={`${name} branch`} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" />
       </div>
     );
   }
@@ -116,11 +116,12 @@ export default function BranchCarousel({
         >
           {images.map((url, i) => (
             <div key={i} className="relative h-full w-full shrink-0">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <Image
                 src={url}
                 alt={`${name} — photo ${i + 1}`}
-                className="h-full w-full object-cover"
+                fill
+                sizes="(max-width: 768px) 100vw, 50vw"
+                className="object-cover"
                 draggable={false}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
@@ -164,11 +165,12 @@ export default function BranchCarousel({
               i === current ? "opacity-100 ring-2 ring-inset ring-harvest-400" : "opacity-55 hover:opacity-80",
             )}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            <Image
               src={url}
               alt=""
-              className="h-full w-full object-cover"
+              fill
+              sizes="80px"
+              className="object-cover"
               draggable={false}
             />
           </button>

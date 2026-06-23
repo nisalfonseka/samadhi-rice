@@ -12,6 +12,7 @@ import { getSettings } from "@/lib/services/settings.service";
 import { getAssistantConfig } from "@/lib/services/assistant.service";
 import { getProducts } from "@/lib/services/product.service";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import NextTopLoader from "nextjs-toploader";
 
 const fraunces = Fraunces({
   variable: "--font-fraunces",
@@ -86,6 +87,7 @@ export default async function RootLayout({
       className={`${fraunces.variable} ${dmSans.variable} ${notoSinhala.variable} antialiased`}
     >
       <body className="relative min-h-screen">
+        <NextTopLoader color="#c79a3b" showSpinner={false} height={3} />
         <SmoothScroll>
           <ChromeGate>
             <Header hotline={settings.contactPhone} />

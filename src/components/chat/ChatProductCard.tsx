@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import RiceBag from "@/components/shop/RiceBag";
 import { useCart } from "@/providers/CartProvider";
 import { priceFor, formatLKR } from "@/lib/pricing";
@@ -30,8 +31,7 @@ export default function ChatProductCard({ product }: { product: ProductDTO }) {
       >
         <span className="grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-xl bg-rice-100">
           {product.images[0] ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={product.images[0]} alt="" className="h-full w-full object-cover" />
+            <Image src={product.images[0]} alt="" fill sizes="56px" className="object-cover" />
           ) : (
             <RiceBag
               id={`chat-${product.slug}`}

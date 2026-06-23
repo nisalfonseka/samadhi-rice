@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
@@ -153,15 +154,15 @@ export default function Hero() {
               ["/hero-night.webp", mix.night],
             ] as const
           ).map(([src, opacity], i) => (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+            <Image
               key={src}
               src={src}
               alt=""
-              className={`absolute inset-0 h-full w-full object-cover ${fade}`}
+              fill
+              sizes="100vw"
+              className={`object-cover ${fade}`}
               style={{ opacity }}
-              aria-hidden
-              fetchPriority={i === 0 ? "high" : "auto"}
+              priority
             />
           ))}
         </div>
@@ -262,12 +263,12 @@ export default function Hero() {
             style={{ background: "radial-gradient(circle, rgba(205,216,255,0.5) 0%, rgba(205,216,255,0.12) 42%, transparent 70%)" }}
           />
           {/* realistic moon */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <Image
             src="/moon.png"
             alt=""
-            className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_0_10px_rgba(200,214,255,0.45)]"
-            aria-hidden
+            fill
+            sizes="(max-width: 768px) 100vw, 50vw"
+            className="object-contain drop-shadow-[0_0_10px_rgba(200,214,255,0.45)]"
           />
         </div>
       </div>
@@ -290,12 +291,12 @@ export default function Hero() {
             style={{ background: `radial-gradient(circle, ${sky.glow} 0%, transparent 65%)`, opacity: 0.5 }}
           />
           {/* realistic sun orb */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <Image
             src="/sun.svg"
             alt=""
+            width={102}
+            height={102}
             className="absolute left-1/2 top-1/2 h-[150%] w-[150%] -translate-x-1/2 -translate-y-1/2"
-            aria-hidden
           />
         </div>
       </div>

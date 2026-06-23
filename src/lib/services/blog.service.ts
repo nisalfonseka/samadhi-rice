@@ -77,6 +77,15 @@ export const getRelatedPosts = unstable_cache(
 export async function getAdminPosts() {
   return prisma.blogPost.findMany({
     orderBy: [{ createdAt: "desc" }],
+    select: {
+      id: true,
+      title: true,
+      slug: true,
+      excerpt: true,
+      published: true,
+      publishedAt: true,
+      createdAt: true,
+    },
   });
 }
 

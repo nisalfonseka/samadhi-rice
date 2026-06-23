@@ -29,7 +29,7 @@ export default function AdminSidebar({ user }: { user: string }) {
   return (
     <aside className="fixed inset-x-0 top-0 z-40 border-b border-husk/10 bg-rice-50 lg:inset-y-0 lg:right-auto lg:w-64 lg:border-b-0 lg:border-r">
       <div className="flex h-16 items-center justify-between px-5 lg:h-auto lg:flex-col lg:items-stretch lg:gap-0 lg:px-0 lg:py-0">
-        <div className="flex items-center gap-3 lg:border-b lg:border-husk/10 lg:px-6 lg:py-5">
+        <div className="flex items-center gap-3 lg:flex-col lg:items-start lg:gap-1 lg:border-b lg:border-husk/10 lg:px-6 lg:py-5">
           <Link href="/admin"><Logo /></Link>
           <span className="hidden rounded-full bg-paddy-800/10 px-2 py-0.5 text-[0.6rem] font-bold uppercase tracking-widest text-paddy-700 lg:inline">
             Admin

@@ -45,8 +45,7 @@ export default function LoginForm() {
       setLoading(false);
       return;
     }
-    router.push(callbackUrl);
-    router.refresh();
+    window.location.href = callbackUrl;
   };
 
   return (

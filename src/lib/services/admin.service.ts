@@ -26,7 +26,7 @@ export async function getDashboardStats() {
     productCount,
     lowStock,
     recentOrders,
-  ] = await Promise.all([
+  ] = await prisma.$transaction([
     prisma.order.count({ where: { createdAt: { gte: startOfDay } } }),
     prisma.order.aggregate({
       _sum: { total: true },
@@ -63,7 +63,17 @@ export async function getDashboardStats() {
 export async function getAdminProducts() {
   return prisma.product.findMany({
     orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
-    include: { category: true },
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      pricePerKg: true,
+      stockKg: true,
+      featured: true,
+      badge: true,
+      grainMid: true,
+      category: { select: { name: true } },
+    },
   });
 }
 
@@ -95,7 +105,19 @@ export async function getAdminOrders(f: OrderFilters = {}) {
   return prisma.order.findMany({
     where,
     orderBy: { createdAt: "desc" },
-    include: { items: true },
+    select: {
+      id: true,
+      orderNo: true,
+      customerName: true,
+      phone: true,
+      createdAt: true,
+      total: true,
+      paymentMethod: true,
+      status: true,
+      items: {
+        select: { name: true, quantity: true },
+      },
+    },
     take: 200,
   });
 }
@@ -125,7 +147,7 @@ export async function getAnalytics(days = 14) {
   since.setHours(0, 0, 0, 0);
   since.setDate(since.getDate() - (days - 1));
 
-  const [orders, statusGroups, items, customers] = await Promise.all([
+  const [orders, statusGroups, items, customers] = await prisma.$transaction([
     prisma.order.findMany({
       where: { createdAt: { gte: since } },
       select: { total: true, createdAt: true },

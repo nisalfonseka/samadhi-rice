@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { Metadata } from "next";
 import { getPublishedPosts, excerptFrom, readingTimeMin } from "@/lib/services/blog.service";
 
@@ -76,11 +77,12 @@ export default async function BlogIndexPage({
                 <div className="grid gap-0 md:grid-cols-[1.1fr_1fr]">
                   <div className="relative aspect-[16/10] overflow-hidden bg-[radial-gradient(120%_100%_at_20%_20%,var(--color-rice-100),var(--color-rice-200))] md:aspect-auto">
                     {posts[0].coverImage ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
+                      <Image
                         src={posts[0].coverImage}
                         alt={posts[0].title}
-                        className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        fill
+                        sizes="(max-width: 768px) 100vw, 50vw"
+                        className="object-cover transition-transform duration-700 group-hover:scale-105"
                       />
                     ) : (
                       <PaperPattern />
@@ -114,11 +116,12 @@ export default async function BlogIndexPage({
                 >
                   <div className="relative aspect-[5/3] overflow-hidden bg-[radial-gradient(120%_100%_at_50%_0%,var(--color-rice-100),var(--color-rice-200))]">
                     {p.coverImage ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
+                      <Image
                         src={p.coverImage}
                         alt={p.title}
-                        className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        fill
+                        sizes="(max-width: 768px) 100vw, 33vw"
+                        className="object-cover transition-transform duration-700 group-hover:scale-105"
                       />
                     ) : (
                       <PaperPattern />

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useSession } from "next-auth/react";
 import RiceBag from "@/components/shop/RiceBag";
 import { useCart } from "@/providers/CartProvider";
@@ -757,8 +758,7 @@ function ProductDetailCard({ product }: { product: ProductDTO }) {
       <Link href={`/shop/${product.slug}`} className="block">
         <div className="grid h-32 place-items-center bg-rice-100">
           {product.images[0] ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={product.images[0]} alt="" className="h-full w-full object-cover transition-transform duration-500 hover:scale-105" />
+            <Image src={product.images[0]} alt="" fill sizes="128px" className="object-cover transition-transform duration-500 hover:scale-105" />
           ) : (
             <RiceBag
               id={`rfright-${product.slug}`}
@@ -1017,8 +1017,7 @@ function InlineProductCard({ product }: { product: ProductDTO }) {
         className="grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-lg bg-rice-100"
       >
         {product.images[0] ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={product.images[0]} alt="" className="h-full w-full object-cover" />
+          <Image src={product.images[0]} alt="" fill sizes="48px" className="object-cover" />
         ) : (
           <RiceBag
             id={`rfinline-${product.slug}`}
