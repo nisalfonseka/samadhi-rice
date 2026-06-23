@@ -23,7 +23,7 @@ export default function ProductBuyPanel({
   const { add } = useCart();
   const { has, toggle } = useWishlist();
   const [weight, setWeight] = useState(1);
-  const [qty, setQty] = useState(1);
+  const qty = 1;
   const [added, setAdded] = useState(false);
 
   const unit = priceFor(pricePerKg, weight, discountPercent);
@@ -53,27 +53,41 @@ export default function ProductBuyPanel({
           onChange={setWeight}
           pricePerKg={pricePerKg}
           discountPercent={discountPercent}
+          large={true}
+          hideCustom={true}
         />
       </div>
 
       {/* qty + price */}
       <div className="mt-6 flex items-center justify-between">
-        <div className="flex items-center rounded-full border border-husk/15">
-          <button
-            onClick={() => setQty((q) => Math.max(1, q - 1))}
-            aria-label="Decrease quantity"
-            className="grid h-10 w-10 place-items-center text-lg text-husk hover:text-paddy-800"
-          >
-            −
-          </button>
-          <span className="w-8 text-center font-semibold text-husk">{qty}</span>
-          <button
-            onClick={() => setQty((q) => Math.min(99, q + 1))}
-            aria-label="Increase quantity"
-            className="grid h-10 w-10 place-items-center text-lg text-husk hover:text-paddy-800"
-          >
-            +
-          </button>
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="custom-weight-input" className="text-[10px] font-bold uppercase tracking-wider text-husk-soft">
+            Custom weight
+          </label>
+          <div className="flex items-center rounded-full border border-husk/15 bg-white px-4 h-10 w-36 shadow-inner focus-within:border-paddy-700/50 focus-within:ring-1 focus-within:ring-paddy-700/20 transition-all">
+            <input
+              id="custom-weight-input"
+              type="number"
+              min={1}
+              max={100}
+              step="any"
+              value={weight === 0 ? "" : weight}
+              onChange={(e) => {
+                const val = e.target.value;
+                if (val === "") {
+                  setWeight(0);
+                  return;
+                }
+                const num = parseFloat(val);
+                if (!isNaN(num)) {
+                  setWeight(num);
+                }
+              }}
+              placeholder="0.0"
+              className="w-full bg-transparent text-center font-semibold text-husk outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+            />
+            <span className="text-sm font-semibold text-husk-soft ml-1">kg</span>
+          </div>
         </div>
         <div className="text-right">
           <span className="block font-display text-3xl text-husk animate-[rise_0.3s_ease]" key={total}>
@@ -86,7 +100,7 @@ export default function ProductBuyPanel({
             </span>
           )}
           <span className="text-xs text-husk-soft">
-            {formatLKR(Math.round(unit / weight))}/kg · incl. taxes
+            {weight > 0 ? formatLKR(Math.round(unit / weight)) : formatLKR(pricePerKg)}/kg · incl. taxes
           </span>
         </div>
       </div>
@@ -95,11 +109,11 @@ export default function ProductBuyPanel({
       <div className="mt-6 flex gap-3">
         <button
           onClick={handleAdd}
-          disabled={soldOut}
+          disabled={soldOut || weight <= 0}
           className={cn(
             "flex flex-1 items-center justify-center gap-2 rounded-full py-4 font-medium text-rice-50 transition-all duration-300",
-            soldOut
-              ? "cursor-not-allowed bg-husk/30"
+            (soldOut || weight <= 0)
+              ? "cursor-not-allowed bg-husk/30 text-rice-50/50"
               : added
                 ? "bg-paddy-600"
                 : "bg-paddy-800 hover:bg-paddy-900 hover:-translate-y-0.5",
@@ -107,6 +121,8 @@ export default function ProductBuyPanel({
         >
           {soldOut ? (
             "Sold out"
+          ) : weight <= 0 ? (
+            "Enter weight"
           ) : added ? (
             <>
               <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" aria-hidden>

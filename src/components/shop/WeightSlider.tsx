@@ -9,11 +9,15 @@ const STOPS = PRESET_WEIGHTS;
 export default function WeightSlider({
   value,
   onChange,
+  large = false,
+  hideCustom = false,
 }: {
   value: number;
   onChange: (w: number) => void;
   pricePerKg?: number;
   discountPercent?: number;
+  large?: boolean;
+  hideCustom?: boolean;
 }) {
   const trackRef = useRef<HTMLDivElement>(null);
   const [dragging, setDragging] = useState(false);
@@ -90,19 +94,22 @@ export default function WeightSlider({
       {/* ── Track ── */}
       <div
         ref={trackRef}
-        className="relative h-10 touch-none"
+        className={cn("relative touch-none", large ? "h-12" : "h-10")}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
       >
         {/* base rail — spans first-dot-center to last-dot-center */}
-        <div className="absolute inset-x-0 top-[17px] h-[2px] rounded-full bg-husk/12" />
+        <div
+          className="absolute inset-x-0 h-[2px] rounded-full bg-husk/12"
+          style={{ top: large ? "23.8px" : "19.8px" }}
+        />
 
         {/* filled rail */}
         {activeIdx >= 0 && (
           <div
-            className="absolute top-[17px] h-[2px] rounded-full bg-paddy-700 transition-[width] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
-            style={{ left: 0, width: `${thumbPct}%` }}
+            className="absolute h-[2px] rounded-full bg-paddy-700 transition-[width] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
+            style={{ left: 0, width: `${thumbPct}%`, top: large ? "23.8px" : "19.8px" }}
           />
         )}
 
@@ -131,22 +138,31 @@ export default function WeightSlider({
               >
                 <span
                   className={cn(
-                    "mb-[3px] block text-[0.6rem] font-bold tabular-nums leading-none transition-colors duration-200",
+                    "block font-bold tabular-nums leading-none transition-colors duration-200",
+                    large ? "text-xs mb-1" : "text-[0.6rem] mb-[3px]",
                     isExact ? "text-paddy-800" : isActive ? "text-paddy-700/50" : "text-husk/30",
                   )}
                 >
-                  {w}<span className="text-[0.45rem] font-semibold">kg</span>
+                  {w}<span className={cn("font-semibold", large ? "text-[0.85rem]" : "text-[0.75rem]")}>kg</span>
                 </span>
-                <span
-                  className={cn(
-                    "block rounded-full transition-all duration-300",
-                    isExact
-                      ? "h-3 w-3 border-[2.5px] border-paddy-700 bg-white shadow-[0_0_6px_rgba(45,64,32,0.35)]"
-                      : isActive
-                        ? "h-[9px] w-[9px] bg-paddy-700"
-                        : "h-[9px] w-[9px] bg-husk/18",
-                  )}
-                />
+                <div className={cn("flex items-center justify-center", large ? "h-[15px]" : "h-3")}>
+                  <span
+                    className={cn(
+                      "block rounded-full transition-all duration-300",
+                      isExact
+                        ? large
+                          ? "h-[15px] w-[15px] border-[3px] border-paddy-700 bg-white shadow-[0_0_8px_rgba(45,64,32,0.35)]"
+                          : "h-3 w-3 border-[2.5px] border-paddy-700 bg-white shadow-[0_0_6px_rgba(45,64,32,0.35)]"
+                        : isActive
+                          ? large
+                            ? "h-[11px] w-[11px] bg-paddy-700"
+                            : "h-[9px] w-[9px] bg-paddy-700"
+                          : large
+                            ? "h-[11px] w-[11px] bg-husk/18"
+                            : "h-[9px] w-[9px] bg-husk/18",
+                    )}
+                  />
+                </div>
               </button>
             </div>
           );
@@ -154,58 +170,60 @@ export default function WeightSlider({
       </div>
 
       {/* ── Custom weight (below track) ── */}
-      <div className="mt-1">
-        {customOpen ? (
-          <div className="flex items-center gap-1.5 animate-[rise_0.15s_ease]">
-            <input
-              ref={inputRef}
-              type="number"
-              min={1}
-              max={100}
-              value={customVal}
-              onChange={(e) => setCustomVal(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") applyCustom();
-                if (e.key === "Escape") setCustomOpen(false);
-              }}
-              placeholder="Enter weight in kg"
-              className="h-7 w-full rounded-lg border border-paddy-600/30 bg-paddy-800/5 px-2.5 text-xs font-semibold text-paddy-800 outline-none transition focus:border-paddy-600 focus:ring-1 focus:ring-paddy-500/20 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-            />
+      {!hideCustom && (
+        <div className="mt-1">
+          {customOpen ? (
+            <div className="flex items-center gap-1.5 animate-[rise_0.15s_ease]">
+              <input
+                ref={inputRef}
+                type="number"
+                min={1}
+                max={100}
+                value={customVal}
+                onChange={(e) => setCustomVal(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") applyCustom();
+                  if (e.key === "Escape") setCustomOpen(false);
+                }}
+                placeholder="Enter weight in kg"
+                className="h-7 w-full rounded-lg border border-paddy-600/30 bg-paddy-800/5 px-2.5 text-xs font-semibold text-paddy-800 outline-none transition focus:border-paddy-600 focus:ring-1 focus:ring-paddy-500/20 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+              />
+              <button
+                type="button"
+                onClick={applyCustom}
+                className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-paddy-800 text-rice-50 hover:bg-paddy-700"
+              >
+                <svg viewBox="0 0 16 16" className="h-3 w-3" fill="none" aria-hidden>
+                  <path d="m4 8.5 3 3 5-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
+              <button
+                type="button"
+                onClick={() => setCustomOpen(false)}
+                className="grid h-7 w-7 shrink-0 place-items-center rounded-lg border border-husk/15 text-husk/40 hover:text-husk"
+              >
+                ✕
+              </button>
+            </div>
+          ) : (
             <button
               type="button"
-              onClick={applyCustom}
-              className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-paddy-800 text-rice-50 hover:bg-paddy-700"
+              onClick={() => { setCustomOpen(true); setCustomVal(isPreset ? "" : String(value)); }}
+              className={cn(
+                "flex w-full items-center justify-center gap-1.5 rounded-lg border py-1 text-[0.6rem] font-bold uppercase tracking-wider transition-all duration-200",
+                !isPreset
+                  ? "border-paddy-700 bg-paddy-800 text-rice-50"
+                  : "border-husk/10 text-husk/35 hover:border-paddy-500/30 hover:text-paddy-700",
+              )}
             >
-              <svg viewBox="0 0 16 16" className="h-3 w-3" fill="none" aria-hidden>
-                <path d="m4 8.5 3 3 5-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              <svg viewBox="0 0 12 12" className="h-2.5 w-2.5" fill="none" aria-hidden>
+                <path d="M1 9.5 8.5 2l2 2L3 11.5H1V9.5Z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
               </svg>
+              {!isPreset ? `Custom: ${value}kg` : "Custom weight"}
             </button>
-            <button
-              type="button"
-              onClick={() => setCustomOpen(false)}
-              className="grid h-7 w-7 shrink-0 place-items-center rounded-lg border border-husk/15 text-husk/40 hover:text-husk"
-            >
-              ✕
-            </button>
-          </div>
-        ) : (
-          <button
-            type="button"
-            onClick={() => { setCustomOpen(true); setCustomVal(isPreset ? "" : String(value)); }}
-            className={cn(
-              "flex w-full items-center justify-center gap-1.5 rounded-lg border py-1 text-[0.6rem] font-bold uppercase tracking-wider transition-all duration-200",
-              !isPreset
-                ? "border-paddy-700 bg-paddy-800 text-rice-50"
-                : "border-husk/10 text-husk/35 hover:border-paddy-500/30 hover:text-paddy-700",
-            )}
-          >
-            <svg viewBox="0 0 12 12" className="h-2.5 w-2.5" fill="none" aria-hidden>
-              <path d="M1 9.5 8.5 2l2 2L3 11.5H1V9.5Z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
-            </svg>
-            {!isPreset ? `Custom: ${value}kg` : "Custom weight"}
-          </button>
-        )}
-      </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
