@@ -16,7 +16,7 @@ import {
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 /** Golden pollen / dust motes that catch the light by day. */
-const PARTICLES = Array.from({ length: 18 }, (_, i) => ({
+const PARTICLES = Array.from({ length: 10 }, (_, i) => ({
   left: (i * 61) % 100,
   bottom: (i * 37) % 46,
   delay: (i % 8) * 1.1,
@@ -25,7 +25,7 @@ const PARTICLES = Array.from({ length: 18 }, (_, i) => ({
 }));
 
 /** Deterministic star field in the upper sky — no hydration mismatch. */
-const STARS = Array.from({ length: 50 }, (_, i) => ({
+const STARS = Array.from({ length: 24 }, (_, i) => ({
   left: (i * 97.13) % 100,
   top: ((i * 53.7) % 50) + 2,
   size: 1 + (i % 3) * 0.7,
@@ -138,7 +138,7 @@ export default function Hero() {
       className="relative flex min-h-[100svh] w-full items-center overflow-hidden bg-paddy-950"
     >
       {/* ---- background photos (4-way time-of-day crossfade + Ken Burns) ---- */}
-      <div data-depth="8" className="absolute inset-0 overflow-hidden">
+      <div data-depth="8" className="absolute inset-0 overflow-hidden will-change-transform">
         <div
           data-kenburns
           className="absolute inset-0 will-change-transform transition-[filter] duration-[2500ms] ease-linear"
@@ -166,16 +166,17 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* ---- left-side text-area blur: fades toward right + bottom ---- */}
+      {/* ---- left-side text-area shadow: dark vignette makes headline readable
+           without backdrop-blur (avoids recomposite on every scroll frame) ---- */}
       <div
-        className="pointer-events-none absolute inset-0 z-[1] backdrop-blur-[8px]"
+        className="pointer-events-none absolute inset-0 z-[1]"
         style={{
+          background:
+            "linear-gradient(to right, rgba(5,12,4,0.52) 0%, rgba(5,12,4,0.52) 24%, rgba(5,12,4,0.18) 46%, transparent 60%)",
           maskImage:
-            "linear-gradient(to right, #000 0%, #000 28%, transparent 58%), linear-gradient(to bottom, #000 0%, #000 30%, transparent 68%)",
-          maskComposite: "intersect",
+            "linear-gradient(to bottom, #000 0%, #000 36%, transparent 70%)",
           WebkitMaskImage:
-            "linear-gradient(to right, #000 0%, #000 28%, transparent 58%), linear-gradient(to bottom, #000 0%, #000 30%, transparent 68%)",
-          WebkitMaskComposite: "source-in",
+            "linear-gradient(to bottom, #000 0%, #000 36%, transparent 70%)",
         }}
         aria-hidden
       />
