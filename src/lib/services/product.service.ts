@@ -170,16 +170,20 @@ export async function getRelatedProducts(
   return products.map(toProductDTO);
 }
 
-export async function getCategoriesWithCounts() {
-  return prisma.category.findMany({
+export const getCategoriesWithCounts = unstable_cache(
+  async () => prisma.category.findMany({
     include: { _count: { select: { products: true } } },
     orderBy: { name: "asc" },
-  });
-}
+  }),
+  ["categories-with-counts"],
+  { revalidate: 300, tags: ["products"] },
+);
 
-export function getPriceBounds() {
-  return prisma.product.aggregate({
+export const getPriceBounds = unstable_cache(
+  async () => prisma.product.aggregate({
     _min: { pricePerKg: true },
     _max: { pricePerKg: true },
-  });
-}
+  }),
+  ["price-bounds"],
+  { revalidate: 300, tags: ["products"] },
+);

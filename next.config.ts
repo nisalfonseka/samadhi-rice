@@ -6,6 +6,8 @@ const nextConfig: NextConfig = {
   serverExternalPackages: ["@react-pdf/renderer"],
   // allow Cloudinary product images
   images: {
+    formats: ["image/avif", "image/webp"],
+    minimumCacheTTL: 2592000,
     remotePatterns: [
       { protocol: "https", hostname: "res.cloudinary.com" },
     ],

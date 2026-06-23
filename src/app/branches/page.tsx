@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   description: "Visit any SamadhiRice.lk branch — fresh-milled heritage rice, always in stock.",
 };
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 /* ── tiny icon components ── */
 function Pin() {

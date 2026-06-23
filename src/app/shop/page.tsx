@@ -10,7 +10,7 @@ import {
   type ProductSort,
 } from "@/lib/services/product.service";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: "Shop heritage Sri Lankan rice",

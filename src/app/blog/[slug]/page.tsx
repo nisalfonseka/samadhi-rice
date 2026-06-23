@@ -1,9 +1,12 @@
+import { cache } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { getPostBySlug, getRelatedPosts, readingTimeMin, excerptFrom } from "@/lib/services/blog.service";
+import { getPostBySlug as _getPostBySlug, getRelatedPosts, readingTimeMin, excerptFrom } from "@/lib/services/blog.service";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
+
+const getPostBySlug = cache(_getPostBySlug);
 
 type Params = Promise<{ slug: string }>;
 
@@ -144,6 +147,7 @@ export default async function BlogPostPage({ params }: { params: Params }) {
               src={post.coverImage}
               alt={post.title}
               className="aspect-[16/9] w-full rounded-3xl object-cover"
+              fetchPriority="high"
             />
           </div>
         )}

@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { getPublishedPosts, excerptFrom, readingTimeMin } from "@/lib/services/blog.service";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: "Stories from the paddy field",

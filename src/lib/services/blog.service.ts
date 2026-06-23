@@ -16,34 +16,35 @@ export function excerptFrom(html: string, max = 180) {
   return text.slice(0, max).replace(/\s+\S*$/, "") + "…";
 }
 
-export async function getPublishedPosts({
-  page = 1,
-  q,
-}: { page?: number; q?: string } = {}) {
-  const where: Prisma.BlogPostWhereInput = { published: true };
-  if (q) {
-    where.OR = [
-      { title: { contains: q, mode: "insensitive" } },
-      { excerpt: { contains: q, mode: "insensitive" } },
-      { content: { contains: q, mode: "insensitive" } },
-    ];
-  }
-  const [total, posts] = await Promise.all([
-    prisma.blogPost.count({ where }),
-    prisma.blogPost.findMany({
-      where,
-      orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
-      skip: (page - 1) * POSTS_PER_PAGE,
-      take: POSTS_PER_PAGE,
-    }),
-  ]);
-  return {
-    posts,
-    total,
-    pages: Math.max(1, Math.ceil(total / POSTS_PER_PAGE)),
-    page,
-  };
-}
+export const getPublishedPosts = unstable_cache(
+  async ({ page = 1, q }: { page?: number; q?: string } = {}) => {
+    const where: Prisma.BlogPostWhereInput = { published: true };
+    if (q) {
+      where.OR = [
+        { title: { contains: q, mode: "insensitive" } },
+        { excerpt: { contains: q, mode: "insensitive" } },
+        { content: { contains: q, mode: "insensitive" } },
+      ];
+    }
+    const [total, posts] = await Promise.all([
+      prisma.blogPost.count({ where }),
+      prisma.blogPost.findMany({
+        where,
+        orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
+        skip: (page - 1) * POSTS_PER_PAGE,
+        take: POSTS_PER_PAGE,
+      }),
+    ]);
+    return {
+      posts,
+      total,
+      pages: Math.max(1, Math.ceil(total / POSTS_PER_PAGE)),
+      page,
+    };
+  },
+  ["published-posts"],
+  { revalidate: 300, tags: ["blog"] },
+);
 
 export const getLatestPosts = unstable_cache(
   async (take = 3) => prisma.blogPost.findMany({
@@ -55,17 +56,21 @@ export const getLatestPosts = unstable_cache(
   { revalidate: 300, tags: ["blog"] },
 );
 
-export async function getPostBySlug(slug: string) {
-  return prisma.blogPost.findUnique({ where: { slug } });
-}
+export const getPostBySlug = unstable_cache(
+  async (slug: string) => prisma.blogPost.findUnique({ where: { slug } }),
+  ["post-by-slug"],
+  { revalidate: 300, tags: ["blog"] },
+);
 
-export async function getRelatedPosts(slug: string, take = 3) {
-  return prisma.blogPost.findMany({
+export const getRelatedPosts = unstable_cache(
+  async (slug: string, take = 3) => prisma.blogPost.findMany({
     where: { published: true, slug: { not: slug } },
     orderBy: [{ publishedAt: "desc" }],
     take,
-  });
-}
+  }),
+  ["related-posts"],
+  { revalidate: 300, tags: ["blog"] },
+);
 
 /* ---- admin ---- */
 

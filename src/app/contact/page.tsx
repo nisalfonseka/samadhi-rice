@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     "Reach SamadhiRice.lk by phone, WhatsApp, or email. Visit a branch or send us a message.",
 };
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 /* ── small inline icons ── */
 function PhoneIcon() {
