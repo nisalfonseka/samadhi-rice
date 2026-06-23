@@ -146,29 +146,37 @@ export const getHotDealProducts = unstable_cache(
   { revalidate: 300, tags: ["products"] },
 );
 
-export async function getProductBySlug(slug: string) {
-  return prisma.product.findUnique({
-    where: { slug },
-    include: {
-      category: true,
-      reviews: { where: { approved: true }, orderBy: { createdAt: "desc" } },
-    },
-  });
-}
+export const getProductBySlug = unstable_cache(
+  async (slug: string) => {
+    return prisma.product.findUnique({
+      where: { slug },
+      include: {
+        category: true,
+        reviews: { where: { approved: true }, orderBy: { createdAt: "desc" } },
+      },
+    });
+  },
+  ["product-by-slug"],
+  { revalidate: 300, tags: ["products"] },
+);
 
-export async function getRelatedProducts(
-  slug: string,
-  categoryId: string | null,
-  limit = 4,
-): Promise<ProductDTO[]> {
-  const products = await prisma.product.findMany({
-    where: { slug: { not: slug }, ...(categoryId ? { categoryId } : {}) },
-    orderBy: [{ featured: "desc" }, { reviewsCount: "desc" }],
-    take: limit,
-    include: { category: true },
-  });
-  return products.map(toProductDTO);
-}
+export const getRelatedProducts = unstable_cache(
+  async (
+    slug: string,
+    categoryId: string | null,
+    limit = 4,
+  ): Promise<ProductDTO[]> => {
+    const products = await prisma.product.findMany({
+      where: { slug: { not: slug }, ...(categoryId ? { categoryId } : {}) },
+      orderBy: [{ featured: "desc" }, { reviewsCount: "desc" }],
+      take: limit,
+      include: { category: true },
+    });
+    return products.map(toProductDTO);
+  },
+  ["related-products"],
+  { revalidate: 300, tags: ["products"] },
+);
 
 export const getCategoriesWithCounts = unstable_cache(
   async () => prisma.category.findMany({
