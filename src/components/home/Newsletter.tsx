@@ -57,13 +57,11 @@ export default function Newsletter() {
 
           <div className="relative grid gap-12 lg:grid-cols-[1.2fr_1fr] lg:items-center">
             <div>
-              <p className="kicker mb-4 text-harvest-300">Stay close to the field</p>
               <h2 className="font-display text-[clamp(2rem,4vw,3.2rem)] font-medium leading-tight">
                 Get the new harvest in your inbox
               </h2>
               <p className="mt-4 max-w-md text-rice-100/75">
-                Seasonal milling news, recipes from Sri Lankan kitchens, and the
-                occasional members-only offer. No spam — just rice.
+                Receive updates on new rice varieties, special offers, and tips for cooking the perfect meal.
               </p>
 
               {done ? (
@@ -103,9 +101,7 @@ export default function Newsletter() {
               </span>
               <h3 className="mt-5 font-display text-2xl">Not sure which rice?</h3>
               <p className="mt-2 text-sm leading-relaxed text-rice-100/75">
-                Answer three quick questions — what you&apos;re cooking, how many
-                you&apos;re feeding, any dietary needs — and we&apos;ll match you
-                to the perfect grain.
+                Chat with our AI-powered Rice Finder to discover the perfect variety for your meals, based on your preferences and cooking style.
               </p>
               <Link
                 href="/rice-finder"

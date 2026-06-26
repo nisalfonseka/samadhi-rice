@@ -62,15 +62,13 @@ export default function TrustStats() {
         <div className="max-w-2xl">
           <p className="kicker mb-4 flex items-center gap-3 text-harvest-300">
             <span className="h-px w-8 bg-harvest-400/60" />
-            Why kitchens trust us
+            Why Sri Lankan consumers trust us
           </p>
           <h2 className="font-display text-[clamp(2rem,4.5vw,3.4rem)] font-medium text-rice-50">
             Three decades, one standard
           </h2>
           <p className="mt-5 text-[1.02rem] leading-relaxed text-rice-100/75">
-            We are not a faceless brand on a supermarket shelf. We are millers
-            and farmers, working with the same families season after season — and
-            the numbers below are the trust they have placed in us.
+            Our customers know that every bag of Samadhi Rice is made with care, and that our quality is consistent.
           </p>
         </div>
 

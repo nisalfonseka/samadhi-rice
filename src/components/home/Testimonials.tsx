@@ -44,9 +44,9 @@ export default function Testimonials() {
     <section id="testimonials" className="bg-paper relative py-24 sm:py-28">
       <div className="mx-auto max-w-7xl px-5 sm:px-8">
         <SectionHeading
-          kicker="From real kitchens"
-          title="What Sri Lanka is saying"
-          intro="Drag to read more. Every word below is from a verified order — no scripts, no stock smiles."
+          kicker=""
+          title="What our customers say"
+          intro="Every word below is from verified orders"
         />
 
         {/* drag controls */}

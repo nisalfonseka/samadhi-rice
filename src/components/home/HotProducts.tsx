@@ -17,9 +17,9 @@ export default async function HotProducts() {
     <section id="hot" className="bg-paper relative py-24 sm:py-28">
       <div className="mx-auto max-w-7xl px-5 sm:px-8">
         <SectionHeading
-          kicker="Hot from the harvest"
-          title="This season's favourites"
-          intro="The varieties Sri Lankan kitchens reach for again and again — milled in small batches and switched to the weight that suits you."
+          kicker=""
+          title="Most popular products"
+          intro="Here are the products that our customers love the most."
           link={{ label: "Shop all rice", href: "/shop" }}
         />
 

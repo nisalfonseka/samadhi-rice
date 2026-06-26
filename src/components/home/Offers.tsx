@@ -66,9 +66,9 @@ export default async function Offers() {
     <section id="offers" className="relative bg-rice-100 py-24 sm:py-28">
       <div className="mx-auto max-w-7xl px-5 sm:px-8">
         <SectionHeading
-          kicker="Worth stocking up for"
-          title="Offers from the mill"
-          intro="Rice is a pantry staple — buy the way Sri Lankan kitchens always have, and let the savings stack up."
+          kicker=""
+          title="Offers from us"
+          intro="Latest deals and special offers on our rice varieties."
         />
 
         <div className="mt-14 grid gap-8 lg:grid-cols-[19rem_1fr] lg:items-start">
