@@ -3,9 +3,11 @@ import { cn } from "@/lib/utils";
 
 export default function Logo({
   className,
+  textClassName,
   showTld = true,
 }: {
   className?: string;
+  textClassName?: string;
   showTld?: boolean;
 }) {
   return (
@@ -18,7 +20,7 @@ export default function Logo({
         className="h-10 w-10 shrink-0 object-contain"
         priority
       />
-      <span className="font-display text-[1.4rem] font-semibold leading-none tracking-tight">
+      <span className={cn("font-display text-[1.4rem] font-semibold leading-none tracking-tight", textClassName)}>
         Samadhi<span className="text-harvest-500">Rice</span>
         {showTld && (
           <span className="text-[0.55em] font-normal opacity-60">

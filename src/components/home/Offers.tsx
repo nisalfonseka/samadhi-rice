@@ -63,7 +63,7 @@ export default async function Offers() {
   if (offers.length === 0 && deals.length === 0) return null;
 
   return (
-    <section id="offers" className="relative bg-rice-100 py-24 sm:py-28">
+    <section id="offers" className="relative bg-rice-100 py-12 sm:py-28">
       <div className="mx-auto max-w-7xl px-5 sm:px-8">
         <SectionHeading
           kicker=""
@@ -71,11 +71,11 @@ export default async function Offers() {
           intro="Latest deals and special offers on our rice varieties."
         />
 
-        <div className="mt-14 grid gap-8 lg:grid-cols-[19rem_1fr] lg:items-start">
+        <div className="mt-7 grid gap-4 sm:mt-14 sm:gap-8 lg:grid-cols-[19rem_1fr] lg:items-start">
           {/* LEFT — three compact offer cards, each with a clear CTA */}
-          <Reveal stagger={0.1} y={24} className="flex flex-col gap-4">
+          <Reveal stagger={0.1} y={24} className="flex flex-col gap-3 sm:gap-4">
             {offers.length === 0 ? (
-              <div className="rounded-2xl border border-husk/10 bg-rice-50 p-8 text-center text-sm text-husk-soft">
+              <div className="rounded-2xl border border-husk/10 bg-rice-50 p-5 text-center text-xs text-husk-soft sm:p-8 sm:text-sm">
                 Offers are being prepared — check back soon.
               </div>
             ) : (
@@ -85,24 +85,24 @@ export default async function Offers() {
                   <article
                     key={o.id}
                     className={cn(
-                      "group relative flex flex-col overflow-hidden rounded-2xl p-5 transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1",
+                      "group relative flex flex-col overflow-hidden rounded-xl p-3.5 transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1 sm:rounded-2xl sm:p-5",
                       t.card,
                     )}
                   >
                     <GrainCorner color={t.grain} />
-                    <p className={cn("kicker relative", t.eyebrow)}>{o.eyebrow}</p>
-                    <h3 className="relative mt-2 font-display text-lg font-medium leading-snug">
+                    <p className={cn("kicker relative text-[0.65rem] sm:text-xs", t.eyebrow)}>{o.eyebrow}</p>
+                    <h3 className="relative mt-1.5 font-display text-base font-medium leading-snug sm:mt-2 sm:text-lg">
                       {o.title}
                     </h3>
                     {o.detail && (
-                      <p className="relative mt-1.5 line-clamp-2 text-xs leading-relaxed opacity-80">
+                      <p className="relative mt-1 line-clamp-2 text-[0.7rem] leading-relaxed opacity-80 sm:mt-1.5 sm:text-xs">
                         {o.detail}
                       </p>
                     )}
                     <Link
                       href={o.ctaHref}
                       className={cn(
-                        "relative mt-4 inline-flex w-fit items-center gap-1.5 rounded-full px-4 py-2 text-[0.7rem] font-semibold uppercase tracking-wider transition-all duration-300 hover:gap-2.5",
+                        "relative mt-2.5 inline-flex w-fit items-center gap-1.5 rounded-full px-3 py-1.5 text-[0.62rem] font-semibold uppercase tracking-wider transition-all duration-300 hover:gap-2.5 sm:mt-4 sm:px-4 sm:py-2 sm:text-[0.7rem]",
                         t.ctaBtn,
                       )}
                     >
@@ -115,7 +115,7 @@ export default async function Offers() {
           </Reveal>
 
           {/* RIGHT — expanded Hot Deals, default product cards */}
-          <div className="relative overflow-hidden rounded-3xl bg-field p-7 text-rice-50 sm:p-9">
+          <div className="relative overflow-hidden rounded-2xl bg-field p-4 text-rice-50 sm:rounded-3xl sm:p-9">
             {/* faint terrace lines */}
             <svg
               viewBox="0 0 600 300"
@@ -134,15 +134,15 @@ export default async function Offers() {
               ))}
             </svg>
 
-            <div className="relative mb-6 flex items-center gap-3">
-              <span className="grid h-9 w-9 place-items-center rounded-full bg-harvest-500 text-paddy-950">
-                <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" aria-hidden>
+            <div className="relative mb-3 flex items-center gap-2.5 sm:mb-6 sm:gap-3">
+              <span className="grid h-7 w-7 place-items-center rounded-full bg-harvest-500 text-paddy-950 sm:h-9 sm:w-9">
+                <svg viewBox="0 0 24 24" className="h-4 w-4 sm:h-5 sm:w-5" fill="none" aria-hidden>
                   <path d="M13 2 4 13h7l-1 9 9-11h-7l1-9Z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
                 </svg>
               </span>
               <div>
-                <p className="kicker text-harvest-300">Hot deals</p>
-                <h3 className="font-display text-2xl leading-tight text-rice-50">
+                <p className="kicker text-[0.65rem] text-harvest-300 sm:text-xs">Hot deals</p>
+                <h3 className="font-display text-lg leading-tight text-rice-50 sm:text-2xl">
                   This week&apos;s discounts
                 </h3>
               </div>

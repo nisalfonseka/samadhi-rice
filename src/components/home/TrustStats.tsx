@@ -39,7 +39,7 @@ export default function TrustStats() {
   );
 
   return (
-    <section ref={section} className="bg-field relative overflow-hidden py-24 text-rice-50 sm:py-28">
+    <section ref={section} className="bg-field relative overflow-hidden py-14 text-rice-50 sm:py-28">
       {/* faint terrace lines */}
       <svg
         viewBox="0 0 1440 400"
@@ -60,26 +60,25 @@ export default function TrustStats() {
 
       <div className="relative mx-auto max-w-7xl px-5 sm:px-8">
         <div className="max-w-2xl">
-          <p className="kicker mb-4 flex items-center gap-3 text-harvest-300">
+          <p className="kicker mb-2 flex items-center gap-3 text-harvest-300 sm:mb-4">
             <span className="h-px w-8 bg-harvest-400/60" />
-            Why Sri Lankan consumers trust us
           </p>
-          <h2 className="font-display text-[clamp(2rem,4.5vw,3.4rem)] font-medium text-rice-50">
-            Three decades, one standard
+          <h2 className="font-display text-[clamp(1.7rem,4.5vw,3.4rem)] font-medium text-rice-50">
+            Since 2000
           </h2>
-          <p className="mt-5 text-[1.02rem] leading-relaxed text-rice-100/75">
+          <p className="mt-2.5 text-sm leading-relaxed text-rice-100/75 sm:mt-5 sm:text-[1.02rem]">
             Our customers know that every bag of Samadhi Rice is made with care, and that our quality is consistent.
           </p>
         </div>
 
-        <div className="mt-16 grid grid-cols-2 gap-x-6 gap-y-12 lg:grid-cols-4">
+        <div className="mt-8 grid grid-cols-2 gap-x-4 gap-y-6 sm:mt-16 sm:gap-x-6 sm:gap-y-12 lg:grid-cols-4">
           {STATS.map((s) => (
-            <div key={s.label} className="border-l border-rice-50/15 pl-5">
-              <p className="font-display text-[clamp(2.6rem,5vw,4rem)] leading-none text-harvest-300">
+            <div key={s.label} className="border-l border-rice-50/15 pl-3 sm:pl-5">
+              <p className="font-display text-[clamp(1.8rem,5vw,4rem)] leading-none text-harvest-300">
                 <span data-count={s.value}>0</span>
                 {s.suffix}
               </p>
-              <p className="mt-3 text-sm leading-relaxed text-rice-100/70">
+              <p className="mt-1.5 text-xs leading-relaxed text-rice-100/70 sm:mt-3 sm:text-sm">
                 {s.label}
               </p>
             </div>

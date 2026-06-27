@@ -26,7 +26,7 @@ export default async function HotProducts() {
         <Reveal
           stagger={0.12}
           y={40}
-          className="mt-14 grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4"
+          className="mt-14 grid grid-cols-2 gap-4 min-[450px]:grid-cols-3 sm:gap-6 xl:grid-cols-4"
         >
           {products.map((p) => (
             <ProductCard key={p.slug} product={p} />

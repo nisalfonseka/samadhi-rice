@@ -1,8 +1,8 @@
 import { basePriceFor, applyDiscount, formatLKR } from "@/lib/pricing";
 import { cn } from "@/lib/utils";
 
-/** Shows the net price (large) and, when applicable, the struck-through base
- *  price + "X% off" pill. Used on cards and the buy panel. */
+/** Shows the net price. The struck-through original price (if any) is
+ *  rendered separately, as a per-kg line, by the caller. */
 export default function PriceBlock({
   pricePerKg,
   weight,
@@ -23,45 +23,20 @@ export default function PriceBlock({
 }) {
   const base = basePriceFor(pricePerKg, weight) * quantity;
   const net = applyDiscount(base, discountPercent);
-  const hasDiscount = discountPercent > 0 && net < base;
 
   const sizes = {
-    sm: { net: "text-lg", base: "text-xs", pill: "text-[0.6rem]" },
-    md: { net: "text-2xl", base: "text-sm", pill: "text-[0.65rem]" },
-    lg: { net: "text-3xl", base: "text-sm", pill: "text-[0.7rem]" },
+    sm: "text-base sm:text-lg",
+    md: "text-lg sm:text-2xl",
+    lg: "text-2xl sm:text-3xl",
   }[size];
 
-  const colors =
-    tone === "light"
-      ? { net: "text-rice-50", base: "text-rice-100/55" }
-      : { net: "text-husk", base: "text-husk-soft/80" };
+  const color = tone === "light" ? "text-rice-50" : "text-husk";
 
   return (
     <div className={cn("flex items-baseline gap-2", className)}>
-      <span
-        className={cn(
-          "font-display animate-[rise_0.35s_ease]",
-          sizes.net,
-          colors.net,
-        )}
-      >
+      <span className={cn("font-display animate-[rise_0.35s_ease]", sizes, color)}>
         {formatLKR(net)}
       </span>
-      {hasDiscount && (
-        <>
-          <span className={cn("line-through", sizes.base, colors.base)}>
-            {formatLKR(base)}
-          </span>
-          <span
-            className={cn(
-              "rounded-full bg-clay-500 px-1.5 py-0.5 font-semibold uppercase tracking-wider text-rice-50",
-              sizes.pill,
-            )}
-          >
-            −{discountPercent}%
-          </span>
-        </>
-      )}
     </div>
   );
 }

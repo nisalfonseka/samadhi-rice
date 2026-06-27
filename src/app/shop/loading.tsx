@@ -12,7 +12,7 @@ export default function Loading() {
 
       <div className="mx-auto max-w-7xl px-5 pb-24 sm:px-8">
         <div className="h-14 w-full rounded-2xl bg-husk/5 mb-12 animate-pulse" />
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 animate-pulse">
+        <div className="grid grid-cols-2 gap-4 min-[450px]:grid-cols-3 sm:gap-6 xl:grid-cols-4 animate-pulse">
           {Array.from({ length: 8 }).map((_, i) => (
             <div key={i} className="aspect-[3/4] rounded-3xl bg-husk/5 border border-husk/10" />
           ))}

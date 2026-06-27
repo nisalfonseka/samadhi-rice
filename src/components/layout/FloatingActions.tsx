@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import ChatAssistant from "@/components/chat/ChatAssistant";
 import type { ProductDTO } from "@/lib/services/product.service";
 import { cn } from "@/lib/utils";
+import { VscSearchSparkle } from "react-icons/vsc";
 
 export default function FloatingActions({
   whatsapp,
@@ -71,15 +72,30 @@ export default function FloatingActions({
           <button
             onClick={() => setOpen((o) => !o)}
             aria-label={open ? "Close Rice Finder assistant" : "Open Rice Finder assistant"}
-            className="grid place-items-center rounded-full bg-paddy-800 text-rice-50 shadow-[0_16px_30px_-12px_rgba(29,41,22,0.9)] transition-transform duration-300 hover:scale-105"
+            className="group relative grid place-items-center rounded-full bg-paddy-800 text-rice-50 shadow-[0_16px_30px_-12px_rgba(29,41,22,0.9)] transition-transform duration-300 hover:scale-105"
             style={{ height: "3.5rem", width: "3.5rem", animation: open ? "none" : "breathe 3.2s ease-in-out infinite" }}
           >
+            {/* animated gradient outline — same treatment as the Hero "Try AI Mode" button */}
+            {!open && (
+              <span
+                aria-hidden
+                className="pointer-events-none absolute inset-0 rounded-full"
+                style={{
+                  padding: "1.5px",
+                  background: "linear-gradient(90deg, #4285F4, #EA4335, #FBBC05, #34A853, #4285F4) 0% 0% / 200% 100%",
+                  WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+                  WebkitMaskComposite: "xor",
+                  maskComposite: "exclude",
+                  animation: "google-border-flow 3s linear infinite",
+                }}
+              />
+            )}
             {open ? (
-              <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" aria-hidden>
+              <svg viewBox="0 0 24 24" className="relative h-5 w-5" fill="none" aria-hidden>
                 <path d="M6 6l12 12M18 6 6 18" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
               </svg>
             ) : (
-              <span className="select-none text-2xl leading-none">✦</span>
+              <VscSearchSparkle className="relative text-2xl" aria-hidden />
             )}
           </button>
         )}

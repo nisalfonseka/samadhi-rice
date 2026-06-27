@@ -62,6 +62,14 @@ const Icon = {
       />
     </svg>
   ),
+  Store: (p: { className?: string }) => (
+    <svg viewBox="0 0 24 24" fill="none" className={p.className} aria-hidden>
+      <path d="M4 9.5 5 4h14l1 5.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M4 9.5a2.5 2.5 0 0 0 5 0 2.5 2.5 0 0 0 5 0 2.5 2.5 0 0 0 5 0" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M5 9.5V19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M10 20v-4.5a2 2 0 0 1 2-2 2 2 0 0 1 2 2V20" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  ),
 };
 
 export default function Header({ hotline }: { hotline?: string }) {
@@ -204,12 +212,42 @@ export default function Header({ hotline }: { hotline?: string }) {
       >
         <div
           className={cn(
-            "mx-auto flex max-w-7xl items-center justify-between gap-6 px-5 transition-all duration-500 sm:px-8",
+            "relative mx-auto flex max-w-7xl items-center justify-between gap-6 px-5 transition-all duration-500 sm:px-8",
             compact ? "h-16" : "h-20",
           )}
         >
-          <Link href="/" aria-label="SamadhiRice.lk home" className="z-10">
-            <Logo />
+          {/* mobile-only — search & account sit to the left of the centered logo */}
+          <div className="flex items-center gap-1 lg:hidden">
+            <button
+              onClick={() => openSearch()}
+              aria-label="Search products (⌘K)"
+              title="Search (⌘K)"
+              className="inline-flex rounded-full p-2.5 transition-colors hover:bg-current/[0.08]"
+            >
+              <Icon.Search className="h-[1.15rem] w-[1.15rem]" />
+            </button>
+            <Link
+              href="/account"
+              aria-label="Account"
+              className="inline-flex rounded-full p-2.5 transition-colors hover:bg-current/[0.08]"
+            >
+              <Icon.User className="h-[1.15rem] w-[1.15rem]" />
+            </Link>
+            <Link
+              href="/shop"
+              aria-label="Shop"
+              className="inline-flex rounded-full p-2.5 transition-colors hover:bg-current/[0.08]"
+            >
+              <Icon.Store className="h-[1.15rem] w-[1.15rem]" />
+            </Link>
+          </div>
+
+          <Link
+            href="/"
+            aria-label="SamadhiRice.lk home"
+            className="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 lg:static lg:left-auto lg:top-auto lg:translate-x-0 lg:translate-y-0"
+          >
+            <Logo textClassName="hidden lg:inline" />
           </Link>
 
           {/* desktop nav */}
@@ -276,14 +314,14 @@ export default function Header({ hotline }: { hotline?: string }) {
               onClick={() => openSearch()}
               aria-label="Search products (⌘K)"
               title="Search (⌘K)"
-              className="hidden rounded-full p-2.5 transition-colors hover:bg-current/[0.08] sm:inline-flex"
+              className="hidden rounded-full p-2.5 transition-colors hover:bg-current/[0.08] lg:inline-flex"
             >
               <Icon.Search className="h-[1.15rem] w-[1.15rem]" />
             </button>
             <Link
               href="/account"
               aria-label="Account"
-              className="hidden rounded-full p-2.5 transition-colors hover:bg-current/[0.08] sm:inline-flex"
+              className="hidden rounded-full p-2.5 transition-colors hover:bg-current/[0.08] lg:inline-flex"
             >
               <Icon.User className="h-[1.15rem] w-[1.15rem]" />
             </Link>

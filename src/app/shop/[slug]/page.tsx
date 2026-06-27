@@ -122,7 +122,7 @@ export default async function ProductPage({ params }: { params: Params }) {
           {/* details */}
           <div className="flex flex-col">
             {product.variety && (
-              <p className="text-[0.78rem] font-semibold uppercase tracking-[0.18em] text-clay-500">
+              <p className="text-[0.98rem] font-semibold text-clay-500">
                 {product.variety}
               </p>
             )}
@@ -206,7 +206,7 @@ export default async function ProductPage({ params }: { params: Params }) {
                 All rice →
               </Link>
             </div>
-            <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="mt-6 grid grid-cols-2 gap-4 min-[450px]:grid-cols-3 sm:gap-6 xl:grid-cols-4">
               {related.map((p) => (
                 <ProductCard key={p.slug} product={p} />
               ))}

@@ -79,14 +79,9 @@ export default async function ShopPage({
           <span aria-hidden>/</span>
           <span className="text-husk">Shop</span>
         </nav>
-        <p className="kicker mb-3 text-clay-500">The full harvest</p>
         <h1 className="font-display text-[clamp(2.2rem,5vw,3.6rem)] font-medium text-husk">
-          Every grain we mill
+          Buy heritage Sri Lankan rice
         </h1>
-        <p className="mt-4 max-w-2xl text-[1.02rem] leading-relaxed text-husk-soft">
-          Single-origin Sri Lankan rice, milled to order and sealed fresh. Pick a
-          variety, choose your weight, and we&apos;ll carry it to your kitchen.
-        </p>
       </header>
 
       <div className="mx-auto max-w-7xl px-5 pb-24 sm:px-8">
@@ -105,7 +100,7 @@ export default async function ShopPage({
             body="Try clearing a filter or searching a different variety."
           />
         ) : (
-          <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="mt-12 grid grid-cols-2 gap-4 min-[450px]:grid-cols-3 sm:gap-6 xl:grid-cols-4">
             {products.map((p) => (
               <ProductCard key={p.slug} product={p} />
             ))}

@@ -136,10 +136,7 @@ export default function ProductShowcaseCard({ product }: { product: Product }) {
 
       {/* details */}
       <div className="flex flex-1 flex-col p-5">
-        <p className="text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-clay-500">
-          {product.variety}
-        </p>
-        <div className="mt-1 flex items-baseline justify-between gap-2">
+        <div className="flex items-baseline justify-between gap-2">
           <Link href={`/shop/${product.slug}`}>
             <h3 className="font-display text-2xl text-husk transition-colors group-hover:text-paddy-800">
               {product.name}

@@ -2,9 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
+import { VscSearchSparkle } from "react-icons/vsc";
 import Button from "@/components/ui/Button";
 import HeroSearch from "@/components/home/HeroSearch";
 import {
@@ -358,11 +360,11 @@ export default function Hero() {
       />
 
       {/* ---- content ---- */}
-      <div className="relative z-20 mx-auto w-full max-w-7xl px-5 pb-28 pt-35 sm:px-8">
+      <div className="relative z-20 mx-auto w-full max-w-7xl px-5 pb-24 pt-32 sm:pb-28 sm:pt-35 sm:px-8">
         <div className="max-w-2xl">
           <h1
             data-hero-in
-            className="font-display text-[clamp(2.2rem,6vw,4.6rem)] font-medium leading-[0.98] text-rice-50"
+            className="font-display text-[clamp(2rem,6vw,4.6rem)] font-medium leading-[0.98] text-rice-50"
           >
             From the paddy field
             <br />
@@ -371,28 +373,47 @@ export default function Hero() {
 
           <p
             data-hero-in
-            className="mt-7 max-w-xl text-[1.05rem] leading-relaxed text-rice-100/80"
+            className="mt-5 max-w-xl text-[0.85rem] leading-relaxed text-rice-100/80 sm:mt-7 sm:text-[0.90rem]"
           >
             Single-origin Suwandel, Kalu Heenati and red raw rice — grown in
             family fields, milled fresh the day it ships, and carried to your
             kitchen with nothing lost in between.
           </p>
 
-          <div data-hero-in className="mt-9 flex flex-wrap items-center gap-3">
+          <div data-hero-in className="mt-6 flex flex-wrap items-center gap-2.5 sm:mt-9 sm:gap-3">
             <Button href="/shop" variant="gold" size="lg">
               Shop the harvest
               <span aria-hidden className="transition-transform duration-300 group-hover/btn:translate-x-1">
                 →
               </span>
             </Button>
-            <Button href="/about" variant="outline" size="lg" className="text-rice-50">
-              Our journey
-            </Button>
+            <Link
+              href="/rice-finder"
+              className="group relative inline-flex items-center justify-center rounded-full px-6 py-2.5 text-rice-50 transition-colors"
+            >
+              {/* Animated Gradient Border Mask (Always Visible) */}
+              <div
+                className="pointer-events-none absolute inset-0 rounded-full"
+                style={{
+                  padding: "1.5px",
+                  background: "linear-gradient(90deg, #4285F4, #EA4335, #FBBC05, #34A853, #4285F4) 0% 0% / 200% 100%",
+                  WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+                  WebkitMaskComposite: "xor",
+                  maskComposite: "exclude",
+                  animation: "google-border-flow 3s linear infinite",
+                }}
+              />
+
+              <div className="relative flex items-center gap-2 font-medium tracking-wide">
+                <VscSearchSparkle className="text-xl" />
+                <span>Try AI Mode</span>
+              </div>
+            </Link>
           </div>
 
           <div
             data-hero-in
-            className="mt-10 flex items-center gap-5 text-sm text-rice-100/70"
+            className="mt-7 flex items-center gap-3 text-xs text-rice-100/70 sm:mt-10 sm:gap-5 sm:text-sm"
           >
             <span className="flex items-center gap-1.5 text-harvest-300">
               {"★★★★★"}

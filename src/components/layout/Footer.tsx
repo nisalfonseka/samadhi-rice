@@ -50,9 +50,9 @@ function SocialIcon({ label, href, path }: { label: string; href: string; path: 
       aria-label={label}
       target="_blank"
       rel="noopener noreferrer"
-      className="grid h-10 w-10 place-items-center rounded-full border border-rice-50/15 text-rice-100/80 transition-all duration-300 hover:border-harvest-500 hover:text-harvest-400"
+      className="grid h-8 w-8 place-items-center rounded-full border border-rice-50/15 text-rice-100/80 transition-all duration-300 hover:border-harvest-500 hover:text-harvest-400 sm:h-10 sm:w-10"
     >
-      <svg viewBox="0 0 24 24" className="h-[1.05rem] w-[1.05rem]" fill="currentColor" aria-hidden>
+      <svg viewBox="0 0 24 24" className="h-[0.9rem] w-[0.9rem] sm:h-[1.05rem] sm:w-[1.05rem]" fill="currentColor" aria-hidden>
         <path d={path} />
       </svg>
     </a>
@@ -88,46 +88,50 @@ export default async function Footer() {
   return (
     <footer className="bg-field relative z-10 overflow-hidden text-rice-100">
 
-      <div className="mx-auto max-w-7xl px-5 pb-10 pt-20 sm:px-8">
-        <div className="grid gap-12 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
+      <div className="mx-auto max-w-7xl px-5 pb-6 pt-10 sm:px-8 sm:pb-10 sm:pt-20">
+        <div className="grid grid-cols-1 gap-7 sm:gap-10 lg:grid-cols-[1.4fr_1fr_1fr_1fr] lg:gap-12">
           {/* brand */}
           <div className="max-w-sm">
             <Logo className="text-rice-50" />
-            <p className="mt-5 text-[0.95rem] leading-relaxed text-rice-100/70">
+            <p className="mt-3 text-sm leading-relaxed text-rice-100/70 sm:mt-5 sm:text-[0.95rem]">
               {s.siteTagline || "Single-origin Sri Lankan rice, milled fresh from family paddy fields and carried to your kitchen."}
             </p>
-            <div className="mt-6 flex flex-wrap gap-3">
+            <div className="mt-4 flex flex-wrap gap-2 sm:mt-6 sm:gap-3">
               {displaySocials.map((soc) => (
                 <SocialIcon key={soc.label} label={soc.label} href={soc.href} path={soc.path} />
               ))}
             </div>
           </div>
 
-          {/* link columns */}
-          {COLS.map((col) => (
-            <div key={col.title}>
-              <h4 className="font-display text-lg text-rice-50">{col.title}</h4>
-              <ul className="mt-4 space-y-3 text-[0.92rem]">
-                {col.links.map((l) => (
-                  <li key={l.href}>
-                    <Link
-                      href={l.href}
-                      className="text-rice-100/70 transition-colors hover:text-harvest-400"
-                    >
-                      {l.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+          {/* link columns — own mini-grid on mobile/tablet (matches the desktop
+              side-by-side feel instead of stacking full-width), dissolves via
+              `contents` at lg so the 3 cols become direct siblings of brand again */}
+          <div className="grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-3 sm:gap-x-6 lg:contents">
+            {COLS.map((col) => (
+              <div key={col.title}>
+                <h4 className="font-display text-base text-rice-50 sm:text-lg">{col.title}</h4>
+                <ul className="mt-2.5 space-y-2 text-sm sm:mt-4 sm:space-y-3 sm:text-[0.92rem]">
+                  {col.links.map((l) => (
+                    <li key={l.href}>
+                      <Link
+                        href={l.href}
+                        className="text-rice-100/70 transition-colors hover:text-harvest-400"
+                      >
+                        {l.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* contact strip */}
-        <div className="mt-14 border-t border-rice-50/10 pt-8">
+        <div className="mt-7 border-t border-rice-50/10 pt-5 sm:mt-14 sm:pt-8">
           {/* general contact line */}
           {(s.contactPhone || s.contactEmail) && (
-            <div className="mb-6 flex flex-wrap items-center gap-x-6 gap-y-1 text-sm text-rice-100/65">
+            <div className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-rice-100/65 sm:mb-6 sm:gap-x-6 sm:text-sm">
               <span className="text-rice-50/80 font-medium">Talk to us</span>
               {s.contactPhone && <span>{s.contactPhone}</span>}
               {s.contactEmail && (
@@ -141,12 +145,12 @@ export default async function Footer() {
           {/* branches grid — falls back to settings-based single location */}
           {branches.length > 0 ? (
             <div
-              className="grid gap-6 text-sm text-rice-100/65"
+              className="grid gap-4 text-xs text-rice-100/65 sm:gap-6 sm:text-sm"
               style={{ gridTemplateColumns: `repeat(${Math.min(branches.length, 3)}, minmax(0, 1fr))` }}
             >
               {branches.map((b) => (
                 <div key={b.id}>
-                  <span className="block text-[0.7rem] font-semibold uppercase tracking-widest text-rice-50/50 mb-1">
+                  <span className="block text-[0.65rem] font-semibold uppercase tracking-widest text-rice-50/50 mb-1 sm:text-[0.7rem]">
                     {b.name}
                   </span>
                   <p>{b.address}</p>
@@ -168,9 +172,9 @@ export default async function Footer() {
             </div>
           ) : (
             /* fallback single-location from settings */
-            <div className="grid gap-6 text-sm text-rice-100/65 sm:grid-cols-2">
+            <div className="grid gap-4 text-xs text-rice-100/65 sm:grid-cols-2 sm:gap-6 sm:text-sm">
               <div>
-                <span className="block text-[0.7rem] font-semibold uppercase tracking-widest text-rice-50/50 mb-1">
+                <span className="block text-[0.65rem] font-semibold uppercase tracking-widest text-rice-50/50 mb-1 sm:text-[0.7rem]">
                   Visit / Mill
                 </span>
                 <p>{s.addressLine1}</p>
@@ -187,7 +191,7 @@ export default async function Footer() {
                 )}
               </div>
               <div>
-                <span className="block text-[0.7rem] font-semibold uppercase tracking-widest text-rice-50/50 mb-1">
+                <span className="block text-[0.65rem] font-semibold uppercase tracking-widest text-rice-50/50 mb-1 sm:text-[0.7rem]">
                   Hours
                 </span>
                 <p>{s.businessHours}</p>
@@ -197,13 +201,13 @@ export default async function Footer() {
         </div>
 
         {/* bottom bar */}
-        <div className="mt-10 flex flex-col items-start justify-between gap-4 border-t border-rice-50/10 pt-7 text-[0.82rem] text-rice-100/55 sm:flex-row sm:items-center">
+        <div className="mt-6 flex flex-col items-start justify-between gap-3 border-t border-rice-50/10 pt-4 text-[0.68rem] text-rice-100/55 sm:mt-10 sm:flex-row sm:items-center sm:gap-4 sm:pt-7 sm:text-[0.82rem]">
           <p>© {new Date().getFullYear()} SamadhiRice.lk · Milled in Sri Lanka 🇱🇰</p>
-          <div className="flex items-center gap-4">
-            <span className="rounded-md border border-rice-50/15 px-2 py-1">PayHere</span>
-            <span className="rounded-md border border-rice-50/15 px-2 py-1">Visa</span>
-            <span className="rounded-md border border-rice-50/15 px-2 py-1">Mastercard</span>
-            <span className="rounded-md border border-rice-50/15 px-2 py-1">Cash on Delivery</span>
+          <div className="flex flex-wrap items-center gap-2 sm:gap-4">
+            <span className="rounded-md border border-rice-50/15 px-1.5 py-0.5 sm:px-2 sm:py-1">PayHere</span>
+            <span className="rounded-md border border-rice-50/15 px-1.5 py-0.5 sm:px-2 sm:py-1">Visa</span>
+            <span className="rounded-md border border-rice-50/15 px-1.5 py-0.5 sm:px-2 sm:py-1">Mastercard</span>
+            <span className="rounded-md border border-rice-50/15 px-1.5 py-0.5 sm:px-2 sm:py-1">Cash on Delivery</span>
           </div>
         </div>
       </div>

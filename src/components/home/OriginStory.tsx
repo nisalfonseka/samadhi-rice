@@ -105,14 +105,14 @@ export default function OriginStory() {
     <section ref={section} className="bg-paper relative">
       <div
         ref={panel}
-        className="flex min-h-[60vh] flex-col justify-center overflow-hidden py-20 lg:sticky lg:top-0 lg:h-[100svh]"
+        className="flex min-h-[48vh] flex-col justify-center overflow-hidden py-12 sm:min-h-[60vh] sm:py-20 lg:sticky lg:top-0 lg:h-[100svh]"
       >
-        <div className="mx-auto mb-10 w-full max-w-7xl px-5 sm:px-8">
-          <p className="kicker mb-4 flex items-center gap-3 text-clay-500">
+        <div className="mx-auto mb-5 w-full max-w-7xl px-5 sm:mb-10 sm:px-8">
+          <p className="kicker mb-2 flex items-center gap-3 text-clay-500 sm:mb-4">
             <span className="h-px w-8 bg-clay-400/50" />
             Paddy field to plate
           </p>
-          <h2 className="font-display text-[clamp(2rem,4.5vw,3.4rem)] font-medium text-husk">
+          <h2 className="font-display text-[clamp(1.7rem,4.5vw,3.4rem)] font-medium text-husk">
             The journey of a single grain
           </h2>
         </div>
@@ -120,24 +120,24 @@ export default function OriginStory() {
         {/* track: GSAP-driven on desktop, swipeable on mobile */}
         <div
           ref={track}
-          className="no-scrollbar flex gap-6 overflow-x-auto px-5 pb-4 sm:px-8 lg:overflow-visible lg:px-[max(2rem,calc((100vw-80rem)/2))]"
+          className="no-scrollbar flex gap-3 overflow-x-auto px-5 pb-3 sm:gap-6 sm:px-8 sm:pb-4 lg:overflow-visible lg:px-[max(2rem,calc((100vw-80rem)/2))]"
         >
           {STORY.map((step, i) => (
             <article
               key={step.n}
-              className="group relative flex w-[78vw] shrink-0 snap-start flex-col rounded-3xl border border-husk/10 bg-rice-50 p-8 shadow-[0_20px_50px_-34px_rgba(34,31,23,0.6)] transition-colors duration-500 hover:border-clay-400/40 sm:w-[60vw] md:w-[24rem]"
+              className="group relative flex w-[72vw] shrink-0 snap-start flex-col rounded-2xl border border-husk/10 bg-rice-50 p-5 shadow-[0_20px_50px_-34px_rgba(34,31,23,0.6)] transition-colors duration-500 hover:border-clay-400/40 sm:w-[60vw] sm:rounded-3xl sm:p-8 md:w-[24rem]"
             >
               <div className="flex items-center justify-between">
-                <span className="font-display text-5xl text-rice-300">{step.n}</span>
-                <span className="grid h-14 w-14 place-items-center rounded-full bg-paddy-800 text-harvest-300 transition-transform duration-500 group-hover:-rotate-6">
-                  <StepIcon i={i} className="h-7 w-7" />
+                <span className="font-display text-3xl text-rice-300 sm:text-5xl">{step.n}</span>
+                <span className="grid h-10 w-10 place-items-center rounded-full bg-paddy-800 text-harvest-300 transition-transform duration-500 group-hover:-rotate-6 sm:h-14 sm:w-14">
+                  <StepIcon i={i} className="h-5 w-5 sm:h-7 sm:w-7" />
                 </span>
               </div>
-              <p className="mt-6 font-[var(--font-sinhala)] text-lg text-clay-500">
+              <p className="mt-3 font-[var(--font-sinhala)] text-sm text-clay-500 sm:mt-6 sm:text-lg">
                 {step.sinhala}
               </p>
-              <h3 className="mt-1 font-display text-2xl text-husk">{step.title}</h3>
-              <p className="mt-3 text-[0.96rem] leading-relaxed text-husk-soft">
+              <h3 className="mt-1 font-display text-lg text-husk sm:text-2xl">{step.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-husk-soft sm:mt-3 sm:text-[0.96rem]">
                 {step.body}
               </p>
               {i < STORY.length - 1 && (
