@@ -24,7 +24,7 @@ export default function ContactForm() {
             name="name"
             type="text"
             placeholder="Ayesha Perera"
-            className="w-full rounded-2xl border border-husk/15 bg-rice-100/60 px-4 py-3 text-sm text-husk placeholder-husk/30 outline-none transition focus:border-paddy-500 focus:ring-2 focus:ring-paddy-500/10"
+            className="w-full rounded-2xl border border-husk/15 bg-rice-100/60 px-4 py-2.5 text-base text-husk placeholder-husk/30 sm:py-3 sm:text-sm outline-none transition focus:border-paddy-500 focus:ring-2 focus:ring-paddy-500/10"
           />
         </label>
         <label className="block">
@@ -35,7 +35,7 @@ export default function ContactForm() {
             name="email"
             type="email"
             placeholder="ayesha@example.com"
-            className="w-full rounded-2xl border border-husk/15 bg-rice-100/60 px-4 py-3 text-sm text-husk placeholder-husk/30 outline-none transition focus:border-paddy-500 focus:ring-2 focus:ring-paddy-500/10"
+            className="w-full rounded-2xl border border-husk/15 bg-rice-100/60 px-4 py-2.5 text-base text-husk placeholder-husk/30 sm:py-3 sm:text-sm outline-none transition focus:border-paddy-500 focus:ring-2 focus:ring-paddy-500/10"
           />
         </label>
       </div>
@@ -49,7 +49,7 @@ export default function ContactForm() {
           required
           rows={6}
           placeholder="Tell us about your order, ask about a variety, or just say hello…"
-          className="w-full resize-none rounded-2xl border border-husk/15 bg-rice-100/60 px-4 py-3 text-sm text-husk placeholder-husk/30 outline-none transition focus:border-paddy-500 focus:ring-2 focus:ring-paddy-500/10"
+          className="w-full resize-none rounded-2xl border border-husk/15 bg-rice-100/60 px-4 py-2.5 text-base text-husk placeholder-husk/30 sm:py-3 sm:text-sm outline-none transition focus:border-paddy-500 focus:ring-2 focus:ring-paddy-500/10"
         />
       </label>
 

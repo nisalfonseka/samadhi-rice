@@ -83,6 +83,21 @@ html {
   text-rendering: optimizeLegibility;
 }
 
+:root {
+  /* Fixed-chrome heights, shared so full-height pages (Rice Finder) can size
+     themselves against the header and the mobile bottom nav.
+     Header = 2.25rem utility bar + 4rem main bar (5rem from sm up). */
+  --header-h: 6.25rem;
+  --bottom-nav-h: calc(4.25rem + 1px + env(safe-area-inset-bottom));
+}
+@media (min-width: 640px) {
+  :root { --header-h: 7.25rem; }
+}
+@media (min-width: 1024px) {
+  /* the bottom nav is lg:hidden */
+  :root { --bottom-nav-h: 0px; }
+}
+
 body {
   background-color: var(--color-rice-100);
   color: var(--color-husk);
@@ -181,20 +196,46 @@ html.lenis body {
   .no-scrollbar::-webkit-scrollbar { display: none; }
   .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
+  /* Skeleton shimmer — a warm rice-paper sweep for loading states.
+     Use on any block that would otherwise be a flat grey box. */
+  .shimmer {
+    background-color: color-mix(in oklab, var(--color-husk) 7%, transparent);
+    background-image: linear-gradient(
+      100deg,
+      transparent 25%,
+      color-mix(in oklab, var(--color-rice-50) 92%, transparent) 45%,
+      color-mix(in oklab, var(--color-rice-50) 92%, transparent) 55%,
+      transparent 75%
+    );
+    background-size: 200% 100%;
+    background-repeat: no-repeat;
+    animation: shimmer 1.6s linear infinite;
+  }
+  /* darker variant for shimmering on top of an already-light card */
+  .shimmer-soft {
+    background-color: color-mix(in oklab, var(--color-husk) 10%, transparent);
+  }
+
   .grab { cursor: grab; }
   .grab:active { cursor: grabbing; }
 
-  /* form control */
+  /* form control — 16px on phones so iOS Safari doesn't zoom the page on focus */
   .ctrl {
     width: 100%;
     border-radius: 0.9rem;
     border: 1px solid color-mix(in oklab, var(--color-husk) 15%, transparent);
     background: var(--color-rice-50);
-    padding: 0.7rem 0.9rem;
-    font-size: 0.95rem;
+    padding: 0.65rem 0.9rem;
+    font-size: 1rem;
     color: var(--color-husk);
     outline: none;
     transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  @media (min-width: 640px) {
+    .ctrl {
+      padding: 0.7rem 0.9rem;
+      font-size: 0.95rem;
+    }
   }
   .ctrl::placeholder {
     color: color-mix(in oklab, var(--color-husk) 40%, transparent);

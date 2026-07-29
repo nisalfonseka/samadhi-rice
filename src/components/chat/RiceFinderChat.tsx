@@ -349,11 +349,15 @@ export default function RiceFinderChat({
         .rfc-fade { animation: rfcFade 0.45s ease-out both; }
       `}</style>
 
-      {/* Page container — sits below the fixed global Header (~7.25rem).
-          Uses dvh so it works with mobile browser chrome. */}
+      {/* Page container — fills the gap between the fixed global header and the
+          mobile bottom nav. Uses dvh so it works with mobile browser chrome. */}
       <div
         className="flex bg-rice-50 text-husk"
-        style={{ height: "100dvh", paddingTop: "7.25rem", boxSizing: "border-box" }}
+        style={{
+          height: "calc(100dvh - var(--bottom-nav-h))",
+          paddingTop: "var(--header-h)",
+          boxSizing: "border-box",
+        }}
       >
         <div className="flex w-full min-h-0 flex-1">
           {/* Left sidebar */}
@@ -371,30 +375,38 @@ export default function RiceFinderChat({
 
           {/* Center chat */}
           <main className="flex min-w-0 flex-1 flex-col">
-            {/* Compact in-page sub-toolbar (mobile only) — opens the sidebars */}
-            <div className="flex items-center justify-between border-b border-husk/8 bg-rice-50 px-3 py-2 lg:hidden">
+            {/* Compact in-page sub-toolbar (mobile only) — opens the sidebars.
+                Deliberately avoids a hamburger and a shopping-bag glyph: both
+                would sit directly under the global header's menu and cart and
+                read as duplicates. Labelled chat / grain marks instead. */}
+            <div className="flex items-center justify-between gap-2 border-b border-husk/8 bg-rice-50 px-2 py-1.5 lg:hidden">
               <button
                 onClick={() => setLeftOpen(true)}
-                className="grid h-9 w-9 place-items-center rounded-lg text-husk/60 transition-colors hover:bg-rice-100 hover:text-husk"
+                className="flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-husk/60 transition-colors hover:bg-rice-100 hover:text-husk"
                 aria-label="Open conversations"
               >
-                <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none">
-                  <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                <svg viewBox="0 0 24 24" className="h-[1.05rem] w-[1.05rem]" fill="none" aria-hidden>
+                  <path d="M4.5 6.5a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H9.5L5.5 19v-3.5a2 2 0 0 1-1-1.7V6.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+                  <path d="M8 8.5h8M8 11.5h5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
                 </svg>
+                <span className="text-[0.7rem] font-medium">Chats</span>
               </button>
+
               <p className="text-xs font-medium text-husk/70">Rice Finder</p>
+
               <button
                 onClick={() => setRightOpen(true)}
-                className={`relative grid h-9 w-9 place-items-center rounded-lg text-husk/60 transition-colors hover:bg-rice-100 hover:text-husk ${
+                className={`relative flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-husk/60 transition-colors hover:bg-rice-100 hover:text-husk ${
                   referencedSlugs.length === 0 ? "opacity-40" : ""
                 }`}
-                aria-label="Open products"
+                aria-label="Open suggested rice"
               >
-                <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none">
-                  <path d="M3 7h18M5 7v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V7M9 7V5a3 3 0 0 1 6 0v2" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+                <svg viewBox="0 0 24 24" className="h-[1.05rem] w-[1.05rem]" fill="none" aria-hidden>
+                  <path d="M8 16c-2-2-2-6 1-9s7-3 9-1c1 1-1 5-4 8s-5 3-6 2Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
                 </svg>
+                <span className="text-[0.7rem] font-medium">Picks</span>
                 {referencedSlugs.length > 0 && (
-                  <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-paddy-500" />
+                  <span className="absolute -right-0 top-1 h-1.5 w-1.5 rounded-full bg-paddy-500" />
                 )}
               </button>
             </div>
@@ -502,7 +514,10 @@ function LeftSidebar({
 }) {
   return (
     <aside
-      className={`fixed inset-y-0 left-0 z-40 flex w-72 shrink-0 flex-col border-r border-husk/8 bg-rice-50 transition-transform duration-300 ease-out lg:static lg:translate-x-0 ${
+      /* Inset between the fixed header and the mobile bottom nav (was inset-y-0,
+         which hid its own close button behind the header). The insets are inert
+         once lg:static kicks in. */
+      className={`fixed bottom-[var(--bottom-nav-h)] left-0 top-[var(--header-h)] z-40 flex w-72 shrink-0 flex-col border-r border-husk/8 bg-rice-50 transition-transform duration-300 ease-out lg:static lg:translate-x-0 ${
         open ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
       }`}
     >
@@ -675,7 +690,8 @@ function RightSidebar({
 
   return (
     <aside
-      className={`fixed inset-y-0 right-0 z-40 flex w-80 shrink-0 flex-col border-l border-husk/8 bg-rice-50 transition-transform duration-300 ease-out lg:static lg:flex lg:translate-x-0 ${
+      /* inset between the fixed header and the mobile bottom nav — see LeftSidebar */
+      className={`fixed bottom-[var(--bottom-nav-h)] right-0 top-[var(--header-h)] z-40 flex w-80 shrink-0 flex-col border-l border-husk/8 bg-rice-50 transition-transform duration-300 ease-out lg:static lg:flex lg:translate-x-0 ${
         open ? "translate-x-0" : "translate-x-full lg:translate-x-0"
       } ${slugs.length === 0 ? "lg:hidden xl:flex" : ""}`}
     >

@@ -62,14 +62,6 @@ const Icon = {
       />
     </svg>
   ),
-  Store: (p: { className?: string }) => (
-    <svg viewBox="0 0 24 24" fill="none" className={p.className} aria-hidden>
-      <path d="M4 9.5 5 4h14l1 5.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M4 9.5a2.5 2.5 0 0 0 5 0 2.5 2.5 0 0 0 5 0 2.5 2.5 0 0 0 5 0" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M5 9.5V19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M10 20v-4.5a2 2 0 0 1 2-2 2 2 0 0 1 2 2V20" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  ),
 };
 
 export default function Header({ hotline }: { hotline?: string }) {
@@ -161,17 +153,19 @@ export default function Header({ hotline }: { hotline?: string }) {
     href === "/" ? pathname === "/" : pathname.startsWith(href);
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50">
+    /* z-[55] keeps the bar above FloatingActions (z-50) — and, since the mobile
+       overlay is a low-z child, the bar stays visible while the menu is open. */
+    <header className="fixed inset-x-0 top-0 z-[55]">
       {/* ── top utility bar ── */}
       <div
         className={cn(
-          "overflow-hidden",
+          "relative z-10 overflow-hidden",
           hydrated ? "transition-[height,opacity,background-color] duration-500" : "",
           light ? "bg-transparent text-rice-100" : "bg-paddy-700 text-rice-100",
           compact ? "h-0 opacity-0" : "h-9 opacity-100 border-b border-white/10",
         )}
       >
-        <div className="mx-auto flex h-9 max-w-7xl items-center justify-between px-5 sm:px-8">
+        <div className="mx-auto flex h-9 max-w-7xl items-center justify-between px-4 sm:px-8">
 
           {/* left — hotline */}
           {hotline ? (
@@ -203,7 +197,7 @@ export default function Header({ hotline }: { hotline?: string }) {
       {/* ── main bar ── */}
       <div
         className={cn(
-          "relative",
+          "relative z-10",
           hydrated ? "transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]" : "",
           light
             ? "bg-transparent text-rice-50"
@@ -212,34 +206,20 @@ export default function Header({ hotline }: { hotline?: string }) {
       >
         <div
           className={cn(
-            "relative mx-auto flex max-w-7xl items-center justify-between gap-6 px-5 transition-all duration-500 sm:px-8",
-            compact ? "h-16" : "h-20",
+            "relative mx-auto flex max-w-7xl items-center justify-between gap-6 px-4 transition-all duration-500 sm:px-8",
+            compact ? "h-14 sm:h-16" : "h-16 sm:h-20",
           )}
         >
-          {/* mobile-only — search & account sit to the left of the centered logo */}
-          <div className="flex items-center gap-1 lg:hidden">
+          {/* mobile-only — the menu toggle anchors the left of the centred logo */}
+          <div className="flex items-center lg:hidden">
             <button
-              onClick={() => openSearch()}
-              aria-label="Search products (⌘K)"
-              title="Search (⌘K)"
-              className="inline-flex rounded-full p-2.5 transition-colors hover:bg-current/[0.08]"
+              aria-label={open ? "Close menu" : "Open menu"}
+              aria-expanded={open}
+              onClick={() => setOpen((o) => !o)}
+              className="-ml-1.5 rounded-full p-2.5 transition-colors hover:bg-current/[0.08]"
             >
-              <Icon.Search className="h-[1.15rem] w-[1.15rem]" />
+              {open ? <Icon.Close className="h-[1.3rem] w-[1.3rem]" /> : <Icon.Menu className="h-[1.3rem] w-[1.3rem]" />}
             </button>
-            <Link
-              href="/account"
-              aria-label="Account"
-              className="inline-flex rounded-full p-2.5 transition-colors hover:bg-current/[0.08]"
-            >
-              <Icon.User className="h-[1.15rem] w-[1.15rem]" />
-            </Link>
-            <Link
-              href="/shop"
-              aria-label="Shop"
-              className="inline-flex rounded-full p-2.5 transition-colors hover:bg-current/[0.08]"
-            >
-              <Icon.Store className="h-[1.15rem] w-[1.15rem]" />
-            </Link>
           </div>
 
           <Link
@@ -247,7 +227,10 @@ export default function Header({ hotline }: { hotline?: string }) {
             aria-label="SamadhiRice.lk home"
             className="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 lg:static lg:left-auto lg:top-auto lg:translate-x-0 lg:translate-y-0"
           >
-            <Logo textClassName="hidden lg:inline" />
+            <Logo
+              className="[&_img]:h-9 [&_img]:w-9 sm:[&_img]:h-10 sm:[&_img]:w-10"
+              textClassName="hidden lg:inline"
+            />
           </Link>
 
           {/* desktop nav */}
@@ -309,7 +292,7 @@ export default function Header({ hotline }: { hotline?: string }) {
           </nav>
 
           {/* actions */}
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-0.5 sm:gap-1.5">
             <button
               onClick={() => openSearch()}
               aria-label="Search products (⌘K)"
@@ -325,10 +308,11 @@ export default function Header({ hotline }: { hotline?: string }) {
             >
               <Icon.User className="h-[1.15rem] w-[1.15rem]" />
             </Link>
+            {/* wishlist lives in the mobile bottom nav — desktop keeps it here */}
             <button
               onClick={openWishlist}
               aria-label={`Open wishlist, ${wishlistCount} items`}
-              className="relative rounded-full p-2.5 transition-colors hover:bg-current/[0.08]"
+              className="relative hidden rounded-full p-2.5 transition-colors hover:bg-current/[0.08] lg:inline-flex"
             >
               <Icon.Heart className="h-[1.15rem] w-[1.15rem]" />
               <span
@@ -343,9 +327,9 @@ export default function Header({ hotline }: { hotline?: string }) {
             <button
               onClick={openCart}
               aria-label={`Open cart, ${count} items`}
-              className="relative rounded-full p-2.5 transition-colors hover:bg-current/[0.08]"
+              className="relative -mr-1.5 rounded-full p-2.5 transition-colors hover:bg-current/[0.08] lg:mr-0"
             >
-              <Icon.Bag className="h-[1.15rem] w-[1.15rem]" />
+              <Icon.Bag className="h-[1.3rem] w-[1.3rem] lg:h-[1.15rem] lg:w-[1.15rem]" />
               <span
                 className={cn(
                   "absolute -right-0 -top-0 grid h-[1.15rem] min-w-[1.15rem] place-items-center rounded-full bg-harvest-500 px-1 text-[0.65rem] font-bold text-paddy-950 transition-transform duration-300",
@@ -355,14 +339,6 @@ export default function Header({ hotline }: { hotline?: string }) {
               >
                 {count}
               </span>
-            </button>
-
-            <button
-              aria-label={open ? "Close menu" : "Open menu"}
-              onClick={() => setOpen((o) => !o)}
-              className="ml-1 rounded-full p-2.5 transition-colors hover:bg-current/[0.08] lg:hidden"
-            >
-              {open ? <Icon.Close className="h-5 w-5" /> : <Icon.Menu className="h-5 w-5" />}
             </button>
           </div>
         </div>
@@ -376,22 +352,18 @@ export default function Header({ hotline }: { hotline?: string }) {
         </div>
       </div>
 
-      {/* ── mobile overlay menu ── */}
+      {/* ── mobile overlay menu ──
+          z-0 sits *below* the bars' z-10, so the header stays visible and usable
+          while the menu is open; the header's own z-[55] still lifts the whole
+          thing above page content and the floating actions. */}
       <div
         className={cn(
-          "fixed inset-0 z-40 origin-top bg-rice-100 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] lg:hidden",
+          "fixed inset-0 z-0 origin-top transition-opacity duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] lg:hidden",
           open ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0",
         )}
       >
-        <div className="bg-paper flex h-full flex-col px-6 pb-10 pt-28">
-          <button
-            onClick={() => setOpen(false)}
-            aria-label="Close menu"
-            className="absolute right-5 top-5 rounded-full p-2.5 text-husk transition-colors hover:bg-husk/10"
-          >
-            <Icon.Close className="h-6 w-6" />
-          </button>
-          <nav className="flex flex-1 flex-col justify-center gap-1">
+        <div className="bg-paper flex h-full flex-col overflow-y-auto px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-[6.25rem]">
+          <nav className="flex flex-1 flex-col justify-center">
             {[...NAV_LINKS, { label: "Our Branches", href: "/branches" }].map((l, i) => {
               const active = isActive(l.href);
               return (
@@ -400,34 +372,34 @@ export default function Header({ hotline }: { hotline?: string }) {
                   href={l.href}
                   onClick={() => setOpen(false)}
                   className={cn(
-                    "border-b border-husk/10 py-4 font-display text-3xl transition-all duration-500",
+                    "flex items-baseline gap-2.5 border-b border-husk/10 py-3 font-display text-xl transition-all duration-500",
                     active ? "text-paddy-700" : "text-husk",
-                    open ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0",
+                    open ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0",
                   )}
-                  style={{ transitionDelay: open ? `${120 + i * 70}ms` : "0ms" }}
+                  style={{ transitionDelay: open ? `${90 + i * 55}ms` : "0ms" }}
                 >
-                  <span className={cn("text-base align-middle mr-3", active ? "text-paddy-500/70" : "text-harvest-500/70")}>
+                  <span className={cn("font-body text-[0.68rem] tabular-nums", active ? "text-paddy-500/70" : "text-harvest-500/70")}>
                     0{i + 1}
                   </span>
                   {l.label}
                 </Link>
               );
             })}
-            
+
             <Link
               href="/rice-finder"
               onClick={() => setOpen(false)}
               className={cn(
-                "group relative mt-4 inline-flex self-start rounded-full px-6 py-2.5 transition-all duration-500 text-paddy-900",
-                open ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
+                "group relative mt-4 inline-flex self-start rounded-full px-4 py-2 transition-all duration-500 text-paddy-900",
+                open ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
               )}
-              style={{ transitionDelay: open ? `${120 + (NAV_LINKS.length + 1) * 70}ms` : "0ms" }}
+              style={{ transitionDelay: open ? `${90 + (NAV_LINKS.length + 1) * 55}ms` : "0ms" }}
             >
               {/* Default Border */}
               <div className="pointer-events-none absolute inset-0 rounded-full border-[1.5px] border-current opacity-30 transition-opacity duration-300 group-hover:opacity-0" />
-              
+
               {/* Animated Gradient Border Mask (Hover) */}
-              <div 
+              <div
                 className="pointer-events-none absolute inset-0 rounded-full opacity-0 transition-opacity duration-300 group-hover:opacity-100"
                 style={{
                   padding: "1.5px",
@@ -439,17 +411,17 @@ export default function Header({ hotline }: { hotline?: string }) {
                 }}
               />
 
-              <div className="relative flex items-center gap-2 font-medium">
-                <VscSearchSparkle className="text-[1.2rem]" />
+              <div className="relative flex items-center gap-1.5 text-[0.82rem] font-medium">
+                <VscSearchSparkle className="text-base" />
                 <span>AI Mode</span>
               </div>
             </Link>
           </nav>
-          <div className="flex flex-wrap items-center gap-4 text-sm text-husk-soft">
+          <div className="mt-6 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[0.78rem] text-husk-soft">
             {hotline && (
               <>
                 <a href={`tel:${hotline}`} className="flex items-center gap-1.5 hover:text-paddy-700">
-                  <Icon.Phone className="h-3.5 w-3.5" />
+                  <Icon.Phone className="h-3 w-3" />
                   {hotline}
                 </a>
                 <span className="opacity-30">·</span>

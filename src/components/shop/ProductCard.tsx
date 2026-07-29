@@ -106,7 +106,7 @@ export default function ProductCard({
                 src={imgUrl}
                 alt=""
                 fill
-                sizes="(max-width: 449px) 50vw, (max-width: 1279px) 33vw, 25vw"
+                sizes="(max-width: 559px) 50vw, (max-width: 1279px) 33vw, 25vw"
                 className={cn(
                   "object-cover transition-all duration-700 ease-in-out group-hover:scale-105",
                   idx === activeImageIndex ? "opacity-100" : "opacity-0 pointer-events-none"

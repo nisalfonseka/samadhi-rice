@@ -73,19 +73,19 @@ export default async function ShopPage({
   return (
     <div className="bg-paper min-h-screen">
       {/* page header — padded to clear the fixed site header */}
-      <header className="mx-auto max-w-7xl px-5 pb-10 pt-32 sm:px-8 sm:pt-36">
-        <nav className="mb-6 flex items-center gap-2 text-xs uppercase tracking-widest text-husk-soft">
+      <header className="mx-auto max-w-7xl px-4 pb-4 pt-[6.75rem] sm:px-8 sm:pb-10 sm:pt-36">
+        <nav className="mb-2 flex items-center gap-1.5 text-[0.62rem] uppercase tracking-[0.18em] text-husk-soft sm:mb-6 sm:gap-2 sm:text-xs sm:tracking-widest">
           <Link href="/" className="hover:text-paddy-700">Home</Link>
           <span aria-hidden>/</span>
           <span className="text-husk">Shop</span>
         </nav>
-        <h1 className="font-display text-[clamp(2.2rem,5vw,3.6rem)] font-medium text-husk">
+        <h1 className="font-display text-[1.6rem] font-medium leading-[1.12] text-husk sm:text-[clamp(2.2rem,5vw,3.6rem)] sm:leading-[1.04]">
           Buy heritage Sri Lankan rice
         </h1>
       </header>
 
-      <div className="mx-auto max-w-7xl px-5 pb-24 sm:px-8">
-        <Suspense fallback={<div className="h-32" />}>
+      <div className="mx-auto max-w-7xl px-4 pb-20 sm:px-8 sm:pb-24">
+        <Suspense fallback={<div className="h-28 sm:h-32" />}>
           <ShopControls categories={categories} total={products.length} />
         </Suspense>
 
@@ -100,7 +100,7 @@ export default async function ShopPage({
             body="Try clearing a filter or searching a different variety."
           />
         ) : (
-          <div className="mt-12 grid grid-cols-2 gap-4 min-[450px]:grid-cols-3 sm:gap-6 xl:grid-cols-4">
+          <div className="mt-5 grid grid-cols-2 gap-3 min-[560px]:grid-cols-3 sm:mt-12 sm:gap-6 xl:grid-cols-4">
             {products.map((p) => (
               <ProductCard key={p.slug} product={p} />
             ))}
@@ -113,14 +113,14 @@ export default async function ShopPage({
 
 function EmptyState({ title, body }: { title: string; body: string }) {
   return (
-    <div className="mt-16 flex flex-col items-center rounded-3xl border border-husk/10 bg-rice-50 px-6 py-20 text-center">
-      <span className="grid h-14 w-14 place-items-center rounded-full bg-paddy-800 text-harvest-300">
-        <svg viewBox="0 0 24 24" className="h-7 w-7" fill="none" aria-hidden>
+    <div className="mt-6 flex flex-col items-center rounded-3xl border border-husk/10 bg-rice-50 px-5 py-12 text-center sm:mt-16 sm:px-6 sm:py-20">
+      <span className="grid h-11 w-11 place-items-center rounded-full bg-paddy-800 text-harvest-300 sm:h-14 sm:w-14">
+        <svg viewBox="0 0 24 24" className="h-5 w-5 sm:h-7 sm:w-7" fill="none" aria-hidden>
           <path d="M8 16c-2-2-2-6 1-9s7-3 9-1c1 1-1 5-4 8s-5 3-6 2Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
         </svg>
       </span>
-      <h2 className="mt-5 font-display text-2xl text-husk">{title}</h2>
-      <p className="mt-2 max-w-md text-sm text-husk-soft">{body}</p>
+      <h2 className="mt-4 font-display text-lg text-husk sm:mt-5 sm:text-2xl">{title}</h2>
+      <p className="mt-1.5 max-w-md text-[0.82rem] text-husk-soft sm:mt-2 sm:text-sm">{body}</p>
     </div>
   );
 }

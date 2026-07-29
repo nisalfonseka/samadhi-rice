@@ -89,9 +89,9 @@ export default async function ProductPage({ params }: { params: Params }) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <div className="mx-auto max-w-7xl px-5 pb-24 pt-32 sm:px-8 sm:pt-36">
+      <div className="mx-auto max-w-7xl px-4 pb-20 pt-[6.75rem] sm:px-8 sm:pb-24 sm:pt-36">
         {/* breadcrumb */}
-        <nav className="mb-8 flex flex-wrap items-center gap-2 text-xs uppercase tracking-widest text-husk-soft">
+        <nav className="mb-4 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-[0.62rem] uppercase tracking-[0.18em] text-husk-soft sm:mb-8 sm:gap-2 sm:text-xs sm:tracking-widest">
           <Link href="/" className="hover:text-paddy-700">Home</Link>
           <span aria-hidden>/</span>
           <Link href="/shop" className="hover:text-paddy-700">Shop</Link>
@@ -107,7 +107,7 @@ export default async function ProductPage({ params }: { params: Params }) {
           <span className="text-husk">{product.name}</span>
         </nav>
 
-        <div className="grid gap-10 lg:grid-cols-2 lg:gap-16">
+        <div className="grid gap-6 sm:gap-10 lg:grid-cols-2 lg:gap-16">
           {/* art */}
           <ProductGallery
             images={product.images}
@@ -122,22 +122,22 @@ export default async function ProductPage({ params }: { params: Params }) {
           {/* details */}
           <div className="flex flex-col">
             {product.variety && (
-              <p className="text-[0.98rem] font-semibold text-clay-500">
+              <p className="text-[0.8rem] font-semibold text-clay-500 sm:text-[0.98rem]">
                 {product.variety}
               </p>
             )}
-            <div className="mt-2 flex items-start justify-between gap-4">
-              <h1 className="font-display text-[clamp(2.2rem,4vw,3.2rem)] font-medium leading-tight text-husk">
+            <div className="mt-1 flex items-start justify-between gap-3 sm:mt-2 sm:gap-4">
+              <h1 className="font-display text-[1.7rem] font-medium leading-tight text-husk sm:text-[clamp(2.2rem,4vw,3.2rem)]">
                 {product.name}
               </h1>
               {product.sinhala && (
-                <span className="mt-2 shrink-0 font-[var(--font-sinhala)] text-2xl text-clay-500">
+                <span className="mt-1 shrink-0 font-[var(--font-sinhala)] text-lg text-clay-500 sm:mt-2 sm:text-2xl">
                   {product.sinhala}
                 </span>
               )}
             </div>
 
-            <div className="mt-3 flex items-center gap-3 text-sm">
+            <div className="mt-2 flex items-center gap-2 text-[0.8rem] sm:mt-3 sm:gap-3 sm:text-sm">
               <span className="flex items-center gap-1 text-harvest-500" aria-label={`${product.rating} out of 5`}>
                 {"★★★★★".slice(0, Math.round(product.rating))}
                 <span className="font-semibold text-husk">{product.rating}</span>
@@ -146,12 +146,12 @@ export default async function ProductPage({ params }: { params: Params }) {
             </div>
 
             {product.description && (
-              <p className="mt-6 text-[1.02rem] leading-relaxed text-husk-soft">
+              <p className="mt-4 text-[0.9rem] leading-relaxed text-husk-soft sm:mt-6 sm:text-[1.02rem]">
                 {product.description}
               </p>
             )}
 
-            <div className="mt-8">
+            <div className="mt-6 sm:mt-8">
               <ProductBuyPanel
                 slug={product.slug}
                 name={product.name}
@@ -162,9 +162,9 @@ export default async function ProductPage({ params }: { params: Params }) {
             </div>
 
             {product.cookingTips && (
-              <div className="mt-8 rounded-2xl border border-clay-400/30 bg-rice-100/60 p-5">
-                <h3 className="font-display text-lg text-husk">How to cook it</h3>
-                <p className="mt-2 text-sm leading-relaxed text-husk-soft">
+              <div className="mt-6 rounded-2xl border border-clay-400/30 bg-rice-100/60 p-4 sm:mt-8 sm:p-5">
+                <h3 className="font-display text-base text-husk sm:text-lg">How to cook it</h3>
+                <p className="mt-1.5 text-[0.82rem] leading-relaxed text-husk-soft sm:mt-2 sm:text-sm">
                   {product.cookingTips}
                 </p>
               </div>
@@ -174,20 +174,20 @@ export default async function ProductPage({ params }: { params: Params }) {
 
         {/* reviews */}
         {product.reviews.length > 0 && (
-          <section className="mt-20">
-            <h2 className="font-display text-2xl text-husk">What buyers say</h2>
-            <div className="mt-6 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+          <section className="mt-12 sm:mt-20">
+            <h2 className="font-display text-xl text-husk sm:text-2xl">What buyers say</h2>
+            <div className="mt-4 grid gap-3 sm:mt-6 sm:gap-5 md:grid-cols-2 lg:grid-cols-3">
               {product.reviews.slice(0, 6).map((r) => (
-                <figure key={r.id} className="rounded-3xl border border-husk/10 bg-rice-50 p-6">
+                <figure key={r.id} className="rounded-3xl border border-husk/10 bg-rice-50 p-4 sm:p-6">
                   <div className="flex items-center gap-1 text-harvest-500" aria-label={`${r.rating} out of 5`}>
                     {"★★★★★".slice(0, r.rating)}
                   </div>
                   {r.comment && (
-                    <blockquote className="mt-3 text-[0.98rem] leading-relaxed text-husk">
+                    <blockquote className="mt-2 text-[0.86rem] leading-relaxed text-husk sm:mt-3 sm:text-[0.98rem]">
                       “{r.comment}”
                     </blockquote>
                   )}
-                  <figcaption className="mt-4 text-sm text-husk-soft">
+                  <figcaption className="mt-3 text-[0.78rem] text-husk-soft sm:mt-4 sm:text-sm">
                     {r.authorName}
                     {r.place ? ` · ${r.place}` : ""}
                   </figcaption>
@@ -199,14 +199,14 @@ export default async function ProductPage({ params }: { params: Params }) {
 
         {/* related */}
         {related.length > 0 && (
-          <section className="mt-20">
-            <div className="flex items-end justify-between">
-              <h2 className="font-display text-2xl text-husk">You might also like</h2>
-              <Link href="/shop" className="text-sm font-semibold uppercase tracking-widest text-paddy-700 hover:text-paddy-900">
+          <section className="mt-12 sm:mt-20">
+            <div className="flex items-end justify-between gap-3">
+              <h2 className="font-display text-xl text-husk sm:text-2xl">You might also like</h2>
+              <Link href="/shop" className="shrink-0 text-[0.7rem] font-semibold uppercase tracking-widest text-paddy-700 hover:text-paddy-900 sm:text-sm">
                 All rice →
               </Link>
             </div>
-            <div className="mt-6 grid grid-cols-2 gap-4 min-[450px]:grid-cols-3 sm:gap-6 xl:grid-cols-4">
+            <div className="mt-4 grid grid-cols-2 gap-3 min-[560px]:grid-cols-3 sm:mt-6 sm:gap-6 xl:grid-cols-4">
               {related.map((p) => (
                 <ProductCard key={p.slug} product={p} />
               ))}

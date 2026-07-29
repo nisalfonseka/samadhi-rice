@@ -138,7 +138,8 @@ export default function SearchOverlay() {
               onChange={(e) => { setQuery(e.target.value); setActive(-1); }}
               onKeyDown={handleKeyDown}
               placeholder="Search Suwandel, Kalu Heenati, red rice…"
-              className="flex-1 bg-transparent text-[0.95rem] text-husk outline-none placeholder:text-husk/35"
+              /* 16px on phones so iOS Safari doesn't zoom the page on focus */
+              className="min-w-0 flex-1 bg-transparent text-base text-husk outline-none placeholder:text-husk/35 sm:text-[0.95rem]"
             />
             {loading && (
               <span className="h-4 w-4 animate-spin rounded-full border-2 border-paddy-300 border-t-paddy-700" />

@@ -39,13 +39,13 @@ export default function ProductGallery({
   const hasImages = images.length > 0;
 
   return (
-    <div className="flex flex-col gap-5 w-full">
+    <div className="flex w-full flex-col gap-3 sm:gap-5">
       {/* Main Image Viewport */}
-      <div className="relative flex h-[22rem] sm:h-[28rem] md:h-[30rem] w-full items-center justify-center overflow-hidden rounded-[2rem] border border-husk/10 bg-[radial-gradient(120%_100%_at_50%_0%,var(--color-rice-100),var(--color-rice-200))] transition-all duration-300">
+      <div className="relative flex h-[16rem] w-full items-center justify-center overflow-hidden rounded-[1.5rem] border border-husk/10 bg-[radial-gradient(120%_100%_at_50%_0%,var(--color-rice-100),var(--color-rice-200))] transition-all duration-300 sm:h-[28rem] sm:rounded-[2rem] md:h-[30rem]">
         {badge && (
           <span
             className={cn(
-              "absolute left-6 top-6 z-20 rounded-full px-3 py-1 text-[0.68rem] font-semibold uppercase tracking-wider shadow-sm",
+              "absolute left-3 top-3 z-20 rounded-full px-2.5 py-0.5 text-[0.6rem] font-semibold uppercase tracking-wider shadow-sm sm:left-6 sm:top-6 sm:px-3 sm:py-1 sm:text-[0.68rem]",
               BADGE_TONE[badge] ?? "bg-harvest-500 text-paddy-950",
             )}
           >
@@ -59,7 +59,7 @@ export default function ProductGallery({
           onClick={() => toggle(slug)}
           aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
           className={cn(
-            "absolute right-6 top-6 z-20 grid h-10 w-10 place-items-center rounded-full backdrop-blur-md transition-all duration-300 shadow-sm",
+            "absolute right-3 top-3 z-20 grid h-8 w-8 place-items-center rounded-full backdrop-blur-md transition-all duration-300 shadow-sm sm:right-6 sm:top-6 sm:h-10 sm:w-10",
             wishlisted
               ? "bg-clay-500/95 text-rice-50 shadow-md scale-105"
               : "bg-black/10 text-rice-50/80 hover:bg-clay-500/80 hover:text-rice-50 hover:scale-105"
@@ -67,7 +67,7 @@ export default function ProductGallery({
         >
           <svg
             viewBox="0 0 20 20"
-            className={cn("h-5 w-5 transition-transform duration-300", wishlisted && "scale-110")}
+            className={cn("h-4 w-4 transition-transform duration-300 sm:h-5 sm:w-5", wishlisted && "scale-110")}
             aria-hidden
           >
             <path
@@ -104,7 +104,7 @@ export default function ProductGallery({
             })}
           </div>
         ) : (
-          <div className="h-full w-auto flex items-center justify-center p-10 sm:p-14">
+          <div className="flex h-full w-auto items-center justify-center p-6 sm:p-14">
             <RiceBag
               id={`detail-${slug}`}
               light={grain.light}
@@ -117,15 +117,15 @@ export default function ProductGallery({
         )}
 
         {origin && (
-          <span className="absolute bottom-6 left-6 z-20 text-xs font-medium uppercase tracking-widest text-clay-600 drop-shadow-sm">
+          <span className="absolute bottom-3 left-3 z-20 text-[0.6rem] font-medium uppercase tracking-widest text-clay-600 drop-shadow-sm sm:bottom-6 sm:left-6 sm:text-xs">
             ◍ {origin}
           </span>
         )}
       </div>
 
-      {/* Gallery Thumbnails */}
+      {/* Gallery Thumbnails — a swipeable rail on mobile */}
       {images.length > 1 && (
-        <div className="flex flex-wrap gap-3 px-2">
+        <div className="no-scrollbar flex gap-2 overflow-x-auto px-0.5 pb-0.5 sm:flex-wrap sm:gap-3 sm:overflow-visible sm:px-2">
           {images.map((imgUrl, idx) => {
             const thumbUrl = cloudinaryLoader({
               src: imgUrl,
@@ -140,7 +140,7 @@ export default function ProductGallery({
                 onMouseEnter={() => setActiveIndex(idx)}
                 aria-label={`View image ${idx + 1}`}
                 className={cn(
-                  "relative h-16 w-16 overflow-hidden rounded-2xl border-2 bg-rice-100 transition-all duration-300 hover:scale-105",
+                  "relative h-12 w-12 shrink-0 overflow-hidden rounded-xl border-2 bg-rice-100 transition-all duration-300 hover:scale-105 sm:h-16 sm:w-16 sm:rounded-2xl",
                   idx === activeIndex
                     ? "border-paddy-800 shadow-md scale-105 opacity-100"
                     : "border-husk/10 opacity-70 hover:opacity-100"

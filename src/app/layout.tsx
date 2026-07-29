@@ -5,6 +5,7 @@ import SmoothScroll from "@/components/layout/SmoothScroll";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import FloatingActions from "@/components/layout/FloatingActions";
+import BottomNav from "@/components/layout/BottomNav";
 import CartDrawer from "@/components/cart/CartDrawer";
 import WishlistDrawer from "@/components/shop/WishlistDrawer";
 import SearchOverlay from "@/components/search/SearchOverlay";
@@ -112,6 +113,11 @@ export default async function RootLayout({
             <WishlistDrawer products={chatProducts} />
             <SearchOverlay />
           </FooterGate>
+          {/* outside FooterGate so it also shows on /rice-finder; last in flow so
+              its spacer keeps the footer clear of the fixed bar */}
+          <ChromeGate>
+            <BottomNav />
+          </ChromeGate>
         </SmoothScroll>
         <SpeedInsights />
       </body>
