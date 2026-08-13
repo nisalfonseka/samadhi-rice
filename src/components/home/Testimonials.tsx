@@ -2,10 +2,18 @@
 
 import { useRef, useState } from "react";
 import SectionHeading from "@/components/ui/SectionHeading";
-import { TESTIMONIALS } from "@/lib/data";
 import { cn } from "@/lib/utils";
 
-export default function Testimonials() {
+export type HomepageReview = {
+  id: string;
+  name: string;
+  place: string;
+  quote: string;
+  rating: number;
+  product: string;
+};
+
+export default function Testimonials({ reviews }: { reviews: HomepageReview[] }) {
   const rail = useRef<HTMLDivElement>(null);
   const drag = useRef({ active: false, startX: 0, startScroll: 0, moved: false });
   const [grabbing, setGrabbing] = useState(false);
@@ -46,7 +54,7 @@ export default function Testimonials() {
         <SectionHeading
           kicker=""
           title="What our customers say"
-          intro="Every word below is from verified orders"
+          intro="Customer reviews approved for publication on our product pages"
         />
 
         {/* drag controls */}
@@ -84,7 +92,7 @@ export default function Testimonials() {
       >
         {/* left gutter to align with container */}
         <div className="hidden shrink-0 lg:block lg:w-[max(0px,calc((100vw-80rem)/2))]" />
-        {TESTIMONIALS.map((t) => (
+        {reviews.map((t) => (
           <figure
             key={t.id}
             className="flex w-[78vw] shrink-0 snap-start flex-col rounded-2xl border border-husk/10 bg-rice-50 p-4 shadow-[0_18px_44px_-34px_rgba(34,31,23,0.5)] sm:w-[26rem] sm:rounded-3xl sm:p-8"

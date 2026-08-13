@@ -2,9 +2,17 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Our Journey",
+  title: "About Samadhi Rice",
   description:
-    "The story of SamadhiRice.lk — from family paddy fields in Sri Lanka to kitchens across the island.",
+    "Learn how SamadhiRice.lk helps Sri Lankan households choose heritage and everyday rice varieties with clear origin, cooking and delivery information.",
+  alternates: { canonical: "/about" },
+  openGraph: {
+    title: "About Samadhi Rice",
+    description:
+      "Heritage and everyday Sri Lankan rice, practical variety guidance and island-wide ordering.",
+    url: "/about",
+    images: ["/opengraph-image"],
+  },
 };
 
 export default function AboutPage() {
@@ -46,21 +54,22 @@ export default function AboutPage() {
         {/* Section 1 — Origin */}
         <section className="mb-16">
           <span className="block text-[0.7rem] font-semibold uppercase tracking-widest text-paddy-600 mb-3">
-            Where it began
+            What we do
           </span>
           <h2 className="font-display text-3xl text-husk mb-6">
-            Rooted in tradition
+            Making rice easier to choose
           </h2>
-          {/* Placeholder — edit these paragraphs with your real story */}
           <div className="space-y-5 text-[1.05rem] leading-relaxed text-husk/80">
             <p>
-              [Your founding story goes here — where the farm is, how many generations
-              have worked the land, what inspired you to start selling direct to
-              families.]
+              SamadhiRice.lk connects Sri Lankan households with a focused range of
+              traditional and everyday rice. Our catalogue is designed to make each
+              variety easier to understand before you buy, from grain and flavour to
+              origin, pack size and cooking guidance.
             </p>
             <p>
-              [Describe the paddy fields, the region, the seasonal rhythms of planting
-              and harvest that shape every grain you sell.]
+              We serve customers online and through our listed branch locations. Every
+              available location, phone number and opening time is kept on our branches
+              page so you can confirm the details before travelling.
             </p>
           </div>
         </section>
@@ -75,20 +84,22 @@ export default function AboutPage() {
         {/* Section 2 — The Rice */}
         <section className="mb-16">
           <span className="block text-[0.7rem] font-semibold uppercase tracking-widest text-paddy-600 mb-3">
-            What we grow
+            What we offer
           </span>
           <h2 className="font-display text-3xl text-husk mb-6">
             Heritage varieties, milled fresh
           </h2>
           <div className="space-y-5 text-[1.05rem] leading-relaxed text-husk/80">
             <p>
-              [Explain which rice varieties you cultivate — Suwandel, Kalu Heenati,
-              Red Raw Rice, Keeri Samba — and why you chose these heirloom varieties
-              over high-yield modern strains.]
+              Our range includes fragrant Suwandel, wholegrain Kalu Heenati, red raw
+              rice, Keeri Samba and familiar everyday grains. Each product page explains
+              the variety in plain language and shows its current price, pack options
+              and availability.
             </p>
             <p>
-              [Talk about your milling process — how you mill to order so nothing sits
-              in a warehouse, and what that freshness means for flavour and nutrition.]
+              If you are unsure which grain suits a dish, texture preference or budget,
+              the Rice Finder can narrow the choice and link you directly to matching
+              products.
             </p>
           </div>
         </section>
@@ -106,17 +117,18 @@ export default function AboutPage() {
             The people behind it
           </span>
           <h2 className="font-display text-3xl text-husk mb-6">
-            A family effort
+            A local service
           </h2>
           <div className="space-y-5 text-[1.05rem] leading-relaxed text-husk/80">
             <p>
-              [Introduce the family members, the farmers, and anyone else central to
-              the operation. Personal names and roles make this feel real and build
-              trust with customers.]
+              Behind the website is a local retail team helping customers choose rice,
+              confirm stock and arrange orders. You can reach the team by phone,
+              WhatsApp or email using the current details on our contact page.
             </p>
             <p>
-              [Share any milestones — years in business, number of families fed, awards
-              or certifications, media features, etc.]
+              We publish branch information, product details and practical rice guides
+              openly so customers can make informed choices without relying on vague
+              claims.
             </p>
           </div>
         </section>
@@ -138,9 +150,9 @@ export default function AboutPage() {
           </h2>
           <div className="grid gap-6 sm:grid-cols-3">
             {[
-              { title: "Freshness", body: "[What fresh-milled means to you and to your customers.]" },
-              { title: "Heritage", body: "[Why preserving traditional rice varieties matters.]" },
-              { title: "Community", body: "[How the business supports local farmers and families.]" },
+              { title: "Clarity", body: "Useful product details, current availability and straightforward ordering." },
+              { title: "Heritage", body: "Making traditional Sri Lankan varieties easier to discover and enjoy." },
+              { title: "Service", body: "Local contact channels and branch information when you need a real person." },
             ].map((v) => (
               <div key={v.title} className="rounded-2xl border border-husk/10 bg-white p-5">
                 <p className="font-display text-xl text-husk mb-2">{v.title}</p>
@@ -156,7 +168,7 @@ export default function AboutPage() {
             Taste the difference
           </h2>
           <p className="text-rice-100/70 mb-8 max-w-md mx-auto">
-            Every bag ships fresh from the mill — no warehousing, no compromise.
+            Compare the current range, pack sizes, prices and availability before you order.
           </p>
           <Link
             href="/shop"

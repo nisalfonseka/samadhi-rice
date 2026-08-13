@@ -3,6 +3,14 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getPostBySlug as _getPostBySlug, getRelatedPosts, readingTimeMin, excerptFrom } from "@/lib/services/blog.service";
+import JsonLd from "@/components/seo/JsonLd";
+import {
+  absoluteUrl,
+  breadcrumbJsonLd,
+  cleanPageTitle,
+  SITE_NAME,
+  SITE_URL,
+} from "@/lib/seo";
 
 export const revalidate = 300;
 
@@ -13,29 +21,34 @@ type Params = Promise<{ slug: string }>;
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const { slug } = await params;
   const post = await getPostBySlug(slug).catch(() => null);
-  if (!post || !post.published) return { title: "Not found" };
+  if (!post || !post.published) {
+    return { title: "Not found", robots: { index: false } };
+  }
   const description = post.metaDescription ?? post.excerpt ?? excerptFrom(post.content);
+  const title = cleanPageTitle(post.metaTitle ?? post.title);
   return {
-    title: post.metaTitle ?? post.title,
+    title,
     description,
     alternates: { canonical: `/blog/${slug}` },
     openGraph: {
       type: "article",
-      title: post.title,
+      title,
       description: description ?? undefined,
-      images: post.coverImage ? [post.coverImage] : undefined,
-      publishedTime: post.publishedAt?.toISOString(),
+      images: post.coverImage ? [post.coverImage] : ["/opengraph-image"],
+      publishedTime: post.publishedAt
+        ? new Date(post.publishedAt).toISOString()
+        : undefined,
+      modifiedTime: new Date(post.updatedAt).toISOString(),
+      url: `/blog/${slug}`,
     },
     twitter: {
       card: post.coverImage ? "summary_large_image" : "summary",
-      title: post.title,
+      title,
       description: description ?? undefined,
-      images: post.coverImage ? [post.coverImage] : undefined,
+      images: post.coverImage ? [post.coverImage] : ["/opengraph-image"],
     },
   };
 }
-
-const SITE = "https://samadhirice.lk";
 
 function ShareLinks({ url, title }: { url: string; title: string }) {
   const enc = encodeURIComponent;
@@ -86,28 +99,54 @@ export default async function BlogPostPage({ params }: { params: Params }) {
 
   const related = await getRelatedPosts(post.slug, 3).catch(() => []);
   const reading = readingTimeMin(post.content);
-  const url = `${SITE}/blog/${post.slug}`;
+  const url = absoluteUrl(`/blog/${post.slug}`);
   const description = post.metaDescription ?? post.excerpt ?? excerptFrom(post.content);
 
   const jsonLd = {
     "@context": "https://schema.org",
-    "@type": "BlogPosting",
-    headline: post.title,
-    description,
-    image: post.coverImage ? [post.coverImage] : undefined,
-    datePublished: post.publishedAt?.toISOString(),
-    dateModified: post.updatedAt.toISOString(),
-    mainEntityOfPage: { "@type": "WebPage", "@id": url },
-    author: { "@type": "Organization", name: "SamadhiRice.lk" },
-    publisher: { "@type": "Organization", name: "SamadhiRice.lk" },
+    "@graph": [
+      {
+        "@type": "BlogPosting",
+        "@id": `${url}#article`,
+        url,
+        headline: post.title,
+        description,
+        image: post.coverImage ? [post.coverImage] : undefined,
+        datePublished: post.publishedAt
+          ? new Date(post.publishedAt).toISOString()
+          : undefined,
+        dateModified: new Date(post.updatedAt).toISOString(),
+        mainEntityOfPage: { "@type": "WebPage", "@id": url },
+        isAccessibleForFree: true,
+        inLanguage: "en-LK",
+        author: {
+          "@type": "Organization",
+          "@id": `${SITE_URL}/#organization`,
+          name: SITE_NAME,
+          url: SITE_URL,
+        },
+        publisher: {
+          "@type": "Organization",
+          "@id": `${SITE_URL}/#organization`,
+          name: SITE_NAME,
+          url: SITE_URL,
+          logo: {
+            "@type": "ImageObject",
+            url: absoluteUrl("/samadhiricelogo.png"),
+          },
+        },
+      },
+      breadcrumbJsonLd([
+        { name: "Home", path: "/" },
+        { name: "Stories", path: "/blog" },
+        { name: post.title, path: `/blog/${post.slug}` },
+      ]),
+    ],
   };
 
   return (
     <div className="bg-paper min-h-screen">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+      <JsonLd data={jsonLd} />
 
       {/* hero */}
       <header className="relative overflow-hidden">

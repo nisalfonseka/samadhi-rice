@@ -155,7 +155,15 @@ export default function Hero() {
               ["/hero-evening.webp", mix.evening],
               ["/hero-night.webp", mix.night],
             ] as const
-          ).map(([src, opacity]) => (
+          )
+            // Keep the hydration-safe morning frame plus only photos that are
+            // actually participating in the current crossfade. Loading four
+            // full-viewport images at once needlessly delays mobile LCP.
+            .filter(
+              ([src, opacity]) =>
+                src === "/hero-morning.webp" || opacity > 0.001,
+            )
+            .map(([src, opacity]) => (
             <Image
               key={src}
               src={src}
@@ -164,9 +172,10 @@ export default function Hero() {
               sizes="100vw"
               className={`object-cover ${fade}`}
               style={{ opacity }}
-              priority
+              quality={60}
+              priority={src === "/hero-morning.webp"}
             />
-          ))}
+            ))}
         </div>
       </div>
 
@@ -269,7 +278,7 @@ export default function Hero() {
             src="/moon.png"
             alt=""
             fill
-            sizes="(max-width: 768px) 100vw, 50vw"
+            sizes="128px"
             className="object-contain drop-shadow-[0_0_10px_rgba(200,214,255,0.45)]"
           />
         </div>
@@ -363,7 +372,6 @@ export default function Hero() {
       <div className="relative z-20 mx-auto w-full max-w-7xl px-5 pb-24 pt-32 sm:pb-28 sm:pt-35 sm:px-8">
         <div className="max-w-2xl">
           <h1
-            data-hero-in
             className="font-display text-[clamp(2rem,6vw,4.6rem)] font-medium leading-[0.98] text-rice-50"
           >
             From the paddy field
@@ -375,9 +383,8 @@ export default function Hero() {
             data-hero-in
             className="mt-5 max-w-xl text-[0.85rem] leading-relaxed text-rice-100/80 sm:mt-7 sm:text-[0.90rem]"
           >
-            Single-origin Suwandel, Kalu Heenati and red raw rice — grown in
-            family fields, milled fresh the day it ships, and carried to your
-            kitchen with nothing lost in between.
+            Compare Suwandel, Kalu Heenati, red raw rice and everyday grains by
+            variety, origin, pack size, current price and availability.
           </p>
 
           <div data-hero-in className="mt-6 flex flex-wrap items-center gap-2.5 sm:mt-9 sm:gap-3">
@@ -418,10 +425,7 @@ export default function Hero() {
             <span className="flex items-center gap-1.5 text-harvest-300">
               {"★★★★★"}
             </span>
-            <span>
-              <span className="font-semibold text-rice-50">4.9</span> · loved by
-              12,000+ Sri Lankan kitchens
-            </span>
+            <span>Heritage and everyday rice, delivered across Sri Lanka</span>
           </div>
 
           {/* ---- search bar ---- */}

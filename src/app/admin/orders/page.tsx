@@ -6,6 +6,7 @@ import {
 } from "@/lib/services/admin.service";
 import { formatLKR } from "@/lib/pricing";
 import OrderStatusSelect from "@/components/admin/OrderStatusSelect";
+import TodayOrdersClient from "@/components/admin/TodayOrdersClient";
 
 export const dynamic = "force-dynamic";
 
@@ -28,7 +29,19 @@ export default async function AdminOrdersPage({
     : undefined;
   const payment = sp.payment === "COD" || sp.payment === "PAYHERE" ? sp.payment : undefined;
 
-  const orders = await getAdminOrders({
+  // Get today's orders for the top section (unfiltered by searchParams)
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
+  const endOfToday = new Date();
+  endOfToday.setHours(23, 59, 59, 999);
+  
+  const todayOrders = await getAdminOrders({
+    from: startOfToday,
+    to: endOfToday,
+  });
+
+  // Get all orders based on filters
+  const filteredOrders = await getAdminOrders({
     status,
     payment,
     q: sp.q?.trim() || undefined,
@@ -40,14 +53,15 @@ export default async function AdminOrdersPage({
     Object.entries(sp).filter(([, v]) => v) as [string, string][],
   ).toString();
   const exportCsvHref = `/api/admin/orders/export${filterQs ? `?${filterQs}` : ""}`;
-  const printAllHref = `/api/admin/orders/invoices${filterQs ? `?${filterQs}` : ""}`;
 
   return (
     <div>
+      <TodayOrdersClient orders={todayOrders} />
+
       <header className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="font-display text-3xl text-husk">Orders</h1>
-          <p className="mt-1 text-husk-soft">{orders.length} shown.</p>
+          <h2 className="font-display text-2xl text-husk">All Orders</h2>
+          <p className="mt-1 text-xs text-husk-soft">{filteredOrders.length} shown.</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <a
@@ -55,17 +69,6 @@ export default async function AdminOrdersPage({
             className="rounded-full border border-husk/15 px-5 py-2.5 text-sm font-medium text-husk transition-colors hover:border-paddy-600"
           >
             Export CSV ↓
-          </a>
-          <a
-            href={printAllHref}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-disabled={orders.length === 0}
-            className={`inline-flex items-center gap-2 rounded-full bg-paddy-800 px-5 py-2.5 text-sm font-medium text-rice-50 transition-colors hover:bg-paddy-900 ${
-              orders.length === 0 ? "pointer-events-none opacity-50" : ""
-            }`}
-          >
-            <PdfIcon /> Print all filtered (PDF)
           </a>
         </div>
       </header>
@@ -106,7 +109,7 @@ export default async function AdminOrdersPage({
         </button>
       </form>
 
-      {orders.length === 0 ? (
+      {filteredOrders.length === 0 ? (
         <div className="rounded-2xl border border-husk/10 bg-rice-50 px-6 py-16 text-center text-husk-soft">
           No orders match these filters.
         </div>
@@ -125,7 +128,7 @@ export default async function AdminOrdersPage({
               </tr>
             </thead>
             <tbody className="divide-y divide-husk/10">
-              {orders.map((o) => (
+              {filteredOrders.map((o) => (
                 <tr key={o.id} className="align-top hover:bg-husk/[0.02]">
                   <td className="px-5 py-4">
                     <Link href={`/admin/orders/${o.id}`} className="font-medium text-husk hover:text-paddy-800">

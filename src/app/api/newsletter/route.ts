@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
-import { Resend } from "resend";
+
+const BREVO_API_KEY = process.env.BREVO_API_KEY;
+const FROM_EMAIL = process.env.BREVO_FROM_EMAIL || "hello@samadhirice.lk";
+const FROM_NAME = process.env.BREVO_FROM_NAME || "Samadhi Rice";
 
 export async function POST(req: Request) {
   try {
@@ -9,18 +12,28 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Invalid email address" }, { status: 400 });
     }
 
-    if (process.env.RESEND_API_KEY) {
-      const resend = new Resend(process.env.RESEND_API_KEY);
-      await resend.emails.send({
-        from: "Samadhi Rice <hello@samadhirice.lk>",
-        to: email,
-        subject: "Welcome to the Samadhi Rice family!",
-        html: "<p>Thank you for subscribing to our newsletter. We'll keep you updated on our latest harvests, offers, and heritage rice varieties!</p>",
+    if (BREVO_API_KEY) {
+      const res = await fetch("https://api.brevo.com/v3/smtp/email", {
+        method: "POST",
+        headers: {
+          "api-key": BREVO_API_KEY,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          sender: { name: FROM_NAME, email: FROM_EMAIL },
+          to: [{ email }],
+          subject: "Welcome to the Samadhi Rice family!",
+          htmlContent:
+            "<p>Thank you for subscribing to our newsletter. We'll keep you updated on our latest harvests, offers, and heritage rice varieties!</p>",
+        }),
       });
+      if (!res.ok) {
+        console.error("[Newsletter API] Brevo send failed:", await res.text());
+      }
     } else {
       // Simulate API call for local development without key
       console.log(`[Newsletter API] Would have sent welcome email to: ${email}`);
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 500));
     }
 
     return NextResponse.json({ success: true });

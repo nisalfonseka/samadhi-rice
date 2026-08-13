@@ -375,6 +375,7 @@ export default function RiceFinderChat({
 
           {/* Center chat */}
           <main className="flex min-w-0 flex-1 flex-col">
+            <h1 className="sr-only">Sri Lankan Rice Finder</h1>
             {/* Compact in-page sub-toolbar (mobile only) — opens the sidebars.
                 Deliberately avoids a hamburger and a shopping-bag glyph: both
                 would sit directly under the global header's menu and cart and

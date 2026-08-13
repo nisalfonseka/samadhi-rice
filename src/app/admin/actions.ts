@@ -13,10 +13,98 @@ import {
   type AssistantProvider,
 } from "@/lib/services/assistant.service";
 import { sendStatusUpdate } from "@/lib/services/email.service";
+import { sendSMS } from "@/lib/services/sms.service";
 import { ORDER_STATUSES, type OrderStatusValue } from "@/lib/services/admin.service";
 
 function slugify(s: string) {
   return s.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+}
+
+// ... skipped products code, handled by patch ...
+const STATUS_SMS_COPY: Record<string, string> = {
+  CONFIRMED: "Your SamadhiRice order {orderNo} is confirmed and heading to the mill.",
+  PROCESSING: "Your SamadhiRice order {orderNo} is being milled fresh and packed.",
+  SHIPPED: "Your SamadhiRice order {orderNo} is out for delivery — we'll call before we arrive.",
+  DELIVERED: "Your SamadhiRice order {orderNo} has been delivered. Enjoy! 🌾",
+  CANCELLED: "Your SamadhiRice order {orderNo} has been cancelled.",
+};
+
+export async function setOrderStatus(orderId: string, status: string) {
+  const session = await assertAdmin();
+  if (!ORDER_STATUSES.includes(status as OrderStatusValue)) throw new Error("Invalid status");
+
+  const order = await prisma.order.update({
+    where: { id: orderId },
+    data: { status: status as OrderStatusValue },
+    include: { items: true },
+  });
+
+  await sendStatusUpdate({
+    orderNo: order.orderNo,
+    email: order.email,
+    customerName: order.customerName,
+    total: order.total,
+    subtotal: order.subtotal,
+    deliveryFee: order.deliveryFee,
+    status: order.status,
+    items: order.items,
+  });
+
+  const smsCopy = STATUS_SMS_COPY[status];
+  if (smsCopy && order.phone) {
+    await sendSMS(order.phone, smsCopy.replace("{orderNo}", order.orderNo));
+  }
+
+  await logActivity(session.user, `Order ${order.orderNo} → ${status.toLowerCase()}`, {
+    entity: order.orderNo,
+  });
+
+  revalidatePath("/admin/orders");
+  revalidatePath(`/admin/orders/${orderId}`);
+  revalidatePath("/admin");
+  revalidatePath(`/order/${order.orderNo}`);
+}
+
+export async function bulkConfirmOrders(orderIds: string[]) {
+  const session = await assertAdmin();
+  
+  const orders = await prisma.order.findMany({
+    where: { id: { in: orderIds }, status: "PENDING" },
+    include: { items: true }
+  });
+
+  for (const order of orders) {
+    await prisma.order.update({
+      where: { id: order.id },
+      data: { status: "CONFIRMED" }
+    });
+
+    order.status = "CONFIRMED";
+    await sendStatusUpdate({
+      orderNo: order.orderNo,
+      email: order.email,
+      customerName: order.customerName,
+      total: order.total,
+      subtotal: order.subtotal,
+      deliveryFee: order.deliveryFee,
+      status: order.status,
+      items: order.items,
+    });
+    
+    if (order.phone) {
+      const smsCopy = STATUS_SMS_COPY["CONFIRMED"];
+      if (smsCopy) {
+        await sendSMS(order.phone, smsCopy.replace("{orderNo}", order.orderNo));
+      }
+    }
+
+    await logActivity(session.user, `Order ${order.orderNo} → confirmed (bulk)`, {
+      entity: order.orderNo,
+    });
+  }
+
+  revalidatePath("/admin/orders");
+  revalidatePath("/admin");
 }
 
 /* ----------------------------------------------------------- products --- */
@@ -190,38 +278,6 @@ export async function updateStock(id: string, stockKg: number) {
   await logActivity(session.user, "Updated stock", { entity: p.slug, detail: `${value}kg` });
   revalidatePath("/admin/products");
   revalidatePath("/shop");
-}
-
-/* --------------------------------------------------------------- orders -- */
-
-export async function setOrderStatus(orderId: string, status: string) {
-  const session = await assertAdmin();
-  if (!ORDER_STATUSES.includes(status as OrderStatusValue)) throw new Error("Invalid status");
-
-  const order = await prisma.order.update({
-    where: { id: orderId },
-    data: { status: status as OrderStatusValue },
-    include: { items: true },
-  });
-
-  await sendStatusUpdate({
-    orderNo: order.orderNo,
-    email: order.email,
-    customerName: order.customerName,
-    total: order.total,
-    subtotal: order.subtotal,
-    deliveryFee: order.deliveryFee,
-    status: order.status,
-    items: order.items,
-  });
-  await logActivity(session.user, `Order ${order.orderNo} → ${status.toLowerCase()}`, {
-    entity: order.orderNo,
-  });
-
-  revalidatePath("/admin/orders");
-  revalidatePath(`/admin/orders/${orderId}`);
-  revalidatePath("/admin");
-  revalidatePath(`/order/${order.orderNo}`);
 }
 
 /* ----------------------------------------------------------- categories -- */

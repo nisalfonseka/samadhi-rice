@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Fraunces, DM_Sans, Noto_Serif_Sinhala } from "next/font/google";
 import "./globals.css";
 import SmoothScroll from "@/components/layout/SmoothScroll";
@@ -15,6 +15,7 @@ import { getAssistantConfig } from "@/lib/services/assistant.service";
 import { getProducts } from "@/lib/services/product.service";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import NextTopLoader from "nextjs-toploader";
+import { DEFAULT_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/seo";
 
 const fraunces = Fraunces({
   variable: "--font-fraunces",
@@ -36,16 +37,14 @@ const notoSinhala = Noto_Serif_Sinhala({
   preload: false,
 });
 
-const SITE = "https://samadhirice.lk";
-
 export const metadata: Metadata = {
-  metadataBase: new URL(SITE),
+  metadataBase: new URL(SITE_URL),
+  applicationName: SITE_NAME,
   title: {
     default: "SamadhiRice.lk — Heritage Sri Lankan Rice, Paddy Field to Plate",
     template: "%s · SamadhiRice.lk",
   },
-  description:
-    "Single-origin Sri Lankan rice — Suwandel, Kalu Heenati, red raw rice and Keeri Samba — milled fresh from family paddy fields and delivered to your kitchen. Traditional grains, modern convenience.",
+  description: DEFAULT_DESCRIPTION,
   keywords: [
     "Sri Lankan rice",
     "Suwandel rice",
@@ -59,18 +58,48 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_LK",
-    url: SITE,
-    siteName: "SamadhiRice.lk",
+    url: SITE_URL,
+    siteName: SITE_NAME,
     title: "SamadhiRice.lk — Heritage Sri Lankan Rice, Paddy Field to Plate",
     description:
-      "Single-origin Sri Lankan rice, milled fresh from family paddy fields and delivered to your kitchen.",
+      "Browse Sri Lankan rice varieties with current prices, pack sizes and delivery information.",
   },
   twitter: {
     card: "summary_large_image",
     title: "SamadhiRice.lk — Heritage Sri Lankan Rice",
     description:
-      "Single-origin Sri Lankan rice, milled fresh from family paddy fields and delivered to your kitchen.",
+      "Browse Sri Lankan rice varieties with current prices, pack sizes and delivery information.",
+    images: ["/opengraph-image"],
   },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
+  verification: {
+    ...(process.env.GOOGLE_SITE_VERIFICATION
+      ? { google: process.env.GOOGLE_SITE_VERIFICATION }
+      : {}),
+    ...(process.env.BING_SITE_VERIFICATION
+      ? {
+          other: {
+            "msvalidate.01": process.env.BING_SITE_VERIFICATION,
+          },
+        }
+      : {}),
+  },
+  category: "food and drink",
+};
+
+export const viewport: Viewport = {
+  themeColor: "#324327",
+  colorScheme: "light",
 };
 
 export default async function RootLayout({

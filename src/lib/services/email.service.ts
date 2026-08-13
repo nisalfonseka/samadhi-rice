@@ -1,9 +1,8 @@
-import { Resend } from "resend";
 import { formatLKR } from "@/lib/pricing";
 
-const apiKey = process.env.RESEND_API_KEY;
-const FROM = process.env.RESEND_FROM || "SamadhiRice <orders@samadhirice.lk>";
-const resend = apiKey ? new Resend(apiKey) : null;
+const apiKey = process.env.BREVO_API_KEY;
+const FROM_EMAIL = process.env.BREVO_FROM_EMAIL || "orders@samadhirice.lk";
+const FROM_NAME = process.env.BREVO_FROM_NAME || "SamadhiRice";
 
 type OrderItemLite = { name: string; weightKg: number; quantity: number; unitPrice: number };
 type OrderLite = {
@@ -18,14 +17,29 @@ type OrderLite = {
 };
 
 async function send(to: string, subject: string, html: string) {
-  if (!resend || !to) {
+  if (!apiKey || !to) {
     console.log(
-      `[email] skipped "${subject}" -> ${to || "no-recipient"} (RESEND_API_KEY ${apiKey ? "set" : "not set"})`,
+      `[email] skipped "${subject}" -> ${to || "no-recipient"} (BREVO_API_KEY ${apiKey ? "set" : "not set"})`,
     );
     return;
   }
   try {
-    await resend.emails.send({ from: FROM, to, subject, html });
+    const res = await fetch("https://api.brevo.com/v3/smtp/email", {
+      method: "POST",
+      headers: {
+        "api-key": apiKey,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        sender: { name: FROM_NAME, email: FROM_EMAIL },
+        to: [{ email: to }],
+        subject,
+        htmlContent: html,
+      }),
+    });
+    if (!res.ok) {
+      console.error("[email] brevo send failed:", await res.text());
+    }
   } catch (e) {
     console.error("[email] send failed:", e);
   }

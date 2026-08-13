@@ -128,7 +128,7 @@ export default function OriginStory() {
               className="group relative flex w-[72vw] shrink-0 snap-start flex-col rounded-2xl border border-husk/10 bg-rice-50 p-5 shadow-[0_20px_50px_-34px_rgba(34,31,23,0.6)] transition-colors duration-500 hover:border-clay-400/40 sm:w-[60vw] sm:rounded-3xl sm:p-8 md:w-[24rem]"
             >
               <div className="flex items-center justify-between">
-                <span className="font-display text-3xl text-rice-300 sm:text-5xl">{step.n}</span>
+                <span className="font-display text-3xl text-clay-400 sm:text-5xl">{step.n}</span>
                 <span className="grid h-10 w-10 place-items-center rounded-full bg-paddy-800 text-harvest-300 transition-transform duration-500 group-hover:-rotate-6 sm:h-14 sm:w-14">
                   <StepIcon i={i} className="h-5 w-5 sm:h-7 sm:w-7" />
                 </span>

@@ -12,12 +12,31 @@ import {
 
 export const revalidate = 60;
 
-export const metadata: Metadata = {
-  title: "Shop heritage Sri Lankan rice",
-  description:
-    "Browse single-origin Sri Lankan rice — Suwandel, Kalu Heenati, red raw rice, Keeri Samba and more. Filter by variety, price and weight. Milled to order, delivered island-wide.",
-  alternates: { canonical: "/shop" },
-};
+const SHOP_DESCRIPTION =
+  "Browse Sri Lankan rice including Suwandel, Kalu Heenati, red raw rice, Keeri Samba and more, with island-wide delivery.";
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}): Promise<Metadata> {
+  const sp = await searchParams;
+  const isSearch = Boolean(sp.q?.trim());
+
+  return {
+    title: "Shop heritage Sri Lankan rice",
+    description: SHOP_DESCRIPTION,
+    alternates: { canonical: "/shop" },
+    robots: isSearch ? { index: false, follow: true } : undefined,
+    openGraph: {
+      type: "website",
+      title: "Buy Sri Lankan rice online",
+      description: SHOP_DESCRIPTION,
+      url: "/shop",
+      images: ["/opengraph-image"],
+    },
+  };
+}
 
 function priceTokenToRange(token?: string): { minPrice?: number; maxPrice?: number } {
   switch (token) {

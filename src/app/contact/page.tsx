@@ -3,11 +3,21 @@ import Link from "next/link";
 import { getSettings } from "@/lib/services/settings.service";
 import { prisma } from "@/lib/db";
 import ContactForm from "./ContactForm";
+import JsonLd from "@/components/seo/JsonLd";
+import { absoluteUrl, breadcrumbJsonLd, SITE_NAME, SITE_URL } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "Contact Us",
   description:
     "Reach SamadhiRice.lk by phone, WhatsApp, or email. Visit a branch or send us a message.",
+  alternates: { canonical: "/contact" },
+  openGraph: {
+    title: "Contact Samadhi Rice",
+    description:
+      "Call, message or email SamadhiRice.lk, or find the nearest branch in Sri Lanka.",
+    url: "/contact",
+    images: ["/opengraph-image"],
+  },
 };
 
 export const revalidate = 300;
@@ -89,6 +99,38 @@ export default async function ContactPage() {
   ]);
   const primaryBranch = branches[0];
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "ContactPage",
+        "@id": `${absoluteUrl("/contact")}#page`,
+        url: absoluteUrl("/contact"),
+        name: `Contact ${SITE_NAME}`,
+        mainEntity: {
+          "@type": "OnlineStore",
+          "@id": `${SITE_URL}/#organization`,
+          name: SITE_NAME,
+          url: SITE_URL,
+          telephone: s.contactPhone || undefined,
+          email: s.contactEmail || undefined,
+          address: primaryBranch
+            ? {
+                "@type": "PostalAddress",
+                streetAddress: primaryBranch.address,
+                addressLocality: primaryBranch.city,
+                addressCountry: "LK",
+              }
+            : undefined,
+        },
+      },
+      breadcrumbJsonLd([
+        { name: "Home", path: "/" },
+        { name: "Contact", path: "/contact" },
+      ]),
+    ],
+  };
+
   const socials = [
     { href: s.socialFacebook, Icon: FacebookIcon, label: "Facebook" },
     { href: s.socialInstagram, Icon: InstagramIcon, label: "Instagram" },
@@ -98,6 +140,7 @@ export default async function ContactPage() {
 
   return (
     <main className="relative z-10 min-h-screen bg-rice-50">
+      <JsonLd data={jsonLd} />
 
       {/* ── Hero ── */}
       <section className="relative mt-[10px] flex min-h-[46vh] items-end overflow-hidden bg-paddy-950 pb-16 pt-32">

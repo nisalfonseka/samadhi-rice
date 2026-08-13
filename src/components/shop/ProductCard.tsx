@@ -248,7 +248,7 @@ export default function ProductCard({
               {formatLKR(Math.round(price / weight))}/kg · {weight}kg
             </span>
             {hasDiscount && (
-              <span className="mt-0.5 block text-[0.62rem] text-husk-soft/70 line-through sm:text-[0.68rem]">
+              <span className="mt-0.5 block text-[0.62rem] text-husk-soft line-through sm:text-[0.68rem]">
                 {formatLKR(Math.round(basePrice / weight))}/kg
               </span>
             )}

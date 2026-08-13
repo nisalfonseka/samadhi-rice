@@ -9,7 +9,15 @@ import {
   getProductBySlug as _getProductBySlug,
   getRelatedProducts,
 } from "@/lib/services/product.service";
-import { priceFor, formatLKR } from "@/lib/pricing";
+import { priceFor } from "@/lib/pricing";
+import JsonLd from "@/components/seo/JsonLd";
+import {
+  absoluteUrl,
+  breadcrumbJsonLd,
+  cleanPageTitle,
+  SITE_NAME,
+  SITE_URL,
+} from "@/lib/seo";
 
 export const revalidate = 60;
 
@@ -25,15 +33,28 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const product = await getProductBySlug(slug).catch(() => null);
-  if (!product) return { title: "Rice not found" };
+  if (!product) return { title: "Rice not found", robots: { index: false } };
+  const title = cleanPageTitle(product.metaTitle ?? product.name);
+  const description =
+    product.metaDescription ??
+    product.note ??
+    `Shop ${product.name} from SamadhiRice.lk, with delivery across Sri Lanka.`;
   return {
-    title: product.metaTitle ?? product.name,
-    description: product.metaDescription ?? product.note ?? undefined,
+    title,
+    description,
     alternates: { canonical: `/shop/${slug}` },
     openGraph: {
-      title: product.name,
-      description: product.note ?? undefined,
+      title,
+      description,
       type: "website",
+      url: `/shop/${slug}`,
+      images: product.images.length ? product.images : ["/opengraph-image"],
+    },
+    twitter: {
+      card: product.images.length ? "summary_large_image" : "summary",
+      title,
+      description,
+      images: product.images.length ? product.images : ["/opengraph-image"],
     },
   };
 }
@@ -55,39 +76,68 @@ export default async function ProductPage({ params }: { params: Params }) {
     dark: product.grainDark ?? "#c7ad70",
   };
 
+  const productUrl = absoluteUrl(`/shop/${product.slug}`);
+  const publishedReviewCount = product.reviews.length;
+  const publishedRating = publishedReviewCount
+    ? product.reviews.reduce((sum, review) => sum + review.rating, 0) /
+      publishedReviewCount
+    : 0;
   const jsonLd = {
     "@context": "https://schema.org",
-    "@type": "Product",
-    name: product.name,
-    description: product.description ?? product.note ?? undefined,
-    category: product.category?.name,
-    brand: { "@type": "Brand", name: "SamadhiRice.lk" },
-    aggregateRating:
-      product.reviewsCount > 0
-        ? {
-            "@type": "AggregateRating",
-            ratingValue: product.rating,
-            reviewCount: product.reviewsCount,
-          }
-        : undefined,
-    offers: {
-      "@type": "Offer",
-      priceCurrency: "LKR",
-      price: priceFor(product.pricePerKg, 1, product.discountPercent ?? 0),
-      availability:
-        product.stockKg > 0
-          ? "https://schema.org/InStock"
-          : "https://schema.org/OutOfStock",
-      url: `https://samadhirice.lk/shop/${product.slug}`,
-    },
+    "@graph": [
+      {
+        "@type": "Product",
+        "@id": `${productUrl}#product`,
+        url: productUrl,
+        name: product.name,
+        alternateName: product.sinhala || undefined,
+        image: product.images.length ? product.images : undefined,
+        description:
+          product.description ??
+          product.note ??
+          `Buy ${product.name} online from ${SITE_NAME}.`,
+        category: product.category?.name,
+        brand: { "@type": "Brand", name: SITE_NAME },
+        additionalProperty: [
+          product.variety
+            ? {
+                "@type": "PropertyValue",
+                name: "Rice variety",
+                value: product.variety,
+              }
+            : undefined,
+          product.origin
+            ? {
+                "@type": "PropertyValue",
+                name: "Origin",
+                value: product.origin,
+              }
+            : undefined,
+        ].filter(Boolean),
+        offers: {
+          "@type": "Offer",
+          priceCurrency: "LKR",
+          price: priceFor(product.pricePerKg, 1, product.discountPercent ?? 0),
+          availability:
+            product.stockKg > 0
+              ? "https://schema.org/InStock"
+              : "https://schema.org/OutOfStock",
+          itemCondition: "https://schema.org/NewCondition",
+          url: productUrl,
+          seller: { "@id": `${SITE_URL}/#organization` },
+        },
+      },
+      breadcrumbJsonLd([
+        { name: "Home", path: "/" },
+        { name: "Shop", path: "/shop" },
+        { name: product.name, path: `/shop/${product.slug}` },
+      ]),
+    ],
   };
 
   return (
     <div className="bg-paper min-h-screen">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+      <JsonLd data={jsonLd} />
 
       <div className="mx-auto max-w-7xl px-4 pb-20 pt-[6.75rem] sm:px-8 sm:pb-24 sm:pt-36">
         {/* breadcrumb */}
@@ -137,13 +187,22 @@ export default async function ProductPage({ params }: { params: Params }) {
               )}
             </div>
 
-            <div className="mt-2 flex items-center gap-2 text-[0.8rem] sm:mt-3 sm:gap-3 sm:text-sm">
-              <span className="flex items-center gap-1 text-harvest-500" aria-label={`${product.rating} out of 5`}>
-                {"★★★★★".slice(0, Math.round(product.rating))}
-                <span className="font-semibold text-husk">{product.rating}</span>
-              </span>
-              <span className="text-husk-soft">· {product.reviewsCount} reviews</span>
-            </div>
+            {publishedReviewCount > 0 && (
+              <div className="mt-2 flex items-center gap-2 text-[0.8rem] sm:mt-3 sm:gap-3 sm:text-sm">
+                <span
+                  className="flex items-center gap-1 text-harvest-500"
+                  aria-label={`${publishedRating.toFixed(1)} out of 5`}
+                >
+                  {"★★★★★".slice(0, Math.round(publishedRating))}
+                  <span className="font-semibold text-husk">
+                    {publishedRating.toFixed(1)}
+                  </span>
+                </span>
+                <span className="text-husk-soft">
+                  · {publishedReviewCount} {publishedReviewCount === 1 ? "review" : "reviews"}
+                </span>
+              </div>
+            )}
 
             {product.description && (
               <p className="mt-4 text-[0.9rem] leading-relaxed text-husk-soft sm:mt-6 sm:text-[1.02rem]">

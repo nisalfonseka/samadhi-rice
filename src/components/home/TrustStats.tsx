@@ -4,11 +4,12 @@ import { useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
-import { STATS } from "@/lib/data";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
-export default function TrustStats() {
+export type TrustStat = { value: number; suffix?: string; label: string };
+
+export default function TrustStats({ stats }: { stats: TrustStat[] }) {
   const section = useRef<HTMLElement>(null);
 
   useGSAP(
@@ -64,15 +65,15 @@ export default function TrustStats() {
             <span className="h-px w-8 bg-harvest-400/60" />
           </p>
           <h2 className="font-display text-[clamp(1.7rem,4.5vw,3.4rem)] font-medium text-rice-50">
-            Since 2000
+            The current range at a glance
           </h2>
           <p className="mt-2.5 text-sm leading-relaxed text-rice-100/75 sm:mt-5 sm:text-[1.02rem]">
-            Our customers know that every bag of Samadhi Rice is made with care, and that our quality is consistent.
+            Live catalogue and location details from SamadhiRice.lk.
           </p>
         </div>
 
         <div className="mt-8 grid grid-cols-2 gap-x-4 gap-y-6 sm:mt-16 sm:gap-x-6 sm:gap-y-12 lg:grid-cols-4">
-          {STATS.map((s) => (
+          {stats.map((s) => (
             <div key={s.label} className="border-l border-rice-50/15 pl-3 sm:pl-5">
               <p className="font-display text-[clamp(1.8rem,5vw,4rem)] leading-none text-harvest-300">
                 <span data-count={s.value}>0</span>

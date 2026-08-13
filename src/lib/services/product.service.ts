@@ -39,12 +39,21 @@ export type ProductDTO = {
 };
 
 type ProductWithCategory = Prisma.ProductGetPayload<{
-  include: { category: true };
+  include: {
+    category: true;
+    reviews: { select: { rating: true } };
+  };
 }>;
 
 const DEFAULT_GRAIN = { light: "#f3ead4", mid: "#e3d2a6", dark: "#c7ad70" };
 
 export function toProductDTO(p: ProductWithCategory): ProductDTO {
+  const approvedReviewCount = p.reviews.length;
+  const approvedRating = approvedReviewCount
+    ? p.reviews.reduce((sum, review) => sum + review.rating, 0) /
+      approvedReviewCount
+    : 0;
+
   return {
     slug: p.slug,
     name: p.name,
@@ -53,8 +62,8 @@ export function toProductDTO(p: ProductWithCategory): ProductDTO {
     note: p.note,
     origin: p.origin,
     badge: p.badge,
-    rating: p.rating,
-    reviewsCount: p.reviewsCount,
+    rating: Number(approvedRating.toFixed(1)),
+    reviewsCount: approvedReviewCount,
     pricePerKg: p.pricePerKg,
     stockKg: p.stockKg,
     weights: p.weights.length ? p.weights : [1, 5, 10, 25],
@@ -107,7 +116,10 @@ export const getProducts = unstable_cache(
     const products = await prisma.product.findMany({
       where,
       orderBy: ORDER_BY[filters.sort ?? "featured"],
-      include: { category: true },
+      include: {
+        category: true,
+        reviews: { where: { approved: true }, select: { rating: true } },
+      },
     });
 
     return products.map(toProductDTO);
@@ -122,7 +134,10 @@ export const getFeaturedProducts = unstable_cache(
       where: { featured: true },
       orderBy: { reviewsCount: "desc" },
       take: limit,
-      include: { category: true },
+      include: {
+        category: true,
+        reviews: { where: { approved: true }, select: { rating: true } },
+      },
     });
     return products.map(toProductDTO);
   },
@@ -138,7 +153,10 @@ export const getHotDealProducts = unstable_cache(
       },
       orderBy: [{ discountPercent: "desc" }, { reviewsCount: "desc" }],
       take: limit,
-      include: { category: true },
+      include: {
+        category: true,
+        reviews: { where: { approved: true }, select: { rating: true } },
+      },
     });
     return products.map(toProductDTO);
   },
@@ -170,7 +188,10 @@ export const getRelatedProducts = unstable_cache(
       where: { slug: { not: slug }, ...(categoryId ? { categoryId } : {}) },
       orderBy: [{ featured: "desc" }, { reviewsCount: "desc" }],
       take: limit,
-      include: { category: true },
+      include: {
+        category: true,
+        reviews: { where: { approved: true }, select: { rating: true } },
+      },
     });
 
     // If we have fewer items than the limit, backfill with products from other categories
@@ -185,7 +206,10 @@ export const getRelatedProducts = unstable_cache(
         },
         orderBy: [{ featured: "desc" }, { reviewsCount: "desc" }],
         take: needed,
-        include: { category: true },
+        include: {
+          category: true,
+          reviews: { where: { approved: true }, select: { rating: true } },
+        },
       });
 
       products = [...products, ...backfill];

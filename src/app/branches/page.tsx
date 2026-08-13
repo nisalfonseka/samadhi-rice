@@ -3,10 +3,21 @@ import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { getSettings } from "@/lib/services/settings.service";
 import BranchCarousel from "@/components/branches/BranchCarousel";
+import JsonLd from "@/components/seo/JsonLd";
+import { absoluteUrl, breadcrumbJsonLd, SITE_NAME, SITE_URL } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "Our Branches",
-  description: "Visit any SamadhiRice.lk branch — fresh-milled heritage rice, always in stock.",
+  description:
+    "Find SamadhiRice.lk branch addresses, phone numbers, opening hours and map links in Sri Lanka.",
+  alternates: { canonical: "/branches" },
+  openGraph: {
+    title: "Samadhi Rice branches in Sri Lanka",
+    description:
+      "Find Samadhi Rice branch addresses, contact details, opening hours and map links.",
+    url: "/branches",
+    images: ["/opengraph-image"],
+  },
 };
 
 export const revalidate = 300;
@@ -43,8 +54,39 @@ export default async function BranchesPage() {
     getSettings(),
   ]);
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      ...branches.map((branch) => ({
+        "@type": "Store",
+        "@id": `${absoluteUrl("/branches")}#${branch.id}`,
+        name: branch.name,
+        url: absoluteUrl("/branches"),
+        description: branch.description || undefined,
+        image: branch.images.length ? branch.images : undefined,
+        telephone: branch.phone || undefined,
+        address: {
+          "@type": "PostalAddress",
+          streetAddress: branch.address,
+          addressLocality: branch.city,
+          addressCountry: "LK",
+        },
+        hasMap: branch.mapsUrl || undefined,
+        parentOrganization: {
+          "@id": `${SITE_URL}/#organization`,
+          name: SITE_NAME,
+        },
+      })),
+      breadcrumbJsonLd([
+        { name: "Home", path: "/" },
+        { name: "Branches", path: "/branches" },
+      ]),
+    ],
+  };
+
   return (
     <main className="relative z-10 min-h-screen bg-rice-50">
+      <JsonLd data={jsonLd} />
 
       {/* ── hero ── */}
       <section className="relative mt-[10px] flex min-h-[48vh] items-end overflow-hidden bg-paddy-950 pb-16 pt-32">

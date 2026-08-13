@@ -5,12 +5,37 @@ import { getPublishedPosts, excerptFrom, readingTimeMin } from "@/lib/services/b
 
 export const revalidate = 300;
 
-export const metadata: Metadata = {
-  title: "Stories from the paddy field",
-  description:
-    "Recipes, rice variety guides, cooking tips and stories from family paddy fields across Sri Lanka.",
-  alternates: { canonical: "/blog" },
-};
+const BLOG_DESCRIPTION =
+  "Recipes, rice variety guides, cooking tips and stories from family paddy fields across Sri Lanka.";
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string; q?: string }>;
+}): Promise<Metadata> {
+  const sp = await searchParams;
+  const page = Math.max(1, Number(sp.page) || 1);
+  const isSearch = Boolean(sp.q?.trim());
+
+  return {
+    title:
+      page > 1
+        ? `Stories from the paddy field — page ${page}`
+        : "Stories from the paddy field",
+    description: BLOG_DESCRIPTION,
+    alternates: {
+      canonical: page > 1 && !isSearch ? `/blog?page=${page}` : "/blog",
+    },
+    robots: isSearch ? { index: false, follow: true } : undefined,
+    openGraph: {
+      type: "website",
+      title: "Sri Lankan rice recipes, guides and stories",
+      description: BLOG_DESCRIPTION,
+      url: page > 1 && !isSearch ? `/blog?page=${page}` : "/blog",
+      images: ["/opengraph-image"],
+    },
+  };
+}
 
 export default async function BlogIndexPage({
   searchParams,

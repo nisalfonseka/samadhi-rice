@@ -19,7 +19,7 @@ const COLS = [
     links: [
       { label: "Our Journey", href: "/about" },
       { label: "Recipes & Blog", href: "/blog" },
-      { label: "Wholesale & HoReCa", href: "/wholesale" },
+      { label: "Our Branches", href: "/branches" },
       { label: "Contact", href: "/contact" },
     ],
   },
@@ -27,9 +27,10 @@ const COLS = [
     title: "Help",
     links: [
       { label: "Delivery & areas", href: "/delivery" },
+      { label: "Rice Finder", href: "/rice-finder" },
+      { label: "Browse all rice", href: "/shop" },
       { label: "Track your order", href: "/account" },
-      { label: "FAQ", href: "/faq" },
-      { label: "Returns", href: "/returns" },
+      { label: "Contact support", href: "/contact" },
     ],
   },
 ];
@@ -62,7 +63,9 @@ function SocialIcon({ label, href, path }: { label: string; href: string; path: 
 export default async function Footer() {
   const [s, branches] = await Promise.all([
     getSettings(),
-    prisma.branch.findMany({ orderBy: { position: "asc" } }),
+    prisma.branch
+      .findMany({ orderBy: { position: "asc" } })
+      .catch(() => []),
   ]);
 
   const socials = [
@@ -77,14 +80,6 @@ export default async function Footer() {
     },
   ].filter(Boolean) as { label: string; href: string; path: string }[];
 
-  // Fallback to defaults if none are set yet
-  const displaySocials = socials.length > 0 ? socials : [
-    { label: "Facebook", href: "#", path: SOCIAL_PATHS.facebook },
-    { label: "Instagram", href: "#", path: SOCIAL_PATHS.instagram },
-    { label: "WhatsApp", href: `https://wa.me/${s.contactWhatsapp || "94770000000"}`, path: SOCIAL_PATHS.whatsapp },
-    { label: "YouTube", href: "#", path: SOCIAL_PATHS.youtube },
-  ];
-
   return (
     <footer className="bg-field relative z-10 overflow-hidden text-rice-100">
 
@@ -97,7 +92,7 @@ export default async function Footer() {
               {s.siteTagline || "Single-origin Sri Lankan rice, milled fresh from family paddy fields and carried to your kitchen."}
             </p>
             <div className="mt-4 flex flex-wrap gap-2 sm:mt-6 sm:gap-3">
-              {displaySocials.map((soc) => (
+              {socials.map((soc) => (
                 <SocialIcon key={soc.label} label={soc.label} href={soc.href} path={soc.path} />
               ))}
             </div>
@@ -204,9 +199,13 @@ export default async function Footer() {
         <div className="mt-6 flex flex-col items-start justify-between gap-3 border-t border-rice-50/10 pt-4 text-[0.68rem] text-rice-100/55 sm:mt-10 sm:flex-row sm:items-center sm:gap-4 sm:pt-7 sm:text-[0.82rem]">
           <p>© {new Date().getFullYear()} SamadhiRice.lk · Milled in Sri Lanka 🇱🇰</p>
           <div className="flex flex-wrap items-center gap-2 sm:gap-4">
-            <span className="rounded-md border border-rice-50/15 px-1.5 py-0.5 sm:px-2 sm:py-1">PayHere</span>
-            <span className="rounded-md border border-rice-50/15 px-1.5 py-0.5 sm:px-2 sm:py-1">Visa</span>
-            <span className="rounded-md border border-rice-50/15 px-1.5 py-0.5 sm:px-2 sm:py-1">Mastercard</span>
+            {s.payhereEnabled && (
+              <>
+                <span className="rounded-md border border-rice-50/15 px-1.5 py-0.5 sm:px-2 sm:py-1">PayHere</span>
+                <span className="rounded-md border border-rice-50/15 px-1.5 py-0.5 sm:px-2 sm:py-1">Visa</span>
+                <span className="rounded-md border border-rice-50/15 px-1.5 py-0.5 sm:px-2 sm:py-1">Mastercard</span>
+              </>
+            )}
             <span className="rounded-md border border-rice-50/15 px-1.5 py-0.5 sm:px-2 sm:py-1">Cash on Delivery</span>
           </div>
         </div>
