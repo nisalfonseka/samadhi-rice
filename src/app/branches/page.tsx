@@ -4,7 +4,7 @@ import { prisma } from "@/lib/db";
 import { getSettings } from "@/lib/services/settings.service";
 import BranchCarousel from "@/components/branches/BranchCarousel";
 import JsonLd from "@/components/seo/JsonLd";
-import { absoluteUrl, breadcrumbJsonLd, SITE_NAME, SITE_URL } from "@/lib/seo";
+import { absoluteUrl, breadcrumbJsonLd, DEFAULT_OG_IMAGE, SITE_NAME, SITE_URL } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "Our Branches",
@@ -12,11 +12,14 @@ export const metadata: Metadata = {
     "Find SamadhiRice.lk branch addresses, phone numbers, opening hours and map links in Sri Lanka.",
   alternates: { canonical: "/branches" },
   openGraph: {
+    type: "website",
     title: "Samadhi Rice branches in Sri Lanka",
     description:
       "Find Samadhi Rice branch addresses, contact details, opening hours and map links.",
     url: "/branches",
-    images: ["/opengraph-image"],
+    locale: "en_LK",
+    siteName: SITE_NAME,
+    images: [DEFAULT_OG_IMAGE],
   },
 };
 

@@ -56,7 +56,7 @@ export default function ImageUploader({
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={url}
-              alt="Product"
+              alt="Product image preview"
               className="h-20 w-20 rounded-xl border border-husk/15 object-cover"
             />
             <button

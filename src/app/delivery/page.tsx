@@ -3,7 +3,7 @@ import Link from "next/link";
 import { getSettings } from "@/lib/services/settings.service";
 import { formatLKR } from "@/lib/pricing";
 import JsonLd from "@/components/seo/JsonLd";
-import { absoluteUrl, breadcrumbJsonLd } from "@/lib/seo";
+import { absoluteUrl, breadcrumbJsonLd, DEFAULT_OG_IMAGE, SITE_NAME } from "@/lib/seo";
 
 export const revalidate = 300;
 
@@ -13,11 +13,14 @@ export const metadata: Metadata = {
     "Check SamadhiRice.lk delivery areas, charges, free-delivery threshold and payment options before ordering rice online.",
   alternates: { canonical: "/delivery" },
   openGraph: {
+    type: "website",
     title: "Samadhi Rice delivery information",
     description:
       "Current delivery areas, charges and ordering information for SamadhiRice.lk customers.",
     url: "/delivery",
-    images: ["/opengraph-image"],
+    locale: "en_LK",
+    siteName: SITE_NAME,
+    images: [DEFAULT_OG_IMAGE],
   },
 };
 

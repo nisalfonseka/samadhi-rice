@@ -94,7 +94,7 @@ export default function BranchCarousel({
   if (total === 1) {
     return (
       <div className="h-40 w-full overflow-hidden lg:h-full">
-        <Image src={images[0]} alt={`${name} branch`} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" unoptimized />
+        <Image src={images[0]} alt={`${name} Samadhi Rice branch`} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" unoptimized />
       </div>
     );
   }
@@ -121,7 +121,7 @@ export default function BranchCarousel({
             <div key={i} className="relative h-full w-full shrink-0">
               <Image
                 src={url}
-                alt={`${name} — photo ${i + 1}`}
+                alt={`${name} Samadhi Rice branch, photo ${i + 1}`}
                 fill
                 sizes="(max-width: 768px) 100vw, 50vw"
                 className="object-cover"
@@ -171,7 +171,7 @@ export default function BranchCarousel({
           >
             <Image
               src={images[i]}
-              alt={`Thumbnail ${i + 1}`}
+              alt={`${name} branch thumbnail, photo ${i + 1}`}
               fill
               sizes="80px"
               className="object-cover"

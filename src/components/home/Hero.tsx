@@ -164,17 +164,26 @@ export default function Hero() {
                 src === "/hero-morning.webp" || opacity > 0.001,
             )
             .map(([src, opacity]) => (
-            <Image
-              key={src}
-              src={src}
-              alt=""
-              fill
-              sizes="100vw"
-              className={`object-cover ${fade}`}
-              style={{ opacity }}
-              quality={60}
-              priority={src === "/hero-morning.webp"}
-            />
+              <Image
+                key={src}
+                src={src}
+                alt={
+                  {
+                    "/hero-morning.webp":
+                      "Sri Lankan paddy field in the morning",
+                    "/hero-noon.webp": "Sri Lankan paddy field at midday",
+                    "/hero-evening.webp":
+                      "Sri Lankan paddy field at sunset",
+                    "/hero-night.webp": "Sri Lankan paddy field at night",
+                  }[src]
+                }
+                fill
+                sizes="100vw"
+                className={`object-cover ${fade}`}
+                style={{ opacity }}
+                quality={60}
+                priority={src === "/hero-morning.webp"}
+              />
             ))}
         </div>
       </div>
@@ -276,7 +285,7 @@ export default function Hero() {
           {/* realistic moon */}
           <Image
             src="/moon.png"
-            alt=""
+            alt="Moon over the Sri Lankan paddy field"
             fill
             sizes="128px"
             className="object-contain drop-shadow-[0_0_10px_rgba(200,214,255,0.45)]"
@@ -304,7 +313,7 @@ export default function Hero() {
           {/* realistic sun orb */}
           <Image
             src="/sun.svg"
-            alt=""
+            alt="Sun over the Sri Lankan paddy field"
             width={102}
             height={102}
             className="absolute left-1/2 top-1/2 h-[150%] w-[150%] -translate-x-1/2 -translate-y-1/2"

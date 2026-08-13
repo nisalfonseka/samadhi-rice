@@ -61,7 +61,7 @@ function ImageUploader({
           {value.map((url, i) => (
             <div key={i} className="group relative aspect-[4/3] overflow-hidden rounded-xl bg-husk/10">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={url} alt="" className="h-full w-full object-cover" />
+              <img src={url} alt={`Branch photo preview ${i + 1}`} className="h-full w-full object-cover" />
               <button
                 type="button"
                 onClick={() => onChange(value.filter((_, j) => j !== i))}
@@ -265,7 +265,7 @@ function BranchCard({ branch }: { branch: Branch }) {
           {imgs.map((url, i) => (
             <div key={i} className="relative h-14 w-20 shrink-0 overflow-hidden rounded-lg bg-husk/10">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={url} alt="" className="h-full w-full object-cover" />
+              <img src={url} alt={`${branch.name} branch photo ${i + 1}`} className="h-full w-full object-cover" />
               {i === 0 && (
                 <span className="absolute bottom-0 left-0 right-0 bg-black/40 py-px text-center text-[0.55rem] text-white">
                   Cover

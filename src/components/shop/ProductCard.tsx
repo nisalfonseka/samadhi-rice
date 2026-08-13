@@ -39,12 +39,10 @@ export default function ProductCard({
   const hasDiscount = product.discountPercent > 0 && price < basePrice;
   const soldOut = product.stockKg <= 0;
   const wishlisted = has(product.slug);
+  const productImageAlt = `${product.name}${product.variety ? ` ${product.variety}` : ""} Sri Lankan rice`;
 
   useEffect(() => {
-    if (!isHovered || product.images.length <= 1) {
-      setActiveImageIndex(0);
-      return;
-    }
+    if (!isHovered || product.images.length <= 1) return;
     const interval = setInterval(() => {
       setActiveImageIndex((prev) => (prev + 1) % product.images.length);
     }, 1800);
@@ -75,7 +73,10 @@ export default function ProductCard({
       <Link
         href={`/shop/${product.slug}`}
         onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
+        onMouseLeave={() => {
+          setIsHovered(false);
+          setActiveImageIndex(0);
+        }}
         className="relative block aspect-[5/4] overflow-hidden bg-[radial-gradient(120%_100%_at_50%_0%,var(--color-rice-100),var(--color-rice-200))]"
       >
         {product.badge && (
@@ -104,7 +105,7 @@ export default function ProductCard({
                 key={imgUrl}
                 loader={cloudinaryLoader}
                 src={imgUrl}
-                alt=""
+                alt={`${productImageAlt}${idx > 0 ? `, product view ${idx + 1}` : ""}`}
                 fill
                 sizes="(max-width: 559px) 50vw, (max-width: 1279px) 33vw, 25vw"
                 className={cn(

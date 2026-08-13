@@ -29,9 +29,16 @@ export default function ChatProductCard({ product }: { product: ProductDTO }) {
         href={`/shop/${product.slug}`}
         className="flex min-w-0 flex-1 items-center gap-3"
       >
-        <span className="grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-xl bg-rice-100">
+        <span className="relative grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-xl bg-rice-100">
           {product.images[0] ? (
-            <Image src={product.images[0]} alt="" fill sizes="56px" className="object-cover" unoptimized />
+            <Image
+              src={product.images[0]}
+              alt={`${product.name}${product.variety ? ` ${product.variety}` : ""} Sri Lankan rice`}
+              fill
+              sizes="56px"
+              className="object-cover"
+              unoptimized
+            />
           ) : (
             <RiceBag
               id={`chat-${product.slug}`}

@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import type { Metadata } from "next";
 import { getPublishedPosts, excerptFrom, readingTimeMin } from "@/lib/services/blog.service";
+import { DEFAULT_OG_IMAGE, SITE_NAME } from "@/lib/seo";
 
 export const revalidate = 300;
 
@@ -32,7 +33,9 @@ export async function generateMetadata({
       title: "Sri Lankan rice recipes, guides and stories",
       description: BLOG_DESCRIPTION,
       url: page > 1 && !isSearch ? `/blog?page=${page}` : "/blog",
-      images: ["/opengraph-image"],
+      locale: "en_LK",
+      siteName: SITE_NAME,
+      images: [DEFAULT_OG_IMAGE],
     },
   };
 }

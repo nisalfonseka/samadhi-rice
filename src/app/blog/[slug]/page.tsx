@@ -8,6 +8,7 @@ import {
   absoluteUrl,
   breadcrumbJsonLd,
   cleanPageTitle,
+  DEFAULT_OG_IMAGE,
   SITE_NAME,
   SITE_URL,
 } from "@/lib/seo";
@@ -26,6 +27,9 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   }
   const description = post.metaDescription ?? post.excerpt ?? excerptFrom(post.content);
   const title = cleanPageTitle(post.metaTitle ?? post.title);
+  const socialImages = post.coverImage
+    ? [{ url: post.coverImage, alt: post.title }]
+    : [DEFAULT_OG_IMAGE];
   return {
     title,
     description,
@@ -34,7 +38,9 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
       type: "article",
       title,
       description: description ?? undefined,
-      images: post.coverImage ? [post.coverImage] : ["/opengraph-image"],
+      images: socialImages,
+      locale: "en_LK",
+      siteName: SITE_NAME,
       publishedTime: post.publishedAt
         ? new Date(post.publishedAt).toISOString()
         : undefined,
@@ -45,7 +51,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
       card: post.coverImage ? "summary_large_image" : "summary",
       title,
       description: description ?? undefined,
-      images: post.coverImage ? [post.coverImage] : ["/opengraph-image"],
+      images: socialImages,
     },
   };
 }

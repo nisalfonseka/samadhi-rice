@@ -143,8 +143,10 @@ export default function RiceFinderChat({
     saveActiveId(activeId);
   }, [activeId]);
 
-  const active = conversations.find((c) => c.id === activeId) ?? null;
-  const messages = active?.messages ?? [];
+  const messages = useMemo(
+    () => conversations.find((c) => c.id === activeId)?.messages ?? [],
+    [activeId, conversations],
+  );
   const isEmpty = messages.length === 0;
 
   /* ─── Product slugs referenced in current conversation ───────────────── */
@@ -773,9 +775,16 @@ function ProductDetailCard({ product }: { product: ProductDTO }) {
   return (
     <article className="overflow-hidden rounded-xl border border-husk/10 bg-white transition-shadow duration-200 hover:shadow-sm">
       <Link href={`/shop/${product.slug}`} className="block">
-        <div className="grid h-32 place-items-center bg-rice-100">
+        <div className="relative grid h-32 place-items-center bg-rice-100">
           {product.images[0] ? (
-            <Image src={product.images[0]} alt="" fill sizes="128px" className="object-cover transition-transform duration-500 hover:scale-105" unoptimized />
+            <Image
+              src={product.images[0]}
+              alt={`${product.name}${product.variety ? ` ${product.variety}` : ""} Sri Lankan rice`}
+              fill
+              sizes="128px"
+              className="object-cover transition-transform duration-500 hover:scale-105"
+              unoptimized
+            />
           ) : (
             <RiceBag
               id={`rfright-${product.slug}`}
@@ -1031,10 +1040,17 @@ function InlineProductCard({ product }: { product: ProductDTO }) {
     <div className="flex items-center gap-2.5 rounded-xl border border-husk/10 bg-white p-2.5 transition-shadow duration-200 hover:shadow-sm">
       <Link
         href={`/shop/${product.slug}`}
-        className="grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-lg bg-rice-100"
+        className="relative grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-lg bg-rice-100"
       >
         {product.images[0] ? (
-          <Image src={product.images[0]} alt="" fill sizes="48px" className="object-cover" unoptimized />
+          <Image
+            src={product.images[0]}
+            alt={`${product.name}${product.variety ? ` ${product.variety}` : ""} Sri Lankan rice`}
+            fill
+            sizes="48px"
+            className="object-cover"
+            unoptimized
+          />
         ) : (
           <RiceBag
             id={`rfinline-${product.slug}`}

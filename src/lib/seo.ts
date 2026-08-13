@@ -6,6 +6,13 @@ export const SITE_NAME = "SamadhiRice.lk";
 export const DEFAULT_DESCRIPTION =
   "Shop Sri Lankan rice including Suwandel, Kalu Heenati, red raw rice and Keeri Samba, with current prices, pack sizes and delivery information.";
 
+export const DEFAULT_OG_IMAGE = {
+  url: "/opengraph-image",
+  width: 1200,
+  height: 630,
+  alt: "SamadhiRice.lk heritage and everyday Sri Lankan rice",
+};
+
 export function absoluteUrl(path = "/") {
   return new URL(path, `${SITE_URL}/`).toString();
 }

@@ -15,7 +15,12 @@ import { getAssistantConfig } from "@/lib/services/assistant.service";
 import { getProducts } from "@/lib/services/product.service";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import NextTopLoader from "nextjs-toploader";
-import { DEFAULT_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/seo";
+import {
+  DEFAULT_DESCRIPTION,
+  DEFAULT_OG_IMAGE,
+  SITE_NAME,
+  SITE_URL,
+} from "@/lib/seo";
 
 const fraunces = Fraunces({
   variable: "--font-fraunces",
@@ -63,13 +68,14 @@ export const metadata: Metadata = {
     title: "SamadhiRice.lk — Heritage Sri Lankan Rice, Paddy Field to Plate",
     description:
       "Browse Sri Lankan rice varieties with current prices, pack sizes and delivery information.",
+    images: [DEFAULT_OG_IMAGE],
   },
   twitter: {
     card: "summary_large_image",
     title: "SamadhiRice.lk — Heritage Sri Lankan Rice",
     description:
       "Browse Sri Lankan rice varieties with current prices, pack sizes and delivery information.",
-    images: ["/opengraph-image"],
+    images: [DEFAULT_OG_IMAGE],
   },
   robots: {
     index: true,

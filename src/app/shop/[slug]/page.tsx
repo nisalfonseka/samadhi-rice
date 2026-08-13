@@ -15,6 +15,7 @@ import {
   absoluteUrl,
   breadcrumbJsonLd,
   cleanPageTitle,
+  DEFAULT_OG_IMAGE,
   SITE_NAME,
   SITE_URL,
 } from "@/lib/seo";
@@ -39,6 +40,12 @@ export async function generateMetadata({
     product.metaDescription ??
     product.note ??
     `Shop ${product.name} from SamadhiRice.lk, with delivery across Sri Lanka.`;
+  const socialImages = product.images.length
+    ? product.images.map((url, index) => ({
+        url,
+        alt: `${product.name}${product.variety ? ` ${product.variety}` : ""} Sri Lankan rice${index > 0 ? `, product view ${index + 1}` : ""}`,
+      }))
+    : [DEFAULT_OG_IMAGE];
   return {
     title,
     description,
@@ -48,13 +55,15 @@ export async function generateMetadata({
       description,
       type: "website",
       url: `/shop/${slug}`,
-      images: product.images.length ? product.images : ["/opengraph-image"],
+      locale: "en_LK",
+      siteName: SITE_NAME,
+      images: socialImages,
     },
     twitter: {
       card: product.images.length ? "summary_large_image" : "summary",
       title,
       description,
-      images: product.images.length ? product.images : ["/opengraph-image"],
+      images: socialImages,
     },
   };
 }

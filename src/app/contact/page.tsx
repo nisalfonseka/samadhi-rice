@@ -4,7 +4,7 @@ import { getSettings } from "@/lib/services/settings.service";
 import { prisma } from "@/lib/db";
 import ContactForm from "./ContactForm";
 import JsonLd from "@/components/seo/JsonLd";
-import { absoluteUrl, breadcrumbJsonLd, SITE_NAME, SITE_URL } from "@/lib/seo";
+import { absoluteUrl, breadcrumbJsonLd, DEFAULT_OG_IMAGE, SITE_NAME, SITE_URL } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "Contact Us",
@@ -12,11 +12,14 @@ export const metadata: Metadata = {
     "Reach SamadhiRice.lk by phone, WhatsApp, or email. Visit a branch or send us a message.",
   alternates: { canonical: "/contact" },
   openGraph: {
+    type: "website",
     title: "Contact Samadhi Rice",
     description:
       "Call, message or email SamadhiRice.lk, or find the nearest branch in Sri Lanka.",
     url: "/contact",
-    images: ["/opengraph-image"],
+    locale: "en_LK",
+    siteName: SITE_NAME,
+    images: [DEFAULT_OG_IMAGE],
   },
 };
 

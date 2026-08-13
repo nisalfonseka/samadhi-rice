@@ -93,7 +93,7 @@ export default function ProductGallery({
                 <img
                   key={imgUrl}
                   src={optimizedUrl}
-                  alt={`${name} - image ${idx + 1}`}
+                  alt={`${name}${sinhala ? ` (${sinhala})` : ""} Sri Lankan rice${idx > 0 ? `, product view ${idx + 1}` : ""}`}
                   className={cn(
                     "absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ease-in-out",
                     idx === activeIndex ? "opacity-100 z-10" : "opacity-0 pointer-events-none z-0"
@@ -138,7 +138,7 @@ export default function ProductGallery({
                 type="button"
                 onClick={() => setActiveIndex(idx)}
                 onMouseEnter={() => setActiveIndex(idx)}
-                aria-label={`View image ${idx + 1}`}
+                aria-label={`View ${name} product photo ${idx + 1}`}
                 className={cn(
                   "relative h-12 w-12 shrink-0 overflow-hidden rounded-xl border-2 bg-rice-100 transition-all duration-300 hover:scale-105 sm:h-16 sm:w-16 sm:rounded-2xl",
                   idx === activeIndex
@@ -149,7 +149,7 @@ export default function ProductGallery({
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={thumbUrl}
-                  alt={`${name} thumbnail ${idx + 1}`}
+                  alt={`${name} Sri Lankan rice thumbnail, product view ${idx + 1}`}
                   className="h-full w-full object-cover"
                   loading="lazy"
                 />

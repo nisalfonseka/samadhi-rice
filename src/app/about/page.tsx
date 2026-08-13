@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { DEFAULT_OG_IMAGE, SITE_NAME } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "About Samadhi Rice",
@@ -7,11 +8,14 @@ export const metadata: Metadata = {
     "Learn how SamadhiRice.lk helps Sri Lankan households choose heritage and everyday rice varieties with clear origin, cooking and delivery information.",
   alternates: { canonical: "/about" },
   openGraph: {
+    type: "website",
     title: "About Samadhi Rice",
     description:
       "Heritage and everyday Sri Lankan rice, practical variety guidance and island-wide ordering.",
     url: "/about",
-    images: ["/opengraph-image"],
+    locale: "en_LK",
+    siteName: SITE_NAME,
+    images: [DEFAULT_OG_IMAGE],
   },
 };
 

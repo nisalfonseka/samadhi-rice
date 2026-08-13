@@ -9,6 +9,7 @@ import {
   type ProductDTO,
   type ProductSort,
 } from "@/lib/services/product.service";
+import { DEFAULT_OG_IMAGE, SITE_NAME } from "@/lib/seo";
 
 export const revalidate = 60;
 
@@ -33,7 +34,9 @@ export async function generateMetadata({
       title: "Buy Sri Lankan rice online",
       description: SHOP_DESCRIPTION,
       url: "/shop",
-      images: ["/opengraph-image"],
+      locale: "en_LK",
+      siteName: SITE_NAME,
+      images: [DEFAULT_OG_IMAGE],
     },
   };
 }
