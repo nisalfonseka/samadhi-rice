@@ -9,7 +9,7 @@ import {
   type ProductDTO,
   type ProductSort,
 } from "@/lib/services/product.service";
-import { DEFAULT_OG_IMAGE, SITE_NAME } from "@/lib/seo";
+import { DEFAULT_OG_IMAGE, SHOP_TITLE, SITE_NAME } from "@/lib/seo";
 
 export const revalidate = 60;
 
@@ -25,13 +25,13 @@ export async function generateMetadata({
   const isSearch = Boolean(sp.q?.trim());
 
   return {
-    title: "Shop heritage Sri Lankan rice",
+    title: SHOP_TITLE,
     description: SHOP_DESCRIPTION,
     alternates: { canonical: "/shop" },
     robots: isSearch ? { index: false, follow: true } : undefined,
     openGraph: {
       type: "website",
-      title: "Buy Sri Lankan rice online",
+      title: SHOP_TITLE,
       description: SHOP_DESCRIPTION,
       url: "/shop",
       locale: "en_LK",

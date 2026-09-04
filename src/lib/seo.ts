@@ -3,6 +3,9 @@
 export const SITE_URL = "https://www.samadhirice.lk";
 
 export const SITE_NAME = "SamadhiRice.lk";
+export const HOME_TITLE =
+  "SamadhiRice.lk - (දේශීය සහල්) Heritage Sri Lankan Rice";
+export const SHOP_TITLE = "Shop Heritage Sri Lankan Rice (දේශීය සහල්)";
 export const DEFAULT_DESCRIPTION =
   "Shop Sri Lankan rice including Suwandel, Kalu Heenati, red raw rice and Keeri Samba, with current prices, pack sizes and delivery information.";
 

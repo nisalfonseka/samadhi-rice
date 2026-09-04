@@ -18,6 +18,7 @@ import NextTopLoader from "nextjs-toploader";
 import {
   DEFAULT_DESCRIPTION,
   DEFAULT_OG_IMAGE,
+  HOME_TITLE,
   SITE_NAME,
   SITE_URL,
 } from "@/lib/seo";
@@ -46,7 +47,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   applicationName: SITE_NAME,
   title: {
-    default: "SamadhiRice.lk — Heritage Sri Lankan Rice, Paddy Field to Plate",
+    default: HOME_TITLE,
     template: "%s · SamadhiRice.lk",
   },
   description: DEFAULT_DESCRIPTION,
@@ -65,14 +66,14 @@ export const metadata: Metadata = {
     locale: "en_LK",
     url: SITE_URL,
     siteName: SITE_NAME,
-    title: "SamadhiRice.lk — Heritage Sri Lankan Rice, Paddy Field to Plate",
+    title: HOME_TITLE,
     description:
       "Browse Sri Lankan rice varieties with current prices, pack sizes and delivery information.",
     images: [DEFAULT_OG_IMAGE],
   },
   twitter: {
     card: "summary_large_image",
-    title: "SamadhiRice.lk — Heritage Sri Lankan Rice",
+    title: HOME_TITLE,
     description:
       "Browse Sri Lankan rice varieties with current prices, pack sizes and delivery information.",
     images: [DEFAULT_OG_IMAGE],
