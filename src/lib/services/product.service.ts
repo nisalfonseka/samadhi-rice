@@ -89,32 +89,36 @@ const ORDER_BY: Record<ProductSort, Prisma.ProductOrderByWithRelationInput[]> = 
   newest: [{ createdAt: "desc" }],
 };
 
+function buildProductWhere(filters: ProductFilters): Prisma.ProductWhereInput {
+  const where: Prisma.ProductWhereInput = {};
+
+  if (filters.category) where.category = { slug: filters.category };
+
+  if (filters.q) {
+    const q = filters.q.trim();
+    where.OR = [
+      { name: { contains: q, mode: "insensitive" } },
+      { variety: { contains: q, mode: "insensitive" } },
+      { note: { contains: q, mode: "insensitive" } },
+      { description: { contains: q, mode: "insensitive" } },
+      { sinhala: { contains: q } },
+    ];
+  }
+
+  if (filters.minPrice != null || filters.maxPrice != null) {
+    where.pricePerKg = {
+      gte: filters.minPrice ?? undefined,
+      lte: filters.maxPrice ?? undefined,
+    };
+  }
+
+  return where;
+}
+
 export const getProducts = unstable_cache(
   async (filters: ProductFilters = {}): Promise<ProductDTO[]> => {
-    const where: Prisma.ProductWhereInput = {};
-
-    if (filters.category) where.category = { slug: filters.category };
-
-    if (filters.q) {
-      const q = filters.q.trim();
-      where.OR = [
-        { name: { contains: q, mode: "insensitive" } },
-        { variety: { contains: q, mode: "insensitive" } },
-        { note: { contains: q, mode: "insensitive" } },
-        { description: { contains: q, mode: "insensitive" } },
-        { sinhala: { contains: q } },
-      ];
-    }
-
-    if (filters.minPrice != null || filters.maxPrice != null) {
-      where.pricePerKg = {
-        gte: filters.minPrice ?? undefined,
-        lte: filters.maxPrice ?? undefined,
-      };
-    }
-
     const products = await prisma.product.findMany({
-      where,
+      where: buildProductWhere(filters),
       orderBy: ORDER_BY[filters.sort ?? "featured"],
       include: {
         category: true,
@@ -125,6 +129,41 @@ export const getProducts = unstable_cache(
     return products.map(toProductDTO);
   },
   ["products"],
+  { revalidate: 300, tags: ["products"] },
+);
+
+export const PRODUCTS_PER_PAGE = 24;
+
+/** Paginated variant for the /shop grid — same filters, DB-level skip/take. */
+export const getProductsPage = unstable_cache(
+  async (
+    filters: ProductFilters & { page?: number } = {},
+  ): Promise<{ products: ProductDTO[]; total: number; pages: number; page: number }> => {
+    const page = Math.max(1, Math.floor(filters.page ?? 1));
+    const where = buildProductWhere(filters);
+
+    const [total, products] = await Promise.all([
+      prisma.product.count({ where }),
+      prisma.product.findMany({
+        where,
+        orderBy: ORDER_BY[filters.sort ?? "featured"],
+        skip: (page - 1) * PRODUCTS_PER_PAGE,
+        take: PRODUCTS_PER_PAGE,
+        include: {
+          category: true,
+          reviews: { where: { approved: true }, select: { rating: true } },
+        },
+      }),
+    ]);
+
+    return {
+      products: products.map(toProductDTO),
+      total,
+      pages: Math.max(1, Math.ceil(total / PRODUCTS_PER_PAGE)),
+      page,
+    };
+  },
+  ["products-page"],
   { revalidate: 300, tags: ["products"] },
 );
 

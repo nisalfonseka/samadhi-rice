@@ -1,10 +1,21 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import ChatAssistant from "@/components/chat/ChatAssistant";
+import dynamic from "next/dynamic";
 import type { ProductDTO } from "@/lib/services/product.service";
 import { cn } from "@/lib/utils";
 import { VscSearchSparkle } from "react-icons/vsc";
+
+// most visitors never open the assistant — keep its bundle out of every
+// page's initial load and fetch it only when the panel is opened
+const ChatAssistant = dynamic(() => import("@/components/chat/ChatAssistant"), {
+  ssr: false,
+  loading: () => (
+    <div className="flex h-[min(32rem,70vh)] items-center justify-center">
+      <span className="h-6 w-6 animate-spin rounded-full border-2 border-paddy-800/25 border-t-paddy-800" />
+    </div>
+  ),
+});
 
 export default function FloatingActions({
   whatsapp,

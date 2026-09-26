@@ -13,25 +13,20 @@ import {
   type AssistantProvider,
 } from "@/lib/services/assistant.service";
 import { sendStatusUpdate } from "@/lib/services/email.service";
-import { sendSMS } from "@/lib/services/sms.service";
+import { notifyOrderStatusSms, sendSMS, smsKey } from "@/lib/services/sms.service";
+import { SMS_EVENTS, isValidSenderId, normalizeLkMobile, type SmsEvent } from "@/lib/sms";
 import { ORDER_STATUSES, type OrderStatusValue } from "@/lib/services/admin.service";
 
 function slugify(s: string) {
   return s.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 }
 
-// ... skipped products code, handled by patch ...
-const STATUS_SMS_COPY: Record<string, string> = {
-  CONFIRMED: "Your SamadhiRice order {orderNo} is confirmed and heading to the mill.",
-  PROCESSING: "Your SamadhiRice order {orderNo} is being milled fresh and packed.",
-  SHIPPED: "Your SamadhiRice order {orderNo} is out for delivery — we'll call before we arrive.",
-  DELIVERED: "Your SamadhiRice order {orderNo} has been delivered. Enjoy! 🌾",
-  CANCELLED: "Your SamadhiRice order {orderNo} has been cancelled.",
-};
-
 export async function setOrderStatus(orderId: string, status: string) {
   const session = await assertAdmin();
   if (!ORDER_STATUSES.includes(status as OrderStatusValue)) throw new Error("Invalid status");
+
+  const before = await prisma.order.findUnique({ where: { id: orderId }, select: { status: true } });
+  if (!before) throw new Error("Order not found");
 
   const order = await prisma.order.update({
     where: { id: orderId },
@@ -39,20 +34,21 @@ export async function setOrderStatus(orderId: string, status: string) {
     include: { items: true },
   });
 
-  await sendStatusUpdate({
-    orderNo: order.orderNo,
-    email: order.email,
-    customerName: order.customerName,
-    total: order.total,
-    subtotal: order.subtotal,
-    deliveryFee: order.deliveryFee,
-    status: order.status,
-    items: order.items,
-  });
-
-  const smsCopy = STATUS_SMS_COPY[status];
-  if (smsCopy && order.phone) {
-    await sendSMS(order.phone, smsCopy.replace("{orderNo}", order.orderNo));
+  // re-selecting the current status must not re-notify the customer
+  if (before.status !== order.status) {
+    await Promise.all([
+      sendStatusUpdate({
+        orderNo: order.orderNo,
+        email: order.email,
+        customerName: order.customerName,
+        total: order.total,
+        subtotal: order.subtotal,
+        deliveryFee: order.deliveryFee,
+        status: order.status,
+        items: order.items,
+      }),
+      notifyOrderStatusSms(order),
+    ]);
   }
 
   await logActivity(session.user, `Order ${order.orderNo} → ${status.toLowerCase()}`, {
@@ -67,41 +63,41 @@ export async function setOrderStatus(orderId: string, status: string) {
 
 export async function bulkConfirmOrders(orderIds: string[]) {
   const session = await assertAdmin();
-  
+
   const orders = await prisma.order.findMany({
     where: { id: { in: orderIds }, status: "PENDING" },
     include: { items: true }
   });
 
-  for (const order of orders) {
-    await prisma.order.update({
-      where: { id: order.id },
-      data: { status: "CONFIRMED" }
-    });
+  if (orders.length === 0) return;
 
-    order.status = "CONFIRMED";
-    await sendStatusUpdate({
-      orderNo: order.orderNo,
-      email: order.email,
-      customerName: order.customerName,
-      total: order.total,
-      subtotal: order.subtotal,
-      deliveryFee: order.deliveryFee,
-      status: order.status,
-      items: order.items,
-    });
-    
-    if (order.phone) {
-      const smsCopy = STATUS_SMS_COPY["CONFIRMED"];
-      if (smsCopy) {
-        await sendSMS(order.phone, smsCopy.replace("{orderNo}", order.orderNo));
-      }
-    }
+  // one write for every row instead of N sequential updates
+  await prisma.order.updateMany({
+    where: { id: { in: orders.map((o) => o.id) } },
+    data: { status: "CONFIRMED" },
+  });
 
-    await logActivity(session.user, `Order ${order.orderNo} → confirmed (bulk)`, {
-      entity: order.orderNo,
-    });
-  }
+  // per-order notifications are independent I/O — fan them out concurrently
+  await Promise.all(
+    orders.map(async (order) => {
+      await sendStatusUpdate({
+        orderNo: order.orderNo,
+        email: order.email,
+        customerName: order.customerName,
+        total: order.total,
+        subtotal: order.subtotal,
+        deliveryFee: order.deliveryFee,
+        status: "CONFIRMED",
+        items: order.items,
+      });
+
+      await notifyOrderStatusSms({ ...order, status: "CONFIRMED" });
+
+      await logActivity(session.user, `Order ${order.orderNo} → confirmed (bulk)`, {
+        entity: order.orderNo,
+      });
+    }),
+  );
 
   revalidatePath("/admin/orders");
   revalidatePath("/admin");
@@ -534,3 +530,113 @@ export async function deleteBranch(id: string) {
 }
 
 /* Offer mutations live in app/admin/offers/actions.ts */
+
+/* ------------------------------------------------------------------ sms -- */
+
+export type SmsActionResult = { ok: boolean; message: string };
+
+const SMS_MAX_CHARS = 480; // 3 GSM segments — long enough, stops runaway costs
+
+function revalidateSms() {
+  revalidatePath("/admin/sms");
+}
+
+/** Master switch ("enabled") or one event's on/off switch. */
+export async function setSmsSwitch(target: "enabled" | SmsEvent, enabled: boolean) {
+  const session = await assertAdmin();
+  if (target !== "enabled" && !SMS_EVENTS.includes(target)) throw new Error("Invalid SMS event");
+  const key = target === "enabled" ? smsKey.enabled : smsKey.eventEnabled(target);
+  await saveSettings({ [key]: enabled ? "true" : "false" });
+  await logActivity(
+    session.user,
+    `SMS ${target === "enabled" ? "notifications" : target.toLowerCase().replace(/_/g, " ")} ${enabled ? "on" : "off"}`,
+  );
+  revalidateSms();
+}
+
+/** Saves an event's template; an empty template resets it to the default. */
+export async function saveSmsTemplate(event: SmsEvent, template: string): Promise<SmsActionResult> {
+  const session = await assertAdmin();
+  if (!SMS_EVENTS.includes(event)) return { ok: false, message: "Unknown event" };
+  const t = template.trim();
+  if (t.length > SMS_MAX_CHARS) return { ok: false, message: `Keep it under ${SMS_MAX_CHARS} characters` };
+
+  const key = smsKey.eventTemplate(event);
+  if (!t) await prisma.siteSetting.deleteMany({ where: { key } });
+  else await saveSettings({ [key]: t });
+
+  await logActivity(session.user, `SMS template ${t ? "updated" : "reset"}`, { entity: event });
+  revalidateSms();
+  return { ok: true, message: t ? "Template saved" : "Reset to default" };
+}
+
+export async function saveSmsGateway(senderId: string, adminPhone: string): Promise<SmsActionResult> {
+  const session = await assertAdmin();
+  const sender = senderId.trim();
+  const phone = adminPhone.trim();
+  if (!isValidSenderId(sender)) {
+    return { ok: false, message: "Sender ID: up to 11 letters/numbers, or a phone number" };
+  }
+  if (phone && !normalizeLkMobile(phone)) {
+    return { ok: false, message: "Shop phone must be a Sri Lankan mobile (07X…)" };
+  }
+  await saveSettings({ [smsKey.senderId]: sender, [smsKey.adminPhone]: phone });
+  await logActivity(session.user, "SMS gateway settings updated", { entity: sender });
+  revalidateSms();
+  return { ok: true, message: "Saved" };
+}
+
+function resultMessage(r: Awaited<ReturnType<typeof sendSMS>>, okText: string): SmsActionResult {
+  return r.ok ? { ok: true, message: okText } : { ok: false, message: r.error };
+}
+
+export async function sendTestSms(phone: string, message: string): Promise<SmsActionResult> {
+  const session = await assertAdmin();
+  const text = message.trim();
+  if (!text) return { ok: false, message: "Write a message first" };
+  if (text.length > SMS_MAX_CHARS) return { ok: false, message: "Message is too long" };
+  if (!normalizeLkMobile(phone)) return { ok: false, message: "Enter a Sri Lankan mobile number (07X…)" };
+
+  const r = await sendSMS(phone, text, { event: "TEST" });
+  await logActivity(session.user, `Test SMS ${r.ok ? "sent" : "failed"}`, { entity: phone });
+  revalidateSms();
+  return resultMessage(r, "Test SMS sent — check the phone");
+}
+
+/** Re-sends a failed/skipped message exactly as it was logged. */
+export async function retrySms(logId: string): Promise<SmsActionResult> {
+  const session = await assertAdmin();
+  const entry = await prisma.smsLog.findUnique({ where: { id: logId } });
+  if (!entry) return { ok: false, message: "Log entry not found" };
+  if (entry.status === "SENT") return { ok: false, message: "Already delivered" };
+
+  const r = await sendSMS(entry.to, entry.message, {
+    event: entry.event,
+    orderNo: entry.orderNo,
+    logId: entry.id,
+  });
+  await logActivity(session.user, `SMS retry ${r.ok ? "sent" : "failed"}`, { entity: entry.orderNo ?? entry.to });
+  revalidateSms();
+  if (entry.orderNo) revalidatePath("/admin/orders");
+  return resultMessage(r, "Sent");
+}
+
+/** A one-off message to an order's customer, from the order page. */
+export async function sendOrderSms(orderId: string, message: string): Promise<SmsActionResult> {
+  const session = await assertAdmin();
+  const text = message.trim();
+  if (!text) return { ok: false, message: "Write a message first" };
+  if (text.length > SMS_MAX_CHARS) return { ok: false, message: "Message is too long" };
+
+  const order = await prisma.order.findUnique({
+    where: { id: orderId },
+    select: { orderNo: true, phone: true },
+  });
+  if (!order) return { ok: false, message: "Order not found" };
+
+  const r = await sendSMS(order.phone, text, { event: "MANUAL", orderNo: order.orderNo });
+  await logActivity(session.user, `SMS to customer ${r.ok ? "sent" : "failed"}`, { entity: order.orderNo });
+  revalidatePath(`/admin/orders/${orderId}`);
+  revalidateSms();
+  return resultMessage(r, "Message sent");
+}

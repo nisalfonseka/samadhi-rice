@@ -147,6 +147,7 @@ model Order {
 
   @@index([status])
   @@index([userId])
+  @@index([createdAt])
 }
 
 model OrderItem {
@@ -176,6 +177,7 @@ model Review {
   createdAt  DateTime @default(now())
 
   @@index([productId])
+  @@index([approved])
 }
 
 model BlogPost {
@@ -250,6 +252,26 @@ model ActivityLog {
   createdAt DateTime @default(now())
 
   @@index([createdAt])
+}
+
+// One row per SMS attempt (text.lk). Also records skipped sends (bad number,
+// gateway not configured) so the admin can see why a customer got nothing.
+model SmsLog {
+  id          String   @id @default(cuid())
+  to          String
+  message     String
+  event       String // PLACED | CONFIRMED | … | ADMIN_NEW_ORDER | TEST | MANUAL
+  orderNo     String?
+  status      String // SENT | FAILED | SKIPPED
+  providerUid String?
+  cost        Float?
+  segments    Int      @default(1)
+  error       String?
+  createdAt   DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([orderNo])
+  @@index([status])
 }
 
 model Branch {

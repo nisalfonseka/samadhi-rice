@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import ProductCard from "@/components/shop/ProductCard";
 import ShopControls from "@/components/shop/ShopControls";
 import {
-  getProducts,
+  getProductsPage,
   getCategoriesWithCounts,
   type ProductDTO,
   type ProductSort,
@@ -59,6 +59,7 @@ type SearchParams = Promise<{
   q?: string;
   sort?: string;
   price?: string;
+  page?: string;
 }>;
 
 export default async function ShopPage({
@@ -67,22 +68,28 @@ export default async function ShopPage({
   searchParams: SearchParams;
 }) {
   const sp = await searchParams;
+  const page = Math.max(1, Number(sp.page) || 1);
 
   let products: ProductDTO[] = [];
+  let total = 0;
+  let pages = 1;
   let categories: { name: string; slug: string; count: number }[] = [];
   let dbError = false;
 
   try {
-    const [prods, cats] = await Promise.all([
-      getProducts({
+    const [result, cats] = await Promise.all([
+      getProductsPage({
         category: sp.category,
         q: sp.q,
         sort: (sp.sort as ProductSort) || "featured",
+        page,
         ...priceTokenToRange(sp.price),
       }),
       getCategoriesWithCounts(),
     ]);
-    products = prods;
+    products = result.products;
+    total = result.total;
+    pages = result.pages;
     categories = cats.map((c) => ({
       name: c.name,
       slug: c.slug,
@@ -108,7 +115,7 @@ export default async function ShopPage({
 
       <div className="mx-auto max-w-7xl px-4 pb-20 sm:px-8 sm:pb-24">
         <Suspense fallback={<div className="h-28 sm:h-32" />}>
-          <ShopControls categories={categories} total={products.length} />
+          <ShopControls categories={categories} total={total} />
         </Suspense>
 
         {dbError ? (
@@ -122,11 +129,47 @@ export default async function ShopPage({
             body="Try clearing a filter or searching a different variety."
           />
         ) : (
-          <div className="mt-5 grid grid-cols-2 gap-3 min-[560px]:grid-cols-3 sm:mt-12 sm:gap-6 xl:grid-cols-4">
-            {products.map((p) => (
-              <ProductCard key={p.slug} product={p} />
-            ))}
-          </div>
+          <>
+            <div className="mt-5 grid grid-cols-2 gap-3 min-[560px]:grid-cols-3 sm:mt-12 sm:gap-6 xl:grid-cols-4">
+              {products.map((p) => (
+                <ProductCard key={p.slug} product={p} />
+              ))}
+            </div>
+
+            {pages > 1 && (
+              <nav
+                className="mt-10 flex items-center justify-center gap-2 sm:mt-14 sm:gap-3"
+                aria-label="Pagination"
+              >
+                {Array.from({ length: pages }).map((_, i) => {
+                  const n = i + 1;
+                  const isActive = n === page;
+                  const params = new URLSearchParams();
+                  if (sp.category) params.set("category", sp.category);
+                  if (sp.q) params.set("q", sp.q);
+                  if (sp.sort) params.set("sort", sp.sort);
+                  if (sp.price) params.set("price", sp.price);
+                  if (n > 1) params.set("page", String(n));
+                  const qs = params.toString();
+                  return (
+                    <Link
+                      key={n}
+                      href={qs ? `/shop?${qs}` : "/shop"}
+                      scroll={false}
+                      aria-current={isActive ? "page" : undefined}
+                      className={
+                        isActive
+                          ? "rounded-full bg-paddy-800 px-4 py-2 text-sm font-medium text-rice-50"
+                          : "rounded-full border border-husk/15 px-4 py-2 text-sm font-medium text-husk hover:border-paddy-600"
+                      }
+                    >
+                      {n}
+                    </Link>
+                  );
+                })}
+              </nav>
+            )}
+          </>
         )}
       </div>
     </div>

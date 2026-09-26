@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, useCallback } from "react";
+import { createContext, useContext, useState, useEffect, useCallback, useMemo } from "react";
 
 type SearchCtx = {
   isOpen: boolean;
@@ -38,9 +38,10 @@ export function SearchProvider({ children }: { children: React.ReactNode }) {
     return () => window.removeEventListener("keydown", handle);
   }, [openSearch]);
 
-  return (
-    <Ctx.Provider value={{ isOpen, openSearch, closeSearch, query, setQuery }}>
-      {children}
-    </Ctx.Provider>
+  const value = useMemo(
+    () => ({ isOpen, openSearch, closeSearch, query, setQuery }),
+    [isOpen, openSearch, closeSearch, query],
   );
+
+  return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

@@ -33,6 +33,7 @@ export default async function AccountPage() {
       where: { OR: [{ userId: session.user.id }, { email }] },
       orderBy: { createdAt: "desc" },
       include: { items: true },
+      take: 100,
     })
     .catch(() => []);
 

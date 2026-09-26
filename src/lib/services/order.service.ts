@@ -1,7 +1,9 @@
 import { prisma } from "@/lib/db";
 import { priceFor } from "@/lib/pricing";
 import { getSettings, deliveryFeeFrom } from "@/lib/services/settings.service";
+import { after } from "next/server";
 import { sendOrderConfirmation } from "@/lib/services/email.service";
+import { notifyAdminNewOrder, notifyOrderSms } from "@/lib/services/sms.service";
 
 export class OrderError extends Error {}
 
@@ -118,6 +120,11 @@ export async function createOrder(input: CreateOrderInput) {
     status: order.status,
     items: order.items,
   });
+
+  // SMS goes out after the response so checkout never waits on text.lk
+  after(() =>
+    Promise.all([notifyOrderSms(order, "PLACED"), notifyAdminNewOrder(order)]),
+  );
 
   return order;
 }

@@ -182,7 +182,15 @@ export default function Hero() {
                 className={`object-cover ${fade}`}
                 style={{ opacity }}
                 quality={60}
-                priority={src === "/hero-morning.webp"}
+                // Multiple images can be the true LCP element here depending
+                // on time of day, which is exactly the case Next 16's own
+                // docs say `preload`/`priority` is wrong for — it would
+                // preload every crossfade frame. `fetchPriority` gets the
+                // same eager, high-priority fetch for whichever frame is
+                // actually rendered, without over-preloading. (A lazy-loaded
+                // LCP image was Lighthouse's top hit on homepage load time.)
+                loading="eager"
+                fetchPriority="high"
               />
             ))}
         </div>

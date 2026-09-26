@@ -3,6 +3,12 @@ import { notFound } from "next/navigation";
 import { getAdminOrder } from "@/lib/services/admin.service";
 import { formatLKR } from "@/lib/pricing";
 import OrderStatusSelect from "@/components/admin/OrderStatusSelect";
+import OrderSmsComposer from "@/components/admin/sms/OrderSmsComposer";
+import { StatusChip } from "@/components/admin/sms/SmsBits";
+import { getSmsLogs } from "@/lib/services/sms.service";
+import { getSettings } from "@/lib/services/settings.service";
+import { SMS_EVENT_META, normalizeLkMobile, orderSmsVars } from "@/lib/sms";
+import { SITE_URL } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
@@ -14,6 +20,11 @@ export default async function AdminOrderDetailPage({
   const { id } = await params;
   const o = await getAdminOrder(id);
   if (!o) notFound();
+
+  const [smsLogs, shop] = await Promise.all([getSmsLogs({ orderNo: o.orderNo, take: 20 }), getSettings()]);
+  const smsVars = orderSmsVars(o, { siteUrl: SITE_URL, shopPhone: shop.contactPhone });
+  const smsLabel = (e: string) =>
+    e === "MANUAL" ? "Manual" : e === "ADMIN_NEW_ORDER" ? "Shop alert" : (SMS_EVENT_META[e as keyof typeof SMS_EVENT_META]?.label ?? e);
 
   return (
     <div className="max-w-4xl">
@@ -93,6 +104,38 @@ export default async function AdminOrderDetailPage({
             <p className="mt-3 text-xs uppercase tracking-wide text-husk-soft">
               {o.paymentMethod} · {o.paymentStatus.toLowerCase()}
             </p>
+          </div>
+          <div className="rounded-2xl border border-husk/10 bg-rice-50 p-6">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <h2 className="font-display text-lg text-husk">SMS</h2>
+              <Link href="/admin/sms" className="text-xs font-semibold text-paddy-700 hover:text-paddy-900">
+                Settings →
+              </Link>
+            </div>
+            {smsLogs.length === 0 ? (
+              <p className="mb-4 text-sm text-husk-soft">No texts sent for this order yet.</p>
+            ) : (
+              <ol className="mb-5 space-y-3 border-l border-husk/10 pl-4">
+                {smsLogs.map((l) => (
+                  <li key={l.id} className="relative">
+                    <span
+                      aria-hidden
+                      className={`absolute -left-[1.3rem] top-1.5 h-2 w-2 rounded-full ${l.status === "SENT" ? "bg-paddy-600" : l.status === "FAILED" ? "bg-clay-500" : "bg-harvest-500"}`}
+                    />
+                    <p className="flex flex-wrap items-center gap-2 text-xs text-husk-soft">
+                      <span className="font-semibold text-husk">{smsLabel(l.event)}</span>
+                      <StatusChip status={l.status} />
+                      <span>
+                        {l.createdAt.toLocaleString("en-LK", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Colombo" })}
+                      </span>
+                    </p>
+                    <p className="mt-1 text-sm leading-relaxed text-husk-soft">{l.message}</p>
+                    {l.error && <p className="mt-0.5 text-xs text-clay-600">{l.error}</p>}
+                  </li>
+                ))}
+              </ol>
+            )}
+            <OrderSmsComposer orderId={o.id} vars={smsVars} canSend={Boolean(normalizeLkMobile(o.phone))} />
           </div>
         </section>
       </div>

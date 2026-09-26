@@ -1,8 +1,24 @@
 import { formatLKR } from "@/lib/pricing";
 
+import nodemailer from "nodemailer";
+
 const apiKey = process.env.BREVO_API_KEY;
 const FROM_EMAIL = process.env.BREVO_FROM_EMAIL || "orders@samadhirice.lk";
 const FROM_NAME = process.env.BREVO_FROM_NAME || "SamadhiRice";
+
+// Brevo SMTP relay — used when there's no REST API key (SMTP keys are
+// `xsmtpsib-…` and are rejected by the REST API).
+const smtpUser = process.env.BREVO_SMTP_USER;
+const smtpKey = process.env.BREVO_SMTP_KEY;
+const smtp =
+  smtpUser && smtpKey
+    ? nodemailer.createTransport({
+        host: process.env.BREVO_SMTP_HOST || "smtp-relay.brevo.com",
+        port: Number(process.env.BREVO_SMTP_PORT) || 587,
+        secure: false, // STARTTLS on 587
+        auth: { user: smtpUser, pass: smtpKey },
+      })
+    : null;
 
 type OrderItemLite = { name: string; weightKg: number; quantity: number; unitPrice: number };
 type OrderLite = {
@@ -17,10 +33,18 @@ type OrderLite = {
 };
 
 async function send(to: string, subject: string, html: string) {
-  if (!apiKey || !to) {
+  if (!to || (!apiKey && !smtp)) {
     console.log(
-      `[email] skipped "${subject}" -> ${to || "no-recipient"} (BREVO_API_KEY ${apiKey ? "set" : "not set"})`,
+      `[email] skipped "${subject}" -> ${to || "no-recipient"} (no BREVO_API_KEY or BREVO_SMTP_* set)`,
     );
+    return;
+  }
+  if (!apiKey) {
+    try {
+      await smtp!.sendMail({ from: { name: FROM_NAME, address: FROM_EMAIL }, to, subject, html });
+    } catch (e) {
+      console.error("[email] brevo smtp send failed:", e);
+    }
     return;
   }
   try {

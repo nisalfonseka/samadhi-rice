@@ -30,7 +30,11 @@ export async function GET(req: Request) {
       minPrice: min ? Number(min) : undefined,
       maxPrice: max ? Number(max) : undefined,
     });
-    return NextResponse.json({ products, count: products.length });
+    const res = NextResponse.json({ products, count: products.length });
+    // the underlying query is already unstable_cache'd (300s); let the CDN
+    // edge absorb repeat requests for the same filter combo too
+    res.headers.set("Cache-Control", "public, s-maxage=60, stale-while-revalidate=300");
+    return res;
   } catch {
     return NextResponse.json(
       { error: "Database unavailable", products: [], count: 0 },

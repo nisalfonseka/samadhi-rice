@@ -56,6 +56,8 @@ export default function ShopControls({
       const params = new URLSearchParams(sp.toString());
       if (value) params.set(key, value);
       else params.delete(key);
+      // any filter change re-scopes the result set, so start from page 1
+      params.delete("page");
       startTransition(() =>
         router.push(`${pathname}?${params.toString()}`, { scroll: false }),
       );
